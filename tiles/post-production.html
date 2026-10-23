@@ -929,5 +929,36 @@ new MutationObserver(function(){clearTimeout(fix._t);fix._t=setTimeout(fix,60);}
 }
 @media (max-width:768px){body.m-inside #sn-close{display:none!important}}
 </style>
+<style id="std-menu-post">
+.stdburger{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:transparent;border:0;color:#C9D3E0;font-size:20px;cursor:pointer;flex:none;border-radius:8px}
+.stdburger:hover{color:#fff;background:#131B2C}
+#stdDrawer{position:fixed;top:52px;bottom:0;left:0;width:272px;max-width:84vw;z-index:3000;background:#0A0E17;border-right:1px solid #1B2335;transform:translateX(-100%);transition:transform .2s;box-shadow:12px 0 35px rgba(0,0,0,.85);overflow-y:auto;padding:10px 10px 20px;font-family:inherit}
+#stdDrawer.open{transform:none}
+#stdDrawer .sec{font:700 10px/1 ui-monospace,Menlo,monospace;letter-spacing:.12em;color:#64748B;margin:14px 6px 6px}
+#stdDrawer a,#stdDrawer button{display:block;width:100%;text-align:left;box-sizing:border-box;padding:11px 12px;margin:2px 0;border-radius:8px;border:0;background:transparent;color:#CBD5E1;font-size:14px;text-decoration:none;cursor:pointer}
+#stdDrawer a:hover,#stdDrawer button:hover{background:#131B2C;color:#fff}
+#stdDrawer button.on{background:#2B1A10;color:#F6A36B;font-weight:700}
+#stdScrim{display:none;position:fixed;top:52px;left:0;right:0;bottom:0;z-index:2990;background:rgba(0,0,0,.45)}
+#stdScrim.on{display:block}
+</style>
+<script id="std-menu-post">
+(function(){
+function init(){var bar=document.querySelector('.topbar'),tabs=document.querySelectorAll('#appTabs .tab-btn');if(!bar||document.getElementById('stdBurger'))return;
+ var b=document.createElement('button');b.id='stdBurger';b.className='stdburger';b.setAttribute('aria-label','Menu');b.innerHTML='&#9776;';bar.insertBefore(b,bar.firstChild);
+ var sc=document.createElement('div');sc.id='stdScrim';var d=document.createElement('nav');d.id='stdDrawer';
+ var h='<div class="sec">POST-PRODUCTION TOOLS</div>';
+ [].forEach.call(tabs,function(t,i){h+='<button data-i="'+i+'" class="'+(t.classList.contains('active')?'on':'')+'">'+t.textContent.trim()+'</button>';});
+ h+='<div class="sec">PROHUB</div><a href="../filmhub.html" data-go="../filmhub.html">filmHUB</a><a href="../filmhub.html#print" data-go="../filmhub.html#print">Print / Export</a><a href="../index.html" data-go="../index.html">Home dashboard</a>';
+ d.innerHTML=h;document.body.appendChild(sc);document.body.appendChild(d);
+ function tog(on){on=typeof on==='boolean'?on:!d.classList.contains('open');d.classList.toggle('open',on);sc.classList.toggle('on',on);}
+ b.onclick=function(){tog();};sc.onclick=function(){tog(false);};
+ d.addEventListener('click',function(e){var t=e.target.closest('button,a');if(!t)return;
+  if(t.tagName==='BUTTON'){var tb=tabs[+t.getAttribute('data-i')];if(tb)tb.click();[].forEach.call(d.querySelectorAll('button'),function(x){x.classList.toggle('on',x===t);});tog(false);}
+  else{e.preventDefault();tog(false);if(window.hubGo)hubGo(t.getAttribute('data-go'),e);else location.href=t.getAttribute('data-go');}});
+ [].forEach.call(tabs,function(t,i){t.addEventListener('click',function(){[].forEach.call(d.querySelectorAll('button'),function(x,j){x.classList.toggle('on',j===i);});});});
+}
+if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);
+})();
+</script>
 </body>
 </html>
