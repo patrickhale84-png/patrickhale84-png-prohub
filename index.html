@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>proHUB | Production Suite</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=IBM+Plex+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+  if (window.pdfjsLib) {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  }
+</script>
+<style>
+:root{
+  --ink:#05070B; --bar:#080C14; --line:#1A2233; --line2:#25344E;
+  --tx:#E9EDF5; --mu:#7E8FA6; --dim:#4A5A70;
+  --pre:#A3E635; --shoot:#E8703A; --post:#A78BFA;
+  --fd:'Barlow Condensed','Impact',sans-serif;
+  --fm:'IBM Plex Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;margin:0;overflow:hidden;background:var(--ink);color:var(--tx);
+  font-family:var(--fm);-webkit-font-smoothing:antialiased;}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.045;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");}
+button{font-family:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;}
+a{color:inherit;text-decoration:none;}
+:focus-visible{outline:2px solid var(--pre);outline-offset:2px;}
+.shell{position:relative;z-index:1;height:100vh;height:100dvh;display:flex;flex-direction:column;overflow:hidden;}
+.topbar{flex:0 0 44px;height:44px;display:flex;align-items:center;gap:10px;
+  padding:0 10px 0 13px;background:var(--bar);border-bottom:1px solid var(--line);}
+.brand{font-family:'Bauhaus 93','Bauhaus','Bauhaus Bold',Impact,sans-serif;font-weight:700;
+  font-size:19px;line-height:1;letter-spacing:0;white-space:nowrap;color:#fff;
+  display:inline-flex;align-items:baseline;padding:4px 6px;border-radius:6px;transition:background .15s;}
+.brand span{color:#A3E635;}
+.brand:hover{background:#131B2C;}
+.stage{font-size:8.5px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:#FCD34D;
+  background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.4);
+  padding:2px 6px;border-radius:4px;white-space:nowrap;}
+.tabs{display:flex;align-items:center;gap:4px;margin-left:6px;min-width:0;overflow-x:auto;scrollbar-width:none;}
+.tabs::-webkit-scrollbar{display:none;}
+.tab{flex:0 0 auto;font-size:9.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--mu);background:#0C1220;border:1px solid var(--line);border-radius:6px;
+  padding:6px 10px;transition:color .15s,background .15s,border-color .15s;white-space:nowrap;}
+.tab:hover{color:var(--tx);border-color:var(--line2);}
+.tab.on{color:#05070B;font-weight:700;}
+.tab[data-mode="pre"].on{background:var(--pre);border-color:var(--pre);}
+.tab[data-mode="shoot"].on{background:var(--shoot);border-color:var(--shoot);}
+.tab[data-mode="post"].on{background:var(--post);border-color:var(--post);}
+.tab[data-mode="all"].on{background:#E9EDF5;border-color:#E9EDF5;}
+.top-right{margin-left:auto;display:flex;align-items:center;gap:8px;flex:0 0 auto;}
+.proj{font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);
+  max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.ibtn{display:inline-flex;align-items:center;gap:6px;font-size:9.5px;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--mu);background:#0C1220;
+  border:1px solid var(--line);border-radius:6px;padding:6px 9px;transition:.15s;white-space:nowrap;}
+.ibtn:hover{color:var(--tx);border-color:var(--line2);}
+.ibtn i{font-size:10px;}
+.ibtn.warn{color:var(--shoot);border-color:rgba(232,123,48,.45);background:rgba(232,123,48,.1);}
+.ibtn.lit{color:var(--pre);border-color:rgba(163,230,53,.45);background:rgba(163,230,53,.08);}
+.grid{flex:1 1 auto;min-height:0;display:grid;gap:6px;padding:6px;overflow:hidden;
+  grid-auto-flow:row dense;}
+.tile{position:relative;display:flex;flex-direction:column;justify-content:space-between;
+  min-width:0;min-height:0;overflow:hidden;border-radius:10px;cursor:pointer;
+  padding:clamp(7px,1.25vh,15px) clamp(9px,1vw,17px);
+  background:linear-gradient(135deg,var(--t1),var(--t2));
+  box-shadow:0 10px 22px rgba(0,0,0,.42), inset 0 1px 0 rgba(255,255,255,.09);
+  transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;
+  animation:rise .34s cubic-bezier(.2,.7,.2,1) both;}
+.tile:hover{transform:translateY(-2px);box-shadow:0 16px 30px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.14);}
+.tile:active{transform:scale(.985);}
+.tile::after{content:"";position:absolute;left:0;right:0;bottom:0;height:4px;background:var(--hc);}
+.tile-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;min-height:0;}
+.tile-ico{font-size:clamp(15px,2.5vh,28px);line-height:1;color:rgba(255,255,255,.95);}
+.tile-badge{font-size:clamp(6.5px,.9vh,9px);font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:rgba(255,255,255,.92);background:rgba(0,0,0,.3);padding:2px 6px;border-radius:4px;white-space:nowrap;}
+.tile-bot{min-height:0;}
+.tile-title{margin:0;font-family:var(--fd);font-weight:800;text-transform:uppercase;letter-spacing:.03em;
+  line-height:1.02;font-size:clamp(12px,1.85vh,23px);color:#fff;
+  overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+.tile-sub{margin:3px 0 0;font-size:clamp(7.5px,1vh,10.5px);line-height:1.32;color:rgba(255,255,255,.74);
+  overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+.tile-num{position:absolute;right:9px;bottom:8px;font-size:9px;letter-spacing:.14em;color:rgba(255,255,255,.34);}
+.tile-rz{position:absolute;left:6px;bottom:5px;width:20px;height:20px;display:flex;align-items:center;
+  justify-content:center;border-radius:4px;color:rgba(255,255,255,.5);font-size:10px;
+  opacity:0;transition:opacity .15s,background .15s;}
+.tile:hover .tile-rz{opacity:1;}
+.tile-rz:hover{background:rgba(0,0,0,.35);color:#fff;}
+.tile.hero .tile-title{font-size:clamp(16px,3vh,34px);-webkit-line-clamp:3;}
+.tile.hero .tile-sub{font-size:clamp(8.5px,1.3vh,12.5px);-webkit-line-clamp:3;}
+.tile.hero .tile-ico{font-size:clamp(20px,3.8vh,42px);}
+.tile.hero .tile-badge{font-size:clamp(7px,1vh,9.5px);}
+@keyframes rise{from{opacity:0;transform:translateY(9px) scale(.985);}to{opacity:1;transform:none;}}
+
+.layer{position:fixed;inset:0;z-index:900;display:none;background:#04060A;height:100vh;height:100dvh;overscroll-behavior:contain;}
+.layer.on{display:flex;flex-direction:column;}
+.lb{flex:0 0 36px;height:36px;display:flex;align-items:center;gap:9px;padding:0 6px 0 11px;
+  background:var(--bar);border-bottom:1px solid var(--line);}
+.lb-home{font-family:'Bauhaus 93','Bauhaus','Bauhaus Bold',Impact,sans-serif;font-weight:700;
+  font-size:16px;line-height:1;color:#fff;padding:4px 6px;border-radius:5px;white-space:nowrap;}
+.lb-home span{color:#A3E635;}
+.lb-home:hover{background:#131B2C;}
+.lb-sep{width:1px;height:16px;background:var(--line2);flex:0 0 1px;}
+.lb-title{font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--tx);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.lb-state{font-size:8.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  border:1px solid currentColor;border-radius:4px;padding:2px 5px;opacity:.9;}
+.lb-right{margin-left:auto;display:flex;align-items:center;gap:6px;}
+.lb-btn{display:inline-flex;align-items:center;gap:5px;font-size:9px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--mu);border:1px solid var(--line);border-radius:5px;padding:5px 8px;}
+.lb-btn:hover{color:var(--tx);border-color:var(--line2);}
+.lb-x{width:28px;height:26px;display:flex;align-items:center;justify-content:center;border-radius:5px;
+  color:var(--mu);border:1px solid var(--line);}
+.lb-x:hover{color:#fff;border-color:#7F1D1D;background:rgba(127,29,29,.35);}
+.lb-body{position:relative;flex:1 1 auto;min-height:0;}
+.lb-body iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:none;background:#05070B;}
+.lb-body iframe.on{display:block;}
+
+.toast{position:fixed;left:50%;bottom:16px;transform:translate(-50%,8px);z-index:1200;
+  background:#111A2B;border:1px solid var(--line2);color:var(--tx);font-size:10.5px;
+  letter-spacing:.04em;padding:7px 14px;border-radius:7px;opacity:0;pointer-events:none;
+  transition:opacity .18s,transform .18s;max-width:78vw;text-align:center;}
+.toast.on{animation:toastLife 2.8s ease forwards;}
+@keyframes toastLife{0%{opacity:0;transform:translate(-50%,8px);visibility:visible}8%{opacity:1;transform:translate(-50%,0)}88%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,4px);visibility:hidden}}
+
+@media (max-width:768px){
+  .topbar{flex:0 0 40px;height:40px;gap:5px;padding:0 6px 0 8px;}
+  .brand{font-size:16px;padding:4px 4px;}
+  .stage,.proj{display:none;}
+  .tab{font-size:8.5px;padding:5px 7px;letter-spacing:.08em;}
+  .grid{gap:5px;padding:5px;}
+  .lb-title{max-width:30vw;}
+  .lb-btn span{display:none;}
+  .ibtn span{display:none;}
+}
+
+/* ===== phone polish (added) ===== */
+@media (max-width:768px){
+  .topbar{flex:0 0 auto;height:auto;flex-wrap:wrap;row-gap:6px;padding:6px 8px 8px;}
+  .brand{font-size:18px;}
+  .top-right{margin-left:auto;gap:6px;}
+  .ibtn{padding:9px 11px;min-height:38px;}
+  .ibtn i{font-size:13px;}
+  .tabs{order:3;flex:1 0 100%;margin:0;overflow:visible;}
+  .tab{flex:1 1 0;text-align:center;font-size:10.5px;letter-spacing:.06em;padding:10px 2px;min-height:40px;}
+  .tile{padding:8px 11px;}
+  .tile-title{font-size:clamp(13px,2.1vh,20px);}
+  .tile-sub{font-size:clamp(9px,1.15vh,11px);}
+  .tile-badge{font-size:8px;}
+  .lb{flex:0 0 46px;height:46px;gap:6px;padding:0 6px;}
+  .lb-home{font-size:17px;padding:8px 6px;}
+  .lb-title{font-size:11px;max-width:34vw;}
+  .lb-state{display:none;}
+  .lb-btn{padding:0;width:38px;height:36px;justify-content:center;}
+  .lb-x{width:38px;height:36px;}
+}
+
+/* ===== phone: scrolling grid of true squares ===== */
+@media (max-width:768px){
+  .grid{overflow-y:auto!important;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;
+    grid-template-rows:none!important;grid-auto-rows:var(--cell,180px)!important;align-content:start;gap:8px;padding:8px 8px 28px;}
+  .tile{aspect-ratio:1/1;min-height:0;padding:12px;border-radius:14px;}
+  .tile,.tile.hero{grid-column:auto!important;grid-row:auto!important;}   /* every tile one square cell, hero included */
+  .tile-ico{font-size:28px;}
+  .tile-badge{font-size:9px;padding:3px 7px;}
+  .tile-title{font-size:clamp(15px,4.4vw,19px);line-height:1.05;-webkit-line-clamp:3;}
+  .tile-sub{font-size:clamp(10px,2.8vw,12px);margin-top:4px;-webkit-line-clamp:3;}
+  .tile-num{right:10px;bottom:10px;}
+  .tile.hero .tile-ico{font-size:28px;}
+  .tile.hero .tile-title{font-size:clamp(15px,4.4vw,19px);-webkit-line-clamp:3;}
+  .tile.hero .tile-sub{font-size:clamp(10px,2.8vw,12px);-webkit-line-clamp:3;}
+  .tile-rz,.tile-num{display:none;}                        /* hero toggle is meaningless when every tile is a square */
+  .tile:hover{transform:none;}
+}
+.lb-x{width:auto!important;padding:0 11px;gap:6px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;} .lb-x .lb-xt{display:none!important;}
+  .lb-x{background:rgba(127,29,29,.25);border-color:#7F1D1D;color:#FCA5A5;}
+</style>
+<style id="fh-style">
+@media (max-width:768px){
+  #filmHubLink{background:rgba(232,123,48,.16);border-color:rgba(232,123,48,.6);color:#F6A36B;}
+  #filmHubLink span{display:inline!important;}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+  <header class="topbar">
+    <button class="brand" id="brandBtn" title="Back to the tile dashboard">pro<span>HUB</span></button>
+    <span class="stage">Production suite</span>
+    <nav class="tabs" id="tabs" aria-label="Production state">
+      <button class="tab" data-mode="pre" aria-pressed="false">Pre (7)</button>
+      <button class="tab" data-mode="shoot" aria-pressed="false">Production (9)</button>
+      <button class="tab" data-mode="post" aria-pressed="false">Post (3)</button>
+      <button class="tab on" data-mode="all" aria-pressed="true">All 19</button>
+    </nav>
+    <div class="top-right">
+      <span class="proj" id="projName">UNTITLED PROJECT</span>
+      <button class="ibtn lit" id="importBtn" title="Import script file and broadcast to all tiles"><i class="fa-solid fa-file-import"></i><span>Import Script</span></button>
+      <input type="file" id="scriptFileInput" accept=".pdf,.fdx,.json,.txt,.fountain" style="display:none;">
+      <button class="ibtn" id="saveAllBtn" title="Save everything (all tools) to one JSON file"><i class="fa-solid fa-floppy-disk"></i><span>Save all</span></button>
+      <button class="ibtn" id="loadAllBtn" title="Load a saved master JSON file"><i class="fa-solid fa-folder-open"></i><span>Load all</span></button>
+      <button class="ibtn" id="resetBtn" title="Reset tile sizes"><i class="fa-solid fa-rotate-left"></i></button>
+      <a class="ibtn" id="filmHubLink" href="filmhub.html" title="Front desk"><i class="fa-solid fa-arrow-up-right-from-square"></i><span>filmHUB</span></a>
+    </div>
+  </header>
+  <main class="grid" id="grid" aria-label="Production tiles"></main>
+</div>
+
+<div class="layer" id="layer" role="dialog" aria-modal="true" aria-labelledby="lbTitle">
+  <div class="lb">
+    <button class="lb-home" id="lbHome" title="Back to the dashboard">pro<span>HUB</span></button>
+    <span class="lb-sep"></span>
+    <span class="lb-title" id="lbTitle">—</span>
+    <span class="lb-state" id="lbState">PRE</span>
+    <div class="lb-right">
+      <button class="lb-btn" id="lbReload" title="Reload this screen"><i class="fa-solid fa-arrows-rotate"></i><span>Reload</span></button>
+      <a class="lb-btn" id="lbTab" target="_blank" rel="noopener" title="Open in own browser tab" href="tiles/production.html"><i class="fa-solid fa-arrow-up-right-from-square"></i><span>Tab</span></a>
+      <button class="lb-x" id="lbClose" title="Close and return to the home screen (Esc). Nothing is deleted."><b style="font-size:13px;line-height:1">&#10005;</b><span class="lb-xt">Close</span></button>
+    </div>
+  </div>
+  <div class="lb-body">
+    <iframe id="frame-pre" title="Pre-production"></iframe>
+    <iframe id="frame-pro" title="Production"></iframe>
+    <iframe id="frame-post" title="Post-production"></iframe>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+'use strict';
+var STATE = {
+  pre:  {short:'PRE',   accent:'#A3E635', hc:'#88C13F'},
+  shoot:{short:'SHOOT', accent:'#E8703A', hc:'#E5A93C'},
+  post: {short:'POST',  accent:'#A78BFA', hc:'#7137C8'}
+};
+
+var SCREENS = {
+  pre:  {file:'tiles/pre-production.html',  label:'Pre-production'},
+  pro:  {file:'tiles/production.html',      label:'Production'},
+  post: {file:'tiles/post-production.html', label:'Post-production'}
+};
+
+/* COMPLETE 18-TILE MATRIX
+   - Script Library lives in pre-production (#scriptlib)
+   - Storyboards routed directly to post-production suite (#graphite / #storyboard)
+   - Pre-production retains Screenwriter, Evaluator, Pitch Deck, Film DB, Outreach
+   - Production retains all 8 continuous desks
+*/
+var TILES = [
+  // --- PRE-PRODUCTION (5 Tiles) ---
+  {n:1,  id:'writer',      mod:'pre',  frame:'pre',  title:'Screenwriter',       sub:'Courier Prime · tab engine · built-in reader', badge:'AST Parser',  icon:'fa-file-lines',           t:['#0B4F4E','#127E76'], enter:{k:'sw', a:'writer'}},
+  {n:2,  id:'coverage',    mod:'pre',  frame:'pre',  title:'Evaluator Studio',   sub:'100-parameter · HALION engine',            badge:'Heuristic',   icon:'fa-stethoscope',          t:['#55103E','#8C1B63'], enter:{k:'sw', a:'coverage'}},
+  {n:3,  id:'pitch',       mod:'pre',  frame:'post',  title:'Pitch Deck Maker',   sub:'8 genres · 4 layouts · split line · PDF',  badge:'Architect',   icon:'fa-images',               t:['#2A1668','#4A2A9E'], enter:{k:'desk', a:'pitchmaker'}},
+  {n:4,  id:'filmdb',      mod:'pre',  frame:'pre',  title:'Film Database',      sub:'TMDB comps · loglines · film research',    badge:'TMDB',        icon:'fa-film',                 t:['#4A1120','#7C1B33'], enter:{k:'sw', a:'filmdb'}},
+  {n:5,  id:'outreach',    mod:'pre',  frame:'pre',  title:'Outreach',           sub:'Distributor tracker · query letters · log',badge:'Tracker',     icon:'fa-envelope-open-text',   t:['#4E3A0C','#8C6A12'], enter:{k:'sw', a:'outreach'}},
+  {n:19, id:'festivals',   mod:'pre',  frame:'pre',  title:'Festivals & Labs',   sub:'Script contests · film & genre festivals · rated', badge:'Rated',      icon:'fa-award',                t:['#4A2C0A','#8A5412'], enter:{k:'sw', a:'festivals'}},
+
+  // --- PRODUCTION (8 Tiles) ---
+  {n:6,  id:'budget',      mod:'shoot',frame:'pre',  title:'Advanced Budget',    sub:'COA 1000-5700 · editable rates · fringes',  badge:'Calculator',  icon:'fa-file-invoice-dollar',  t:['#0C3F22','#146B39'], enter:{k:'sw', a:'budget'}},
+  {n:7,  id:'oneliner',    mod:'shoot',frame:'pro',  title:'Stripboard',         sub:'Drag scenes between days · enforced lunch · live thumbs',badge:'One-Liner', icon:'fa-bars-staggered',       t:['#5A2408','#8C3A0D'], enter:{k:'sw', a:'oneliner'}},
+  {n:8,  id:'callsheet',   mod:'shoot',frame:'pro',  title:'Call Sheet',         sub:'Crew · cast in-times · safety · sides',    badge:'Daily',       icon:'fa-calendar-days',        t:['#5E3A08','#96610F'], enter:{k:'sw', a:'callsheet'}},
+  {n:9,  id:'cast',        mod:'shoot',frame:'pro',  title:'Crew & Cast (DOOD)', sub:'SAG DOOD matrix · HMU continuity · sign-in',badge:'Roster',     icon:'fa-users',                t:['#4C1A0A','#7E2C10'], enter:{k:'sw', a:'callsheet'}},
+  {n:10, id:'masterscript',mod:'shoot',frame:'pro',  title:'Shooting Script',    sub:'Colored revisions · inline tagger · review', badge:'Revisions',  icon:'fa-scroll',               t:['#4C1A0A','#7E2C10'], enter:{k:'sw', a:'masterscript'}},
+  {n:11, id:'props',       mod:'shoot',frame:'pro',  title:'Props Tracker',      sub:'Strict keyword parser · scene cue tags',   badge:'Metadata',    icon:'fa-wand-magic-sparkles',  t:['#1D4ED8','#1E3A8A'], enter:{k:'sw', a:'scriptation'}},
+  {n:12, id:'gearlist',    mod:'shoot',frame:'pro',  title:'Gear Checklist',     sub:'Camera, lighting, audio kits & photo log', badge:'Equipment',   icon:'fa-boxes-stacked',        t:['#6D28D9','#4C1D95'], enter:{k:'sw', a:'gearlist'}},
+  {n:13, id:'mastershot',  mod:'shoot',frame:'pro',  title:'Master Shot List',   sub:'Setups · camera movement · lenses · status',badge:'Master',      icon:'fa-list-check',           t:['#E8703A','#964019'], enter:{k:'sw', a:'shotlist'}},
+
+  // --- POST-PRODUCTION (5 Tiles) ---
+  {n:14, id:'scriptlib',   mod:'pre',  frame:'pre',  title:'Script Library',     sub:'Daily Script index · 400+ complete scripts',badge:'Library',     icon:'fa-book-open',            t:['#0B3550','#1461A0'], enter:{k:'sw', a:'scriptlib'}},
+  {n:15, id:'storyboard',  mod:'shoot',frame:'pro',  title:'Storyboard Studio',  sub:'A board per story beat · sketch · upload · print',badge:'Auto-board',      icon:'fa-clapperboard',         t:['#55300C','#8E4412'], enter:{k:'desk', a:'storyboard'}},
+  {n:16, id:'filmcraft',   mod:'post', frame:'post', title:'FilmCraft',          sub:'Non-linear editor & colour suite online',  badge:'NLE',         icon:'fa-clapperboard',         t:['#E8703A','#8F3A15'], enter:{k:'desk', a:'filmcraft'}},
+  {n:17, id:'photopea',    mod:'post', frame:'post', title:'Photopea',           sub:'Online photo & raster PSD editor',         badge:'IMAGE',       icon:'fa-image',                t:['#3B7BF6','#1E4DB8'], enter:{k:'desk', a:'photopea'}},
+  {n:18, id:'graphite',    mod:'post', frame:'post', title:'Graphite',           sub:'2D vector graphics & illustration suite',  badge:'VECTOR',      icon:'fa-pen-ruler',            t:['#E2A93B','#966A19'], enter:{k:'desk', a:'graphite'}}
+];
+
+var DEFAULT_HEROES = {pre:'writer', shoot:'oneliner', post:'filmcraft'};
+var KEY = 'prohub_shell_v1';
+var shell = {mode:'all', heroes:{pre:'writer', shoot:'oneliner', post:'filmcraft'}, allHero:null};
+
+function loadShell(){
+  try{
+    var raw = JSON.parse(localStorage.getItem(KEY) || 'null');
+    if(!raw) return;
+    if(raw.mode) shell.mode = raw.mode;
+    if(raw.heroes){
+      shell.heroes.pre   = raw.heroes.pre   !== undefined ? raw.heroes.pre   : DEFAULT_HEROES.pre;
+      shell.heroes.shoot = raw.heroes.shoot !== undefined ? raw.heroes.shoot : DEFAULT_HEROES.shoot;
+      shell.heroes.post  = raw.heroes.post  !== undefined ? raw.heroes.post  : DEFAULT_HEROES.post;
+    }
+    if(raw.allHero !== undefined) shell.allHero = raw.allHero;
+  }catch(e){}
+}
+function saveShell(){ try{ localStorage.setItem(KEY, JSON.stringify(shell)); }catch(e){} }
+
+var grid    = document.getElementById('grid');
+var tabs    = document.getElementById('tabs');
+var layer   = document.getElementById('layer');
+var toastEl = document.getElementById('toast');
+var activeTile = null;
+var toastTimer = 0;
+
+function toast(msg){
+  toastEl.textContent = msg;
+  clearTimeout(toastTimer);
+  toastEl.classList.remove('on'); void toastEl.offsetWidth; toastEl.classList.add('on');
+  toastTimer = setTimeout(function(){ toastEl.classList.remove('on'); toastEl.textContent=''; }, 2900);
+}
+
+function projectName(){
+  try{
+    var d = JSON.parse(localStorage.getItem('prehub_v3') || 'null');
+    if(d && d.projectName) return String(d.projectName).toUpperCase();
+  }catch(e){}
+  return 'UNTITLED PROJECT';
+}
+
+function paintProject(){
+  var el = document.getElementById('projName');
+  if(el) el.textContent = projectName();
+}
+
+function tilesFor(mode){
+  return mode === 'all' ? TILES.slice() : TILES.filter(function(t){ return t.mod === mode; });
+}
+
+function colsFor(mode){
+  var w = window.innerWidth;
+  if(mode === 'all') return w >= 1100 ? 6 : (w >= 700 ? 4 : 2);
+  if(mode === 'pre' || mode === 'post') return w >= 700 ? 4 : 2;
+  return w >= 700 ? 4 : 2;
+}
+
+function heroFor(mode){ return mode === 'all' ? shell.allHero : shell.heroes[mode]; }
+
+/* phone: every row is exactly as tall as a column is wide, so tiles stay square while the page scrolls */
+function squareCells(){
+  if(window.innerWidth > 768){ grid.style.removeProperty('--cell'); return; }
+  var cs = getComputedStyle(grid), gap = parseFloat(cs.columnGap) || 8, pad = (parseFloat(cs.paddingLeft) || 0) + (parseFloat(cs.paddingRight) || 0);
+  var cols = colsFor(shell.mode), w = grid.clientWidth - pad;
+  if(w > 0) grid.style.setProperty('--cell', ((w - gap * (cols - 1)) / cols).toFixed(2) + 'px');
+}
+window.addEventListener('resize', squareCells);
+window.addEventListener('orientationchange', squareCells);
+
+function render(){
+  var mode  = shell.mode;
+  var list  = tilesFor(mode);
+  var cols  = colsFor(mode);
+  var heroId= heroFor(mode);
+  var hasHero = !!(heroId && list.some(function(t){ return t.id === heroId; }));
+  var cells = list.length + (hasHero ? 3 : 0);
+  var rows  = Math.max(1, Math.ceil(cells / cols));
+  var spare = rows * cols - cells;
+  grid.style.gridTemplateColumns = 'repeat(' + cols + ', minmax(0,1fr))';
+  grid.style.gridTemplateRows    = 'repeat(' + rows + ', minmax(0,1fr))';
+  var html = '';
+  for(var i = 0; i < list.length; i++){
+    var t = list[i];
+    var isHero = hasHero && t.id === heroId;
+    var span = '';
+    if(isHero) span = 'grid-column:span 2;grid-row:span 2;';
+    else if(i === list.length - 1 && spare > 0) span = 'grid-column:span ' + (1 + spare) + ';';
+    var accent = STATE[t.mod];
+    html += '<article class="tile' + (isHero ? ' hero' : '') + '"'
+      + ' data-id="' + t.id + '" role="button" tabindex="0"'
+      + ' aria-label="' + t.title + '. ' + t.sub + '"'
+      + ' style="' + span + '--t1:' + t.t[0] + ';--t2:' + t.t[1] + ';--hc:' + accent.hc + ';animation-delay:' + (i * 14) + 'ms">'
+      + '<div class="tile-top"><span class="tile-ico"><i class="fa-solid ' + t.icon + '"></i></span>'
+      + '<span class="tile-badge">' + t.badge + '</span></div>'
+      + '<div class="tile-bot"><h2 class="tile-title">' + t.title + '</h2>'
+      + '<p class="tile-sub">' + t.sub + '</p></div>'
+      + '<span class="tile-num">' + (t.n < 10 ? '0' + t.n : t.n) + '</span>'
+      + '<button class="tile-rz" data-rz="' + t.id + '" title="Make this the hero tile"><i class="fa-solid fa-up-right-and-down-left-from-center"></i></button>'
+      + '</article>';
+  }
+  grid.innerHTML = html;
+  squareCells();
+  var tabEls = tabs.querySelectorAll('.tab');
+  for(var k = 0; k < tabEls.length; k++){
+    var on = tabEls[k].getAttribute('data-mode') === mode;
+    tabEls[k].classList.toggle('on', on);
+    tabEls[k].setAttribute('aria-pressed', on ? 'true' : 'false');
+  }
+}
+
+function toggleHero(id){
+  var mode = shell.mode;
+  if(mode === 'all') shell.allHero = (shell.allHero === id) ? null : id;
+  else shell.heroes[mode] = (shell.heroes[mode] === id) ? null : id;
+  saveShell();
+  render();
+  toast('Hero tile updated');
+}
+
+function frameEl(mod){ return document.getElementById('frame-' + mod); }
+function fk(mod){ return mod === 'shoot' ? 'pro' : mod; }
+
+function showFrame(mod, targetHash, targetEnter){
+  ['pre','pro','post'].forEach(function(k){ frameEl(k).classList.toggle('on', k === mod); });
+  var f = frameEl(mod);
+  var targetAction = (targetEnter && targetEnter.a) ? targetEnter.a : (targetHash || '');
+  var targetUrl = SCREENS[mod].file + (targetAction ? ('#' + targetAction) : '');
+
+  function dispatchToChild() {
+    try {
+      if (f.contentWindow) {
+        // Direct PostMessage triggers to child iframe suites
+        f.contentWindow.postMessage({ k: 'sw', a: targetAction }, '*');
+        f.contentWindow.postMessage({ type: 'HUB_ENTER', a: targetAction }, '*');
+        f.contentWindow.postMessage({ k: 'desk', a: targetAction }, '*');
+        
+        // Direct native invocation when same-origin is reachable
+        if (typeof f.contentWindow.sw === 'function') {
+          f.contentWindow.sw(targetAction);
+        }
+        if (typeof f.contentWindow.openDeskDetail === 'function') {
+          f.contentWindow.openDeskDetail(targetAction);
+        }
+      }
+    } catch(e){}
+  }
+
+  if (f.dataset.booted === '1') {
+    try {
+      if (f.contentWindow && f.contentWindow.location) {
+        if (f.contentWindow.location.hash !== '#' + targetAction) {
+          f.contentWindow.location.hash = targetAction;
+        }
+      }
+    } catch(e){}
+    dispatchToChild();
+    return;
+  }
+
+  f.dataset.booted = '1';
+  f.src = targetUrl;
+
+  f.addEventListener('load', function(){
+    [50, 150, 300, 600, 1200, 2200].forEach(function(delay){
+      setTimeout(dispatchToChild, delay);
+    });
+  });
+}
+
+function openTile(id){
+  var t = null;
+  for(var i = 0; i < TILES.length; i++){ if(TILES[i].id === id) t = TILES[i]; }
+  if(!t) return;
+  activeTile = t;
+  layer.classList.add('on');
+  document.getElementById('lbTitle').textContent = t.title;
+  var st = document.getElementById('lbState');
+  st.textContent = STATE[t.mod].short;
+  st.style.color = STATE[t.mod].accent;
+
+  var targetFrame = t.frame || fk(t.mod);
+  var targetHash = (t.enter && t.enter.a) ? t.enter.a : '';
+  document.getElementById('lbTab').href = SCREENS[targetFrame].file + (targetHash ? ('#' + targetHash) : '');
+  
+  showFrame(targetFrame, targetHash, t.enter);
+}
+
+function closeLayer(){
+  layer.classList.remove('on');
+  if(activeTile){
+    var back = grid.querySelector('[data-id="' + activeTile.id + '"]');
+    if(back) back.focus({preventScroll:true});
+  }
+  activeTile = null;
+}
+
+/* =========================================================================
+   SYNCHRONOUS SCRIPT INGESTION PIPELINE (HYDRATES ALL 18 WORKBENCHES)
+   ========================================================================= */
+var IngestEngine = {
+  cleanLine: function(l){
+    return String(l || '').replace(/(^\d+[A-Z]?\s+|\s+\d+[A-Z]?$|^\*\d+\*|^\s*\[\d+\]\s*$)/g, '').trim();
+  },
+  parseAST: function(rawText){
+    var lines = String(rawText || '').split(/\r?\n/);
+    var tokens = [], scenes = [], charSet = {}, curScene = null;
+    var speakerActive = false, scNum = 0;
+
+    for(var i = 0; i < lines.length; i++){
+      var clean = IngestEngine.cleanLine(lines[i]);
+      if(!clean){ speakerActive = false; continue; }
+
+      var type = "action";
+      var ht = clean.replace(/^\d+\s+/, '');
+      var cl2 = clean.replace(/\s*\(CONT['']D\)\s*$/i,'').replace(/\s*\(V\.O\.\)\s*$/i,'').replace(/\s*\(O\.S\.\)\s*$/i,'').trim();
+
+      if(/^(INT\.|EXT\.|EST\.|INT\/EXT\.|I\/E\.)/i.test(ht)){
+        type = "scene-heading";
+        speakerActive = false;
+        scNum++;
+        curScene = {num: String(scNum), heading: clean.toUpperCase(), lines: [], chars: []};
+        scenes.push(curScene);
+      } else if(clean.startsWith('(') && clean.endsWith(')')){
+        type = "parenthetical";
+      } else if(cl2 === cl2.toUpperCase() && cl2.length >= 2 && cl2.length < 35 && !cl2.includes('.') && !/TO:$/.test(cl2)){
+        type = "character";
+        speakerActive = true;
+        charSet[cl2] = true;
+        if(curScene && curScene.chars.indexOf(cl2) < 0) curScene.chars.push(cl2);
+      } else if(speakerActive){
+        type = "dialogue";
+      } else if(/TO:$/.test(clean.toUpperCase())){
+        type = "transition";
+        speakerActive = false;
+      }
+
+      var tok = {type: type, text: clean, lineNo: i + 1};
+      tokens.push(tok);
+      if(curScene) curScene.lines.push(tok);
+    }
+    return {tokens: tokens, scenes: scenes, characters: Object.keys(charSet)};
+  },
+  parsePDF: async function(file){
+    var buffer = await file.arrayBuffer();
+    var pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
+    var acc = [];
+    for(var i = 1; i <= pdf.numPages; i++){
+      var page = await pdf.getPage(i);
+      var tc = await page.getTextContent();
+      var byY = {};
+      tc.items.forEach(function(item){
+        var y = Math.round(item.transform[5]);
+        byY[y] = byY[y] || [];
+        byY[y].push({x: item.transform[4], str: item.str});
+      });
+      var sortedY = Object.keys(byY).map(Number).sort(function(a,b){ return b - a; });
+      sortedY.forEach(function(y){
+        var str = byY[y].sort(function(a,b){ return a.x - b.x; }).map(function(t){ return t.str; }).join(' ').trim();
+        if(str) acc.push(str);
+      });
+      acc.push('');
+    }
+    return acc.join('\n');
+  },
+  parseFDX: async function(file){
+    var text = await file.text();
+    var xml = new DOMParser().parseFromString(text, 'text/xml');
+    var pars = Array.from(xml.getElementsByTagName('Paragraph'));
+    var acc = [];
+    pars.forEach(function(p){
+      var t = (p.getAttribute('Type') || '').toLowerCase();
+      var str = Array.from(p.getElementsByTagName('Text')).map(function(tn){ return tn.textContent; }).join('').trim();
+      if(!str) return;
+      if(t.indexOf('scene') >= 0 || t.indexOf('character') >= 0) acc.push(str.toUpperCase());
+      else if(t.indexOf('parenthetical') >= 0) acc.push('(' + str.replace(/^\(|\)$/g, '') + ')');
+      else acc.push(str);
+    });
+    return acc.join('\n');
+  },
+  parseJSON: async function(file){
+    var text = await file.text();
+    var data = JSON.parse(text);
+    var list = [];
+    if(data.script && Array.isArray(data.script.lines)) list = data.script.lines;
+    else if(Array.isArray(data.lines)) list = data.lines;
+    return list.map(function(l){ return l.value || l.text || ''; }).join('\n');
+  },
+
+  /* Synchronous Broadcast to Pre-production, Production, and Post */
+  pushToStorageAndFrames: function(title, rawText){
+    var parsed = IngestEngine.parseAST(rawText);
+
+    // 1. Raw Text & Version Tree for pre-production.html
+    var pre = {};
+    try{ pre = JSON.parse(localStorage.getItem('prehub_v3') || '{}'); }catch(e){}
+    pre.projectName = title;
+    pre.scriptText = rawText;
+    pre.versionHistory = pre.versionHistory || [];
+    var snapHTML = parsed.tokens.map(function(t){
+      return '<div class="script-line-row"><div class="line-editable-box element-' + t.type + '">' + t.text + '</div></div>';
+    }).join('');
+    pre.versionHistory.unshift({version:'v' + (pre.versionHistory.length + 1) + '.0', date:new Date().toLocaleDateString(), html:snapHTML});
+    localStorage.setItem('prehub_v3', JSON.stringify(pre));
+
+    // 2. Tokenized Stream for production.html
+    var transmitLines = parsed.tokens.map(function(t){ return {type: t.type, text: t.text}; });
+    localStorage.setItem('prehub_master_v1', JSON.stringify({origin:'proHUB_parent', projectName:title, lines:transmitLines, ts:Date.now()}));
+
+    // 3. Clear custom strip order so One-Liner respects freshly ingested script
+    localStorage.removeItem('prohub_strip_order_v2');
+
+    // 4. Seed Props Tracker Items
+    var propKeywords = ['GUN','PISTOL','REVOLVER','RIFLE','KNIFE','PHONE','CAMERA','POLAROID','LETTER','MAP','BAG','KEY','BADGE'];
+    var seedProps = [];
+    parsed.scenes.forEach(function(sc){
+      (sc.lines || []).forEach(function(l){
+        if(l.type === 'action'){
+          var u = l.text.toUpperCase();
+          propKeywords.forEach(function(kw){
+            if(new RegExp('\\b' + kw + 'S?\\b').test(u)){
+              var exists = seedProps.some(function(p){ return p.name.includes(kw) && p.cue.includes('SC. ' + sc.num); });
+              if(!exists){
+                seedProps.push({
+                  name: kw + ' (Hero)',
+                  cue: 'SC. ' + sc.num + ' (' + sc.heading.slice(0,18) + ')',
+                  vendor: 'ISS Props / Local Rental',
+                  arrival: new Date().toISOString().slice(0,10),
+                  holder: 'Prop Master / Van #1',
+                  status: 'Ordered',
+                  photo: ''
+                });
+              }
+            }
+          });
+        }
+      });
+    });
+    localStorage.setItem('prohub_props_tracker_v1', JSON.stringify(seedProps));
+
+    // 5. Broadcast to all open child frames without circular looping
+    ['pre','pro','post'].forEach(function(k){
+      try{
+        var f = frameEl(k);
+        if(f && f.contentWindow){
+          f.contentWindow.postMessage({
+            type: 'SCRIPT_INGEST',
+            source: 'proHUB_parent',
+            projectName: title,
+            rawText: rawText,
+            scriptText: rawText
+          }, '*');
+        }
+      }catch(err){}
+    });
+
+    paintProject();
+    toast('✓ Ingested ' + parsed.scenes.length + ' scenes: Hydrated all 19 tiles!');
+  }
+};
+
+async function handleScriptImport(file){
+  if(!file) return;
+  toast('Ingesting ' + file.name + '...');
+  var name = file.name.replace(/\.[^/.]+$/, '').toUpperCase();
+  var ext = file.name.toLowerCase();
+  var rawText = '';
+  try{
+    if(ext.endsWith('.pdf')) rawText = await IngestEngine.parsePDF(file);
+    else if(ext.endsWith('.fdx')) rawText = await IngestEngine.parseFDX(file);
+    else if(ext.endsWith('.json')) rawText = await IngestEngine.parseJSON(file);
+    else rawText = await file.text();
+
+    if(!rawText || !rawText.trim()){ toast('Could not read text from ' + file.name); return; }
+    IngestEngine.pushToStorageAndFrames(name, rawText);
+  }catch(err){
+    toast('Ingest error: ' + err.message);
+  }
+}
+
+document.getElementById('importBtn').addEventListener('click', function(){
+  document.getElementById('scriptFileInput').click();
+});
+document.getElementById('scriptFileInput').addEventListener('change', function(e){
+  var f = e.target.files && e.target.files[0];
+  if(f) handleScriptImport(f);
+  e.target.value = '';
+});
+
+/* Two-Way Message Routing Listeners (From child frames to parent) */
+window.addEventListener('message', function(ev){
+  if(!ev || !ev.data) return;
+  var d = ev.data;
+  if(d.type === 'SCRIPT_INGEST' && d.source === 'proHUB_child'){
+    var raw = d.scriptText || d.rawText || '';
+    var title = d.projectName || 'UNTITLED PROJECT';
+    if(raw) IngestEngine.pushToStorageAndFrames(title, raw);
+  }
+});
+
+grid.addEventListener('click', function(e){
+  var rz = e.target.closest('[data-rz]');
+  if(rz){ e.stopPropagation(); toggleHero(rz.getAttribute('data-rz')); return; }
+  var tile = e.target.closest('.tile');
+  if(tile) openTile(tile.getAttribute('data-id'));
+});
+
+tabs.addEventListener('click', function(e){
+  var tab = e.target.closest('.tab');
+  if(!tab) return;
+  shell.mode = tab.getAttribute('data-mode');
+  saveShell();
+  render();
+});
+
+document.getElementById('brandBtn').addEventListener('click', function(){
+  if(layer.classList.contains('on')) closeLayer();
+});
+document.getElementById('lbHome').addEventListener('click', closeLayer);
+document.getElementById('lbClose').addEventListener('click', closeLayer);
+document.getElementById('saveAllBtn').addEventListener('click', function(){ SNMaster.save(); });
+document.getElementById('loadAllBtn').addEventListener('click', function(){ SNMaster.pick(); });
+document.addEventListener('keydown', function(e){ if(e.key==='Escape' && layer.classList.contains('on')) closeLayer(); });
+window.addEventListener('message', function(e){
+  var d = e.data || {};
+  if(d.k==='close' || d.type==='HUB_CLOSE'){ closeLayer(); return; }
+  if(d.k==='hub-open' && d.file){
+    var fk2 = null; Object.keys(SCREENS).forEach(function(k){ if(SCREENS[k].file.split('/').pop()===d.file) fk2 = k; });
+    if(!fk2){ if(d.file==='filmhub.html') location.href='filmhub.html'; return; }
+    var hit = null;
+    TILES.forEach(function(t){ var fr = t.frame || fk(t.mod); var a = (t.enter && t.enter.a) || ''; if(!hit && fr===fk2 && (a===d.a || t.id===d.a)) hit = t; });
+    if(!hit) TILES.forEach(function(t){ if(!hit && (t.frame || fk(t.mod))===fk2) hit = t; });
+    if(hit) openTile(hit.id);
+  }
+});
+/* keep the dashboard layer sized to the visible screen (phone toolbars / keyboards) and stop the page behind from scrolling */
+(function(){
+  function fit(){ if(!layer.classList.contains('on')){ layer.style.height=''; return; } var vv = window.visualViewport; layer.style.height = (vv ? vv.height : window.innerHeight) + 'px'; layer.style.top = (vv ? vv.offsetTop : 0) + 'px'; }
+  if(window.visualViewport){ visualViewport.addEventListener('resize', fit); visualViewport.addEventListener('scroll', fit); }
+  window.addEventListener('resize', fit);
+  new MutationObserver(function(){ var on = layer.classList.contains('on'); document.documentElement.style.overflow = on ? 'hidden' : ''; document.body.style.overflow = on ? 'hidden' : ''; if(!on){ layer.style.top=''; } fit(); }).observe(layer, {attributes:true, attributeFilter:['class']});
+})();
+
+
+document.getElementById('lbReload').addEventListener('click', function(){
+  ['pre','pro','post'].forEach(function(k){
+    var f = frameEl(k);
+    if(f.classList.contains('on')){
+      try{ f.contentWindow.location.reload(); }catch(e){ f.src = f.src; }
+    }
+  });
+});
+
+document.getElementById('resetBtn').addEventListener('click', function(){
+  shell.heroes = {pre:'writer', shoot:'oneliner', post:'filmcraft'};
+  shell.allHero = null;
+  saveShell();
+  render();
+  toast('Tile layouts reset');
+});
+
+loadShell();
+paintProject();
+render();
+window.addEventListener('resize', render);
+window.addEventListener('focus', paintProject);
+})();
+</script>
+<script id="sn-master-js">
+/* ===== Master save / import (all data in this browser) ===== */
+(function(){
+if(window.SNMaster)return;
+function dump(){var k={};try{for(var i=0;i<localStorage.length;i++){var n=localStorage.key(i);k[n]=localStorage.getItem(n)}}catch(e){}return k}
+function projectName(){try{var p=JSON.parse(localStorage.getItem('prehub_v3')||'{}');return p.projectName||'project'}catch(e){return 'project'}}
+function stamp(){var d=new Date();return d.getFullYear()+('0'+(d.getMonth()+1)).slice(-2)+('0'+d.getDate()).slice(-2)}
+function note(m){var t=document.getElementById('toast');if(t){var d=document.createElement('div');d.textContent=m;t.appendChild(d);t.classList&&t.classList.add('on');setTimeout(function(){d.remove()},3200);}else alert(m)}
+function save(){
+  var keys=dump(),n=Object.keys(keys).length;
+  if(!n){note('Nothing saved in this browser yet.');return}
+  var pkg={app:'stellar-nursery-master',v:1,exported:new Date().toISOString(),project:projectName(),keys:keys};
+  var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(pkg)],{type:'application/json'}));
+  a.download=projectName().replace(/\W+/g,'_').toLowerCase()+'_master_'+stamp()+'.json';document.body.appendChild(a);a.click();setTimeout(function(){a.remove()},500);
+  note('Saved '+n+' items to one JSON file.');
+}
+function extract(text){
+  var t=String(text||'').trim();
+  if(t.charAt(0)==='<'){var m=t.match(/<script[^>]*id="sn-master"[^>]*>([\s\S]*?)<\/script>/);if(!m)throw new Error('no data');t=m[1].replace(/<\\\//g,'</')}
+  var j=JSON.parse(t);if(!j||j.app!=='stellar-nursery-master'||!j.keys)throw new Error('format');return j;
+}
+function apply(j){
+  var n=0;Object.keys(j.keys).forEach(function(k){try{localStorage.setItem(k,j.keys[k]);n++}catch(e){}});return n;
+}
+function load(file,after){
+  if(!file)return;var r=new FileReader();
+  r.onload=function(){
+    var j;try{j=extract(r.result)}catch(e){note('That is not a Stellar Nursery master file.');return}
+    var c=Object.keys(j.keys).length;
+    if(!confirm('Load "'+(j.project||'project')+'" ('+c+' saved items, exported '+(j.exported||'').slice(0,10)+')?\n\nThis overwrites matching data in this browser. Save the current state first if you need it.'))return;
+    var n=apply(j);note('Loaded '+n+' items.');
+    if(after)after(j);else setTimeout(function(){location.reload()},500);
+  };r.readAsText(file);
+}
+function pick(after){var i=document.createElement('input');i.type='file';i.accept='.json,.html,application/json,text/html';i.onchange=function(){load(i.files[0],after)};i.click()}
+window.SNMaster={save:save,load:load,pick:pick,dump:dump,extract:extract,apply:apply};
+})();
+
+</script>
+</body>
+</html>

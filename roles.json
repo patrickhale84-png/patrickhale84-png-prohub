@@ -1,0 +1,29 @@
+{
+  "note": "Who sees what in filmHUB. filmHUB is view-only. Sections marked source:null have no editor in proHUB yet.",
+  "sections": {
+    "budget":       { "label": "Budget",            "source": "budget" },
+    "oneliner":     { "label": "One-Liner",         "source": "oneliner" },
+    "masterscript": { "label": "Shooting Script",   "source": "masterscript" },
+    "crewcalls":    { "label": "Crew Calls",        "source": "callsheet" },
+    "castcalls":    { "label": "Casting Calls",     "source": "callsheet" },
+    "sides":        { "label": "Sides",             "source": null },
+    "storyboards":  { "label": "Storyboards",       "source": "storyboard" },
+    "dood":         { "label": "Day Out of Days",   "source": null },
+    "props":        { "label": "Props",             "source": null },
+    "gear":         { "label": "Gear",              "source": null },
+    "locations":    { "label": "Locations",         "source": null }
+  },
+  "roles": {
+    "director": { "label": "Director", "sees": "all" },
+    "producer": { "label": "Producer", "sees": "all" },
+    "ad": {
+      "label": "Assistant Director",
+      "sees": ["budget", "oneliner", "masterscript", "crewcalls", "castcalls", "dood", "props", "gear", "locations"],
+      "sends": ["crewcalls", "castcalls"]
+    },
+    "crew": {
+      "label": "Crew",
+      "sees": ["crewcalls", "sides", "oneliner", "storyboards"]
+    }
+  }
+}

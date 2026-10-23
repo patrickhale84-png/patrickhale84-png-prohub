@@ -1,0 +1,76 @@
+# proHUB
+
+One landing page (`index.html`) with 19 tiles. Each tile opens its own screen inside the page.
+
+```
+index.html                  proHUB landing page: tile grid
+filmhub.html                front desk (reads what the hubs save in the browser)
+tiles/
+  pre-production.html       Screenwriter, Evaluator, Film DB, Outreach, Festivals & Labs, Budget
+  production.html           Scriptation, Storyboard Studio, Shot List, Stripboard, Master Script, Call Sheet, Gear, Dailies
+  post-production.html      Pitch Deck, FilmCraft, Photopea, Graphite
+```
+
+Keep all files on the same site or folder. They share browser storage, so they must be on the same origin.
+
+Every screen links back to proHUB only.
+
+## Tile map
+
+| # | Tile | File | Entry |
+|---|------|------|-------|
+| 1 | Screenwriter | `tiles/pre-production.html` | `writer` |
+| 2 | Evaluator Studio | `tiles/pre-production.html` | `coverage` |
+| 3 | Pitch Deck Maker | `tiles/post-production.html` | `pitchmaker` |
+| 4 | Film Database | `tiles/pre-production.html` | `filmdb` |
+| 5 | Outreach | `tiles/pre-production.html` | `outreach` |
+| 6 | Advanced Budget | `tiles/pre-production.html` | `budget` |
+| 7 | Stripboard | `tiles/production.html` | `oneliner` |
+| 8 | Call Sheet | `tiles/production.html` | `callsheet` |
+| 9 | Crew & Cast (DOOD) | `tiles/production.html` | `callsheet` |
+| 10 | Shooting Script | `tiles/production.html` | `masterscript` |
+| 11 | Props Tracker | `tiles/production.html` | `scriptation` |
+| 12 | Gear Checklist | `tiles/production.html` | `gearlist` |
+| 13 | Master Shot List | `tiles/production.html` | `shotlist` |
+| 14 | Script Library | `tiles/pre-production.html` | `scriptlib` |
+| 15 | Storyboard Studio | `tiles/production.html` | `storyboard` |
+| 16 | FilmCraft | `tiles/post-production.html` | `filmcraft` |
+| 17 | Photopea | `tiles/post-production.html` | `photopea` |
+| 18 | Graphite | `tiles/post-production.html` | `graphite` |
+| 19 | Festivals & Labs | `tiles/pre-production.html` | `festivals` |
+
+Tiles whose desk lives in another file open that file: Advanced Budget opens the preHUB budget, Crew & Cast opens the Call Sheet, and Props Tracker opens Scriptation.
+
+## How a tile opens a desk
+
+`index.html` loads the screen in a frame and asks for a desk three ways: the `#entry` in the address, a `hashchange`, and a `postMessage` (`{k:'sw',a:'<desk>'}` or `{type:'HUB_ENTER',a:'<desk>'}`). `pre-production.html` and `production.html` both listen for these, so it also works when opened from a local file.
+
+## Shared storage keys
+
+| Key | Written by | Read by |
+|-----|-----------|---------|
+| `prehub_v3` | preHUB, index | production, filmHUB |
+| `prehub_master_v1` | preHUB Transmit, index import | production, filmHUB |
+| `prohub_scriptation_v1`, `prohub_meta_v1` | production Scriptation | filmHUB |
+| `prohub_callsheet_v1` | production Call Sheet | filmHUB |
+| `prohub_shots_v1` | production Shot List | filmHUB |
+| `prehub_shotlist` | preHUB Shot List | filmHUB |
+| `ob_letters`, `ob_custom`, `fest_marks` | preHUB Outreach and Festivals | filmHUB |
+| `prohub_gear_v1` | production Gear Checklist | production |
+
+
+## Screenwriter formats
+
+- **Import:** PDF (rebuilt from page layout), Final Draft `.fdx`, Fountain / plain text (indented or not), WriterDuet-style `.json`, and multi-line paste straight into the editor.
+- **Cleanup on import:** hard-wrapped lines are rejoined, scene numbers, page numbers, `(MORE)` / `(CONTINUED)` and `(CONT'D)` are removed, the title page is read separately, and a speech split across pages is stitched back together.
+- **Export:** Fountain, formatted plain text, FDX and JSON, all of which re-import identically.
+- **Layout:** Courier 12 pt on a 12 pt line grid, 1.5 in / 1 in margins, standard indents, page numbers from page 2, headings and cues kept with the line that follows, automatic `(CONT'D)`, and printing that matches the screen page for page.
+
+## Budget (preHUB, "5. Pre-Lim Budget")
+Fully editable line-item budget: Top Sheet / Detail / Variables & Fringes tabs; Micro, Low, Mid and Tier-1 templates; per-line qty × multiplier × rate; fringe table (SAG-AFTRA, DGA, WGA, IATSE, Teamsters + payroll tax and workers' comp); union on/off switches; overtime (1.5×/2× thresholds); % lines (insurance, bond, overhead, contingency); Estimate vs Cost Report; undo/redo, saved versions, CSV/JSON export, JSON import, print. Stored in `prohub_budget_v1`. Guild rates are planning defaults — confirm against current rate sheets.
+
+## Save / load / client site
+- **Save all / Load all** (index header and filmHUB): one JSON file containing every saved item in this browser (script, schedule, shots, budget, deck, notes…). Loading overwrites matching items.
+- **filmHUB → Client site**: downloads a self-contained HTML presentation (overview, pitch deck, scenes, cast, schedule, shots, budget). **Site + backup** also embeds the full backup, so filmHUB → Import restores everything from that same HTML file.
+- **Close** button: on every tile (dashboard bar, Esc, and a Close pill when a tool is opened by itself) returns to the home screen without deleting anything.
+- **Pitch deck**: 8 style templates, font-size slider (this slide or all), tracking, weight, caps, and background/text/accent colours.

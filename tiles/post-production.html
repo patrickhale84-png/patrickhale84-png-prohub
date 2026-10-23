@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>proHUB | Post-Production Suite</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root {
+  --ink: #0A0E16;
+  --panel: #101725;
+  --line: #1E2A3E;
+  --paper: #F6F4EF;
+  --amber: #E2A93B;
+  --lime: #88C13F;
+  --cyan: #00ABA9;
+  --tx: #E6EBF2;
+  --mu: #8493A8;
+  --fd: 'Barlow Condensed', Georgia, sans-serif;
+  --fm: 'IBM Plex Mono', ui-monospace, monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; width: 100%; background: var(--ink); color: var(--tx); font-family: var(--fm); overflow: hidden; }
+
+/* Top Header Bar */
+.topbar {
+  height: 44px;
+  background: #050810;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 12px;
+  position: relative;
+  z-index: 100;
+}
+.brand {
+  font-family: 'Bauhaus 93','Bauhaus',Impact,sans-serif;
+  font-size: 19px;
+  line-height: 1;
+  color: #fff;
+  cursor: pointer;
+}
+.brand span { color: var(--lime); }
+.badge-stage {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--amber);
+  background: rgba(226,169,59,.12);
+  border: 1px solid rgba(226,169,59,.4);
+  padding: 2px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+/* App Switcher Tabs */
+.app-tabs {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.app-tabs::-webkit-scrollbar { display: none; }
+.tab-btn {
+  font-family: var(--fm);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--mu);
+  background: #0E1626;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  padding: 5px 10px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  transition: all .15s;
+}
+.tab-btn:hover { color: #fff; border-color: #33456A; }
+.tab-btn.active { color: #05070B; font-weight: 700; }
+.tab-btn[data-app="filmcraft"].active { background: #E8703A; border-color: #E8703A; color: #fff; }
+.tab-btn[data-app="photopea"].active { background: #3B7BF6; border-color: #3B7BF6; color: #fff; }
+.tab-btn[data-app="graphite"].active { background: #E2A93B; border-color: #E2A93B; }
+.tab-btn[data-app="pitchmaker"].active { background: #B07CE8; border-color: #B07CE8; color: #fff; }
+.tab-btn[data-app="scriptlib"].active { background: #5AA9E6; border-color: #5AA9E6; color: #fff; }
+
+.top-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn-util {
+  font-family: var(--fm);
+  font-size: 9.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--mu);
+  background: #0E1626;
+  border: 1px solid var(--line);
+  padding: 5px 8px;
+  border-radius: 5px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.btn-util:hover { color: #fff; border-color: #33456A; }
+
+/* Stage Viewports */
+.stage-wrap {
+  width: 100vw;
+  height: calc(100vh - 44px);
+  position: relative;
+  background: #000;
+}
+.app-view {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: none;
+  background: #000;
+}
+.app-view.active { display: block; }
+
+/* Workbench Areas */
+.native-studio {
+  position: absolute;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+  padding: 16px 20px;
+  overflow-y: auto;
+  background: var(--ink);
+}
+.native-studio.active { display: flex; }
+
+.row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.note { font-size: 11.5px; color: var(--mu); line-height: 1.5; }
+button {
+  font-family: var(--fm);
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: #121A28;
+  color: #DDE5EF;
+  cursor: pointer;
+}
+button:hover { background: #1B263B; color: #fff; }
+button.pri { background: var(--amber); border-color: var(--amber); color: #12161F; font-weight: 600; }
+textarea, input, select {
+  background: #0D1420;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: #E6EBF2;
+  padding: 6px 10px;
+  font-family: var(--fm);
+  font-size: 12px;
+}
+textarea:focus, input:focus, select:focus { outline: 1px solid var(--amber); }
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 20px;
+  transform: translate(-50%, 0);
+  background: #111A2B;
+  border: 1px solid #25344E;
+  color: #fff;
+  font-size: 10.5px;
+  padding: 8px 16px;
+  border-radius: 6px;
+  z-index: 9999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .18s;
+}
+.toast.on { opacity: 1; }
+
+.pd-textedit{display:none;}
+/* ===== Phone layout (<=768px) ===== */
+@media (max-width:768px){
+  html,body{height:100dvh;}
+  .topbar{height:48px;gap:8px;padding:0 10px;}
+  .badge-stage{display:none;}
+  .app-tabs{margin-left:2px;flex:1;min-width:0;gap:6px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;}
+  .tab-btn{padding:0 12px;min-height:36px;font-size:11px;flex:0 0 auto;scroll-snap-align:center;}
+  .top-right{gap:6px;}
+  .btn-util{min-height:36px;padding:0 10px;font-size:0;gap:0;}
+  .btn-util i{font-size:14px;}
+  .stage-wrap{width:100%;height:calc(100dvh - 48px);}
+  .native-studio{padding:10px 10px 90px;}
+  button,textarea,input,select{font-size:16px;}
+  /* script library */
+  #slMount > .row{flex-direction:column;align-items:stretch;}
+  #slQ{min-width:0!important;width:100%;height:46px!important;font-size:16px!important;}
+  #slList{max-height:calc(100dvh - 200px)!important;padding-right:0!important;}
+  #slList > div{padding:10px 0!important;}
+  #slList span{font-size:14px!important;}
+  #slList a{min-height:40px;display:inline-flex;align-items:center;padding:0 14px!important;font-size:12px!important;}
+  /* pitch deck studio: live preview on top, controls under it */
+  #pdMount{height:auto!important;}
+  .pd-wrap{display:flex!important;flex-direction:column;height:auto!important;gap:12px!important;}
+  .pd-left,.pd-right{display:contents!important;}
+  #pdCanvas{order:1;position:sticky!important;top:-10px;z-index:30;width:800px!important;max-width:none!important;zoom:var(--pdz,.45);
+    box-shadow:0 0 0 10px var(--ink);}
+  .pd-textedit{order:2;display:flex;flex-direction:column;gap:6px;}
+  .pd-textedit textarea{width:100%;min-height:92px;padding:12px;line-height:1.45;resize:vertical;}
+  .pd-rail[data-rail="slide"]{order:3;} .pd-rail[data-rail="layout"]{order:4;} .pd-rail[data-rail="graphic"]{order:5;}
+  .pd-split{order:6;} .pd-actions{order:7;} .pd-rail[data-rail="genre"]{order:8;} .pd-type{order:9;}
+  .pd-rail-lbl{margin:0 0 6px!important;font-size:10px!important;}
+  .pd-rail-btns{display:flex!important;gap:8px!important;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+  .pd-rail-btns::-webkit-scrollbar{display:none;}
+  .pd-rail-btns button{flex:0 0 auto;min-height:44px;padding:0 16px!important;font-size:12px!important;border-radius:22px!important;white-space:nowrap;}
+  .pd-rail[data-rail="layout"] .pd-rail-btns,.pd-rail[data-rail="graphic"] .pd-rail-btns{display:grid!important;grid-template-columns:1fr 1fr;overflow:visible;}
+  .pd-rail[data-rail="layout"] .pd-rail-btns button,.pd-rail[data-rail="graphic"] .pd-rail-btns button{border-radius:8px!important;}
+  .pd-rail[data-rail="graphic"] .pd-rail-btns{grid-template-columns:1fr 1fr 1fr;}
+  .pd-split{flex-direction:column;align-items:stretch!important;gap:12px!important;padding:12px!important;}
+  .pd-split > div,.pd-split #pdCircleControls{display:flex;flex-direction:column;align-items:stretch!important;gap:10px!important;}
+  .pd-split #pdCircleControls > div{align-items:center;}
+  .pd-split #pdCircleControls{display:none;}
+  .pd-split input[type=range]{width:100%!important;height:36px;}
+  .pd-split .note{min-width:78px;}
+  .pd-split > div:first-child{flex-direction:row;align-items:center!important;}
+  .pd-actions{flex-direction:column;align-items:stretch!important;gap:12px!important;margin-top:0!important;}
+  .pd-g{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:8px;background:#0B101D;}
+  .pd-g > .note{width:100%;font-size:10px;letter-spacing:.14em;text-transform:uppercase;}
+  .pd-g input[type=file]{flex:1 1 100%;width:100%!important;font-size:14px!important;padding:8px;}
+  .pd-g button{flex:1 1 auto;min-height:44px;}
+  #pdPrint{margin-left:0!important;min-height:50px;font-size:14px;}
+  .pd-type{grid-template-columns:1fr 1fr!important;}
+  .pd-type select{min-height:44px;font-size:16px!important;}
+  .pd-type input[type=color]{width:56px!important;height:40px!important;}
+}
+</style>
+<style id="pp-edge">
+@media (max-width:768px){
+  .topbar{height:auto;min-height:48px;padding-top:env(safe-area-inset-top,0px);padding-left:max(10px,env(safe-area-inset-left,0px));padding-right:max(10px,env(safe-area-inset-right,0px));box-sizing:border-box;}
+  .stage-wrap{box-sizing:border-box;}
+  .native-studio{padding-left:max(10px,env(safe-area-inset-left,0px));padding-right:max(10px,env(safe-area-inset-right,0px));padding-bottom:calc(96px + env(safe-area-inset-bottom,0px));box-sizing:border-box;overflow-x:hidden;max-width:100vw;}
+  .native-studio *{max-width:100%;}
+  .app-tabs{-webkit-mask-image:linear-gradient(to right,#000 90%,transparent);mask-image:linear-gradient(to right,#000 90%,transparent);padding-right:14px;}
+  body.ph-inside #sn-close,#sn-close{bottom:calc(14px + env(safe-area-inset-bottom,0px))!important;}
+}
+</style>
+<style id="fh-tab-style">.fh-tab{display:inline-flex;align-items:center;flex:0 0 auto;padding:0 12px;min-height:36px;border-radius:8px;font-size:11px;font-weight:700;text-decoration:none;color:#F6A36B;background:rgba(232,123,48,.14);border:1px solid rgba(232,123,48,.55);letter-spacing:.04em;white-space:nowrap;}@media (max-width:768px){#btnPopout{display:none!important;}.fh-tab{min-height:36px;padding:0 9px;font-size:10.5px;}}</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="brand" onclick="hubGo('../index.html',event)">pro<span>HUB</span></div>
+  <span class="badge-stage">POST-PRODUCTION</span>
+  
+  <nav class="app-tabs" id="appTabs">
+    <button class="tab-btn active" data-app="filmcraft"><i class="fa-solid fa-clapperboard"></i> FilmCraft</button>
+    <button class="tab-btn" data-app="photopea"><i class="fa-solid fa-image"></i> Photopea</button>
+    <button class="tab-btn" data-app="graphite"><i class="fa-solid fa-pen-ruler"></i> Graphite</button>
+    <button class="tab-btn" data-app="pitchmaker"><i class="fa-solid fa-images"></i> Pitch Deck</button>
+    <button class="tab-btn" data-app="scriptlib"><i class="fa-solid fa-book-open"></i> Script Library</button>
+  </nav>
+
+  <div class="top-right">
+    <a class="fh-tab" href="../filmhub.html" onclick="hubGo('../filmhub.html',event)">filmHUB</a>
+    <button class="btn-util" id="btnPopout" title="Open current tool in a new browser tab"><i class="fa-solid fa-arrow-up-right-from-square"></i> Tab</button>
+    <button class="btn-util" onclick="hubGo('../index.html',event)" title="Return to Dashboard"><i class="fa-solid fa-border-all"></i> Hub</button>
+  </div>
+</div>
+
+<main class="stage-wrap">
+  <!-- 1. FilmCraft NLE -->
+  <iframe id="view-filmcraft" class="app-view active" title="FilmCraft NLE" src="https://filmcraft.online/editor" allow="clipboard-read; clipboard-write; fullscreen"></iframe>
+
+  <!-- 2. Photopea Photo Editor -->
+  <iframe id="view-photopea" class="app-view" title="Photopea" src="https://www.photopea.com/" allow="clipboard-read; clipboard-write; fullscreen"></iframe>
+
+  <!-- 3. Graphite 2D Suite -->
+  <iframe id="view-graphite" class="app-view" title="Graphite" src="https://editor.graphite.rs/" allow="clipboard-read; clipboard-write; fullscreen"></iframe>
+
+  <!-- 4. Pitch Deck Maker Studio Container -->
+  <div id="view-pitchmaker" class="native-studio">
+    <div id="pdMount" style="width:100%;height:100%;"></div>
+  </div>
+
+  <!-- 5. Script Library Container -->
+  <div id="view-scriptlib" class="native-studio">
+    <div id="slMount" style="width:100%;height:100%;"></div>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+<script>
+var HUB = {
+  esc: function(s){
+    return String(s==null?'':s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+};
+
+/* =========================================================================
+   AUTHENTIC SCRIPT LIBRARY (400+ Complete Screenplays from DailyScript)
+   ========================================================================= */
+var SL_PACKED = "10 Things I Hate About You|10Things\n12 Monkeys|twelve_monkeys\n13 Days|13_days\n1492: Conquest of Paradise:|1492_conquest\n15 Minutes|15minutes\n2001: A Space Odyssey|2001\n3 Kings (Spoils of War)|three-kings_unproduced\n3 Kings|three-kings_shooting\n48 Hours|48hours\n8 Millimeter|eight-millimeter\nA Nightmare on Elm Street|nightmare-on-elm-street\nA Walk to Remember|awalktoremember\nAce Ventura: Pet Detective|ace_ventura_shoot\nAirforce One|AirForceOne_TXT\nAlien Nation|Alien_Nation_Bannon_Cameron_October_1987\nAliens|Aliens_James_Cameron_May_28_1985_first_draft\nAlien|alien_early\nAlien|alien_shooting\nAll About Eve|all_about_eve\nAll The President's Men|all_the_presidents_men\nAlmost Famous|almost_famous\nAmadeus|amadeus\nAmerican Beauty|AmericanBeauty_final\nAmerican Madness|American_Madness\nAmerican Outlaws|American_Outlaws\nAmerican Pie|american-pie_production\nAmerican Psycho|American_Psycho_Harron_Turner\nAmerican Psycho|american_psycho_unproduced\nAn American Werewolf In London|An_American_Werewolf_in_London\nAnnie Hall|annie_hall\nAntz|antz\nApocalypse Now: Redux|apocalypsenowredux\nApocalypse Now|apocolypse\nApt Pupil|apt-pupil_early\nAs Good As It Gets|as_good_as_it_gets\nAssassins|assassins_early\nAssassins|assassins_shooting\nAt First Sight|at_first_sight\nAustin Powers 2: The Spy Who Shagged Me|Austin_Powers_TPWSM\nAustin Powers: International Man of Mystery|Austin_Powers_IMM\nBarry Lyndon|BarryLyndon\nBarton Fink|barton_Fink\nBasic Instinct|basic_instinct\nBatman 2 (Unproduced)|batman-returns_unproduced\nBatman Forever|batman_forever\nBatman Returns|batman-returns_early\nBatman Returns|batman-returns_shooting\nBatman|batman_early\nBatman|batman_production\nBeavis and Butt-head Do America|beavis_and_butthead_do_america\nBedlam|chamberofhorrors\nBeetle Juice|beetlejuice_mcdowell\nBeetle Juice|beetlejuice_skaaren_\nBeetle Juice|beetlejuice_skaaren_final\nBeing John Malkovich|beingjohnmalkovich\nBeing There|being_there_12_16_78\nBeing There|being_there_1_10_79\nBeloved|beloved_lagravenese\nBlack Rain|black_rain\nBlack Snake Moan|black-snake-moan-script\nBlade II|Blade_II_David_goyer\nBlade Runner|Blade-runner_early\nBlade Runner|blade-runner_shooting\nBlade|blade\nBlair Witch II|blair-witch-2\nBlood Simple|blood_simple\nBlow|blow\nBody of Evidence|body_of_evidence\nBones|bones\nBottle Rocket|bottlerocket\nBrazil|brazil\nBringing Out the Dead|bringing-out-the-dead\nBroadcast News|broadc_news\nBuffy the Vampire Slayer|buffy_the_vampire_slayer\nCasino|casino\nCellular|cellular_cohen\nChasing Sleep|chasing_sleep\nCinema Paradiso|cinema_paradiso\nCitizen Kane|citizenkane\nClerks|clerks\nCliffhanger|cliffhanger_france\nCliffhanger|cliffhanger_hayes\nCliffhanger|cliffhanger_stallone\nCollateral|Collateral\nCollateral|collateral_darabont\nCommitted (filmed as Crazy Love)|crazy_love\nConspiracy Theory|conspiracy-theory\nCopycat|copycat\nCrime Spree|crimespree\nCruel Intentions|cruel-intentions\nDark City|dark-city_early\nDark City|dark-city_early-rewrite\nDark Star|dark-star_short\nDays of Heaven|daysofheaven\nDead Poets Society|dead_poets_final\nDeep Rising|deep_rising\nDemolition Man|demolition-man_lenkov\nDemolition Man|demolition-man_production\nDog Day Afternoon|dogdayafternoon\nDomino|domino\nDrop Dead Gorgeous|dropdeadgorgeous\nEd TV|edtv\nEd Wood|ed-wood\nElection|election\nElf|elf\nEnemy of the State|enemyofthestate\nEntrapment|entrapment_early\nEntrapment|entrapment_early-rewrite\nEntrapment|entrapment_production\nErik the Viking|erik_the_viking\nErin Brockovich|erin-brockovich_early\nErin Brockovich|erin-brockovich_shooting\nFace/Off|faceoff_early\nFace/Off|faceoff_production\nFargo|fargo\nFast Times at Ridgemont High|fast_times_at_ridgemont_high\nFear and Loathing in Las Vegas|fear-and-loathing_alex-cox\nFear and Loathing in Las Vegas|fearandloathing\nFerris Bueller's Day Off|ferris_bueller_shooting\nFight Club|fightclub_2_98\nFinal Destination 2|final_destination2\nFinal Destination|final_destination\nFive Easy Pieces|fiveeasypieces\nFive Feet and Rising|fivefeetandrising\nFletch|fletch\nFlight Plan|flightplan\nFour Feathers|Four_Feathers_3rd_Draft\nFreddy vs. Jason|freddy_v_jason_briggs\nFreddy vs. Jason|nightmare13\nFreddy's Dead: The Final Nightmare|nightmare_on_elm_street_6\nFrequency|frequency\nFriday The 13th Part 8: Jason Takes Manhatten|friday_13_8\nFriday the 13th Part 10: Jason X|Jason_X_early\nFriday the 13th Part 10: Jason X|jason_x_shooting\nFriday the 13th|friday_13\nFrom Dusk Till Dawn|from_dusk_till_dawk\nGame 6|game_6\nGattaca|gattaca_early\nGet Carter|getcarter\nGhost Ship|ghost_ship\nGhost Ship|ghostship\nGhost World|ghostworld\nGlengarry Glen Ross|glengarry\nGods and Monsters|gods-and-monsters_shooting\nGone in Sixty Seconds|gone_in_60_seconds\nGood Will Hunting|goodwillhunting\nGoodfellas|goodfellas\nGrosse Pointe Blank|grosse_point_blank\nHalloween 6: The Curse of Michael Myers (HALLOWEEN 666: THE ORIGIN OF MICHAEL MYERS)|Halloween_6_The_Curse_of_Michael_Myers\nHalloween|halloween\nHannah and Her Sisters|hannah\nHannibal|hannibal_production\nHannibal|hannibal_unproduced\nHappy Birthday, Wanda June|Happy_Birthday_Wanda_JUne\nHappy Campers|happy-campers_early\nHeathers|heathers_early\nHeathers|heathers_shooting\nHellbound: Hellraiser II|hellraiser_II\nHellraiser|hellraiser_early\nHellraiser|hellraiser_later\nHero|hero1\nHider In The House|hider-in-the-house\nHighlander 4|highlander_4\nHope and Glory|hopeandglory\nHotel Rwanda|hotel_rwanda\nHouse on Haunted Hill|house-on-haunted-hill\nHudson Hawk|hudson-hawk_early\nI Am Legend (Omega Man)|i_am_legend_6_26_70\nI Walked with a Zombie|i-walked_with_a_zombie\nIndependence Day|id4\nInsomnia|insomnia\nInterview with the Vampire|interview_with_the_vampire\nIt Happened One Night|It_Happened_one_night\nIt's a Wonderful Life|wonderfullife\nJackie Brown|jackiebrown\nJacob's Ladder|JacobsLadder\nJane Eyre|janeeyre\nJennifer Eight|jennifer-eight-script\nJerry Maguire|jerrymaguire\nJohn Q.|JohnQ\nJurassic Park 2: The Lost World|jurassic2_thw\nJurassic Park 3|jp3\nJurassic Park|jurassicpark_script_early_3_92\nJurassic Park|jurassicpark_script_final_12_92\nKafka|kafka\nKing Kong (Kong)|kong1933\nKlute|klute\nKundun|kundun\nL.A. Confidential|ellay-confidential_early\nLake Placid|lake-placid\nLast Of The Mohicans|last-of-the-mohicans-script\nLeaving Las Vegas|leavinglasvegas\nLethal Weapon|lethalweapon\nLeviathan|leviathan_shooting\nLife As A House|LifeAsAHouse\nLittle Nicky|littlenicky\nLogan's Run|logans_run\nLone Star|lone_star\nLord of Illusions|lordofillusions\nLost Horizon|Lost_Horizon\nLost in Translation|lost-in-translation-script\nLove and Basketball|love_and_basketball\nMagnolia|magnolia\nMan in the Iron Mask|man_in_iron_mask_95\nManhunter (Red Dragon)|manhunter\nMean Streets (Season of the Witch)|meanstreet\nMeet John Doe|Meet_John_Doe\nMemento|memento\nMiami Vice|miamivice\nMidnight Cowboy|midnightcowboy\nMidnight Express|midnightexpress\nMiller's Crossing|millers_crossing\nMimic|mimic_production\nMinority Report|MINORITY_REPORT_--_Aug_15th_1997_rewrite_by_Jon_Cohen\nMinority Report|MINORITY_REPORT_--_May_16th_2001_revised_draft_by_Scott_Frank\nMisery|misery\nMission Impossible II|mission-impossible-2_shoot\nMission Impossible|mission-impossible_shoot\nMr. Deeds Goes to Town|Mr._Deeds_Goes_to_Town\nMrs. Brown|mrs_brown\nMulholland Drive|mulholland_drive\nMy Mother Dreams The Satan's Disciples in New York|mother_dreams\nMystery Men|mystery_men_6_6_97\nNashville|nashville\nNatural Born Killers|natural-born-killers_early\nNatural Born Killers|natural-born-killers_shoot\nNever Been Kissed|neverbeenkissed\nNext Friday|Next_Friday\nNick of Time|Nick-Of-Time-script\nNurse Betty|nursebetty\nO Brother, Where Art Thou?|o_brother\nOn The Waterfront|onthewaterfront\nOne Flew Over The Cuckoo's Nest|oneflewover\nOrgy of the Dead|orgyofthedead\nOut of Sight|out-of-sight\nPI|pi\nPanic Room|Panic_Room_Koepp\nPearl Harbor|pearl_harbor_early\nPeggy Sue Got Married|peggysue\nPet Sematary II|petsemetaryii\nPet Sematary|Pet-Sematary\nPhiladelphia|philadelphia\nPitch Black|pitch-black_shooting\nPlanet of the Apes, 2001|POA_new\nPlanet of the Apes|POTA_67\nPlanet of the Apes|POTA_hamm\nPlatinum Blonde|Platinum_Blonde\nPlatoon|platoon\nPlayback|playback\nPleasantville|pleasantville\nPredator|hunter\nPsycho|psycho_revised\nPulp Fiction|pulp_fiction\nPunch Drunk Love|Punch-Drunk_Love\nQuantum Project|quantumproject\nRKO 281|RKO218\nRaging Bull|raging_bull\nRambling Rose|ramblingrose\nRambo: First Blood II: The Mission|firstblood2\nRambo: First Blood Part II|rambo_first_blood_2\nReal Genius|real_genius\nRebel Without A Cause|Rebel_Without_A_Cause\nRed Planet|Red_Planet\nResident Evil - Romero - Unproduced|resident_evil_romero\nResident Evil|resevil\nReturn of the Apes|ROTA_Hayes\nReturn to Me|return_to_me\nRocky|rocky\nRonin|ronin_early\nRush Hour 2|rush_hour_2\nRush Hour|RushHour\nRush Hour|rush_hour\nRushmore|rushmore\nSaving Private Ryan|saving_private_ryan\nSchindler's List|schindlerslist\nSerial Mom|serial-mom\nSeven|seven_early\nSeven|seven_production\nSeven|seven_unknown\nSex, Lies and Videotapes|sex_lies_and_video_tapes\nSgt. Rock|sgt-rock_peoples\nShampoo|shampoo\nSilver Bullet|silverbullet\nSimone|Simone_Andrew_Niccol\nSleepy Hollow|sleepy-hollow_early\nSleepy Hollow|sleepy-hollow_shooting\nSliTHER|SliTHER\nSling Blade|sling_blade\nSnow Falling On Cedars|snow-falling_early\nSnow Falling On Cedars|snow-falling_shooting\nSolaris|solaris_script\nSoldier|soldier\nSomething Borrowed (filmed as \"The Wedding Date\")|somethingborrowed\nSouth Park: Bigger, Longer, Uncut|south-park\nSpare Me|spareme\nSphere|sphere_early\nSphere|sphere_shooting\nSpider-Man|spider_man_cohen_newson_cameron_8_4_93draft\nSpider-Man|spider_man_koepp\nStar Trek 01: The Motion Picture|startrek01\nStar Trek 02: The Wrath Of Khan|startrek02\nStar Trek 02: The Wrath Of Khan|startrek02_final\nStar Trek 07: Generations|startrek07\nStar Trek 08: First Contact|startrek08\nStar Trek 10: Nemesis|startrek10\nState and Main|state-and-main_shooting\nState and Main|stateandmain\nStepmom|stepmom\nStorytelling|storytelling\nSugar and Spice|sugarandspice\nSunset Blvd.|sunset_bld_3_21_49\nSuspect Zero|suspect_zero\nSweet Smell of Success|sweetsmell\nSwingers|Swingers\nTHX 1138|thx1138\nTRON|tron\nTaking Sides|takingsides\nTaxi Driver|taxidriver\nThe 5th Element|thefifthelement\nThe 9th Gate|theninthgate\nThe Abyss|abyss\nThe Adventures of Ford Fairlane (Ford Fairlane )|ford-fairlane_early\nThe American President|american_president\nThe Anniversary Party|anniversaryparty\nThe Apartment|apartment\nThe Avengers|Avengers\nThe Battle of Algiers|boa\nThe Believer|thebeliever\nThe Big Blue|thebigblue\nThe Big Lebowski|gib_lebowski\nThe Bijou|TheBijou\nThe Birds|The_Birds\nThe Black Dahlia|black-dahlia_early\nThe Boondock Saints|boondock-saints-script\nThe Bourne Identity|bourneidentity\nThe Cat People|catpeople\nThe Cell|the_cell\nThe Cider House Rules|cider_house_rules\nThe Crow|the_crow\nThe Crying Game|cg\nThe Day The Earth Stood Still|the_day_the_earth_stood_still\nThe Day the Clown Cried|the_day_the_clown_cried\nThe Deer Hunter|deer_hunter\nThe Dragons of Krull|Krull\nThe English Patient|englishpatient\nThe Fabulous Baker Boys|Fabulous_Baker_boys_final\nThe Fabulous Baker Boys|fabulous_baker_boys_april_1985\nThe Fact of Murder|factofmurder\nThe Family Man|familyman\nThe Fantastic Four|fantasticfour\nThe Fisher King|fisher-king_early\nThe Fisher King|fisher-king_shooting\nThe French Connection|frenchconnection\nThe Fugitive|fugitive\nThe Game|the-game-early\nThe Game|the-game_shooting\nThe Getaway|getaway\nThe Ghost and the Darkness|Ghost_Darkness\nThe Godfather Part 2|godfather2\nThe Godfather|The_Godfather\nThe Graduate|the_graduate\nThe Grapes of Wrath|grapes_of_wrath\nThe Grifters|Grifters_Westlake\nThe Haunting|the-haunting_production\nThe Hebrew Hammer|thehebrewhammer\nThe Horse Wisperer|horse_whisperer\nThe Hudsucker Proxy|hudsucker_Proxy\nThe Ice Storm|icestorm\nThe Insider|the-insider_shooting\nThe Jacket|The_Jacket\nThe Life and Death of Colonel Blimp|thelifeanddeathofcolonelblimp\nThe Limey|the-limey\nThe Man Who Wasn't There|the-man-who-wasn't-there\nThe Nightmare Before Christmas|nightmare-b4-xmas_early\nThe Patriot|Patriot_1998\nThe Patriot|Patriot_1999\nThe Pianist|thepianist\nThe Piano|thepianolesson\nThe Ploughman's Lunch|ploughmans_lunch\nThe Princess Bride|princess_bride\nThe Producers|producers\nThe Relic|the-relic_early\nThe Saint|the_saint\nThe Salton Sea|salton_sea\nThe Searchers|searchers\nThe Shawshank Redemption|shawshank\nThe Shining|shining\nThe Silence Of The Lambs|silenceofthelambs\nThe Sting|thesting\nThe Sweet Hereafter|sweethereafter\nThe Talented Mr. Ripley|mr-ripley_shooting\nThe Thin Man|thethinman\nThe Third Man|the_third_man\nThe Time Machine|TheTimeMachine\nThe Time Machine|TheTimeMachine_1959\nThe Truman Show|the-truman-show_early\nThe Truman Show|the-truman-show_shooting\nThe Usual Suspects|usualsuspects\nThe Verdict|the-verdict-script\nThe Woodsman|thewoodsman\nThe X-Files Movie|the-x-files_production\nThelma & Louise|thelmaandlouise\nThere's Something About Mary|aboutmary\nTicker|ticker\nTo Sleep With Anger|tosleepwithanger\nTombstone|tomb_stone\nTop Gun|TopGun\nToy Story|toy_story\nTraffic|traffic\nTraining Day|Training_Day_Ayer\nTrainspotting|trainspotting\nTransformers: The Movie|transformers\nTrue Romance|true_romance\nU Turn (Stray Dogs)|u-turn_early\nU Turn|u-turn_shooting\nUnbreakable|unbreakable\nUnforgiven|unforgiven\nVertigo|vertigo\nVirtuosity|virtuosity\nWag the Dog|wag-the-dog_production\nWall Street|wall_street\nWho Framed Roger Rabbit? (Who Shot Roger Rabbit?)|roger-rabbit\nWild At Heart|wild_at_heart\nWild Things|wild-things_production\nWillow|willow\nWithnail and I|withnail\nWitness|witness\nWonder Boys|thewonderboys\nX-Men|x-men_walker3\nYou've Got Mail|Youve_got_mail";
+
+var SL = (function () {
+  var items = null;
+  function load() {
+    if (items) return items;
+    items = SL_PACKED.split('\n').map(function (line) {
+      var p = line.split('|');
+      return { title: p[0] || '', slug: p[1] || '' };
+    }).filter(function (x) { return x.title && x.slug; });
+    items.sort(function (a, b) { return a.title.localeCompare(b.title); });
+    return items;
+  }
+  function search(q) {
+    var all = load(), s = String(q || '').trim().toLowerCase();
+    if (!s) return all;
+    return all.filter(function (x) { return x.title.toLowerCase().indexOf(s) >= 0; });
+  }
+  return { load: load, search: search };
+})();
+
+function renderScriptLibrary(box) {
+  var all = SL.load();
+  box.innerHTML =
+    '<div class="row" style="gap:8px;margin-bottom:10px;flex-wrap:wrap">' +
+      '<input id="slQ" placeholder="Search screenplays..." style="flex:1;min-width:240px;height:34px;background:#0D1420;border:1px solid var(--line);border-radius:6px;color:#fff;padding:0 12px;font-family:var(--fm);">' +
+      '<span class="note" id="slCount" style="font-weight:600;color:var(--amber);"></span>' +
+    '</div>' +
+    '<div class="note" style="margin-bottom:12px">Titles and links only. Every script opens on <b>dailyscript.com</b> in a new tab; files remain on their server.</div>' +
+    '<div id="slList" style="max-height:calc(100vh - 160px);overflow-y:auto;padding-right:6px;"></div>';
+
+  function draw() {
+    var q = document.getElementById('slQ').value, list = SL.search(q);
+    document.getElementById('slCount').textContent = list.length + ' of ' + all.length + ' titles';
+    var rows = list.slice(0, 300).map(function (x) {
+      return '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid rgba(27,36,54,.7);">' +
+        '<span style="flex:1;font-size:12.5px;color:#DDE5EF;">' + HUB.esc(x.title) + '</span>' +
+        '<a class="note" target="_blank" rel="noopener noreferrer" href="https://www.dailyscript.com/scripts/' +
+        encodeURIComponent(x.slug) + '.html" style="color:var(--cyan);text-decoration:none;font-weight:600;border:1px solid rgba(0,171,169,.3);padding:3px 8px;border-radius:4px;">Open ↗</a></div>';
+    }).join('');
+    if (list.length > 300) rows += '<p class="note" style="margin-top:8px;">Showing 300 of ' + list.length + ' — narrow the search.</p>';
+    document.getElementById('slList').innerHTML = rows || '<p class="note">No match.</p>';
+  }
+  document.getElementById('slQ').oninput = draw;
+  draw();
+}
+/* =========================================================================
+   AUTHENTIC PITCH DECK STUDIO (With Adjustable Split & Positionable Circle)
+   ========================================================================= */
+var PD = {
+  genre: 'DRAMA', slide: 'LOGLINE', layout: 'split', display: 1, body: 0, accent: '#8BA8B8',
+  bg: '', bgMode: 'colour', slides: {}, slidesAt: {},
+  // New graphic & divider options
+  splitPos: 50,       // Center line percentage (10% to 90%)
+  graphicMode: 'line',// 'line', 'circle', or 'none'
+  circleSize: 55,     // Size percentage
+  circleX: 50,        // Horizontal position %
+  circleY: 50,        // Vertical position %
+  bgc: '#080C14', tx: '#F2F0EA', fsAll: 100, fs: {}, fsScope: 'all', wt: 500, caps: 0, track: 0, tpl: ''
+};
+
+
+/* Templates interpret contemporary indie/genre deck styles: quiet A24-style prestige minimalism, stark thriller contrast,
+   brutalist/industrial, fashion monochrome, earthy muted, vivid neon, pastel coming-of-age, cold sci-fi. */
+var PD_TEMPLATES = {
+  prestige:{n:'Quiet Prestige',d:'Off-white, editorial serif, restrained',bgc:'#EDEAE3',tx:'#1B1B1B',accent:'#8C2F2B',display:0,body:1,layout:'split',graphic:'line',wt:400,caps:0,track:0,fs:100},
+  noir:{n:'Noir Thriller',d:'Stark contrast, condensed caps, blood red',bgc:'#07080B',tx:'#EDEDED',accent:'#C8102E',display:2,body:0,layout:'full',graphic:'none',wt:700,caps:1,track:6,fs:95},
+  brutal:{n:'Brutalist Mono',d:'Raw white, black mono, hazard orange',bgc:'#F4F4EF',tx:'#0A0A0A',accent:'#FF4A00',display:6,body:2,layout:'stack',graphic:'none',wt:700,caps:1,track:2,fs:80},
+  fashion:{n:'Fashion Monochrome',d:'Black and white, wide-tracked light sans',bgc:'#0C0C0C',tx:'#FFFFFF',accent:'#FFFFFF',display:7,body:0,layout:'text',graphic:'none',wt:300,caps:1,track:14,fs:85},
+  earth:{n:'Earth & Ember',d:'Muted earth, warm serif, expansive',bgc:'#2A2118',tx:'#EFE3CF',accent:'#C98A4B',display:1,body:1,layout:'full',graphic:'none',wt:500,caps:0,track:0,fs:100},
+  neon:{n:'Neon Night',d:'Deep violet, hot pink, high energy',bgc:'#0B0620',tx:'#F6EBFF',accent:'#FF2E93',display:5,body:0,layout:'split',graphic:'circle',wt:800,caps:1,track:3,fs:90},
+  pastel:{n:'Soft Coming-of-Age',d:'Warm pastel, round and gentle',bgc:'#F6E7E1',tx:'#3A2A33',accent:'#E0707A',display:7,body:1,layout:'split',graphic:'circle',wt:400,caps:0,track:0,fs:100},
+  cold:{n:'Cold Sci-Fi',d:'Midnight blue, ice cyan, clean sans',bgc:'#040A12',tx:'#DCEBFF',accent:'#4FD1FF',display:3,body:0,layout:'split',graphic:'line',wt:500,caps:0,track:2,fs:100}
+};
+function pdScale(){ var v = PD.fs && PD.fs[PD.slide]; return (v==null ? PD.fsAll : v) || 100; }
+function pdSz(t, b){ return Math.max(8, Math.round((PD.slide === 'TITLE' ? t : b) * pdScale() / 100)) + 'px'; }
+function pdRgba(hex, a){ var h=(hex||'#000').replace('#',''); if(h.length===3) h=h.split('').map(function(c){return c+c}).join(''); var n=parseInt(h,16)||0; return 'rgba('+((n>>16)&255)+','+((n>>8)&255)+','+(n&255)+','+a+')'; }
+function pdApplyTpl(k){
+  var t = PD_TEMPLATES[k]; if(!t) return;
+  PD.tpl=k; PD.bgc=t.bgc; PD.tx=t.tx; PD.accent=t.accent; PD.display=t.display; PD.body=t.body; PD.layout=t.layout; PD.graphicMode=t.graphic;
+  PD.wt=t.wt; PD.caps=t.caps; PD.track=t.track; PD.fsAll=t.fs; PD.fs={}; PD.bg=''; PD.bgMode='colour';
+}
+
+var PD_GENRES = ['DRAMA','THRILLER','SCI-FI','HORROR','ACTION','ROMANCE','WESTERN','BIOPIC'];
+var PD_SLIDES = ['TITLE','LOGLINE','STORY','CHARACTERS','WORLD','COMPS','MARKET','TEAM'];
+var PD_LAYOUTS = [
+  ['split','adjustable split'],
+  ['full','image full, text over'],
+  ['text','text only'],
+  ['stack','image above, text below']
+];
+var PD_FACES = [
+  ['Editorial serif', "Georgia,'Iowan Old Style','Times New Roman',serif"],
+  ['Modern serif', "'Palatino Linotype',Palatino,'Book Antiqua',serif"],
+  ['Condensed sans', "'Barlow Condensed','Arial Narrow','Helvetica Neue',sans-serif"],
+  ['Neutral sans', "system-ui,-apple-system,'Segoe UI',Roboto,sans-serif"],
+  ['High-contrast serif', "'Bodoni 72','Didot','Bodoni MT','Playfair Display',Georgia,serif"],
+  ['Heavy grotesk', "'Arial Black','Helvetica Neue',Impact,sans-serif"],
+  ['Mono display', "ui-monospace,SFMono-Regular,Menlo,Consolas,monospace"],
+  ['Light geometric', "'Avenir Next','Century Gothic','Futura','Segoe UI',sans-serif"]
+];
+var PD_BODIES = [
+  ['Neutral sans', "system-ui,-apple-system,'Segoe UI',Roboto,sans-serif"],
+  ['Humanist serif', 'Georgia,serif'],
+  ['Mono', 'ui-monospace,SFMono-Regular,Menlo,Consolas,monospace'],
+  ['Condensed sans', "'Arial Narrow',system-ui,sans-serif"]
+];
+var PD_PH = {
+  TITLE: 'STELLAR NURSERY',
+  LOGLINE: "A woman returns to her childhood home after twenty years to discover her mother's most careful secret was not a secret at all.",
+  STORY: 'Act one, act two, act three — what changes, and what it costs.',
+  CHARACTERS: 'Who wants what, and who stands in the way.',
+  WORLD: 'The place, the rules of it, and the palette.',
+  COMPS: 'Where this sits on the shelf.',
+  MARKET: 'Who leans in, and why now.',
+  TEAM: 'Who is making it, and what they have made.'
+};
+
+function pdLoad() {
+  try {
+    var raw = localStorage.getItem('deck_pitch_v1');
+    if (raw) Object.assign(PD, JSON.parse(raw));
+  } catch(e) {}
+
+  if (!PD.slides.TITLE) {
+    try {
+      var pre = JSON.parse(localStorage.getItem('prehub_v3') || '{}');
+      if (pre.projectName) PD.slides.TITLE = pre.projectName.toUpperCase();
+    } catch(e){}
+  }
+}
+
+function pdPub() {
+  try { localStorage.setItem('deck_pitch_v1', JSON.stringify(PD)); } catch(e){}
+}
+function pdText(k) { return PD.slides[k] || PD_PH[k] || ''; }
+function pdImg() { return PD.slidesAt[PD.slide] || ''; }
+function pdFace() { return (PD_FACES[PD.display] || PD_FACES[0])[1]; }
+function pdBody() { return (PD_BODIES[PD.body] || PD_BODIES[0])[1]; }
+function pdBgStyle() {
+  return (PD.bgMode === 'image' && PD.bg)
+    ? "background:" + PD.bgc + " url('" + PD.bg.replace(/'/g,"%27") + "') center/cover"
+    : 'background:' + PD.bgc;
+}
+
+function pdWell() {
+  var img = pdImg();
+  if (img) {
+    return "<div style=\"width:100%;height:100%;background:url('" + img.replace(/'/g,"%27") + "') center/cover\"></div>";
+  }
+
+  // Configurable Graphic Element
+  if (PD.graphicMode === 'circle') {
+    return '<div style="position:relative;width:100%;height:100%;overflow:hidden;">' +
+      '<div style="position:absolute;left:' + PD.circleX + '%;top:' + PD.circleY + '%;width:' + PD.circleSize + '%;aspect-ratio:1;border:2px solid ' + PD.accent + ';border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 0 20px rgba(0,0,0,0.5);pointer-events:none;"></div>' +
+    '</div>';
+  } else if (PD.graphicMode === 'line') {
+    return '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:rgba(128,128,128,0.08);">' +
+      '<span style="font-size:16px;letter-spacing:0.14em;color:' + pdRgba(PD.tx,.4) + ';text-transform:uppercase;">Visual / Media Area</span>' +
+    '</div>';
+  }
+  return '<div style="width:100%;height:100%;"></div>';
+}
+
+function pdCanvasInner() {
+  var text = pdText(PD.slide);
+  var type = 'font-family:' + pdFace() + ';font-weight:' + PD.wt + ';line-height:1.28;color:' + PD.tx + ';outline:none;' + (PD.caps ? 'text-transform:uppercase;' : '') + 'letter-spacing:' + (PD.track/100) + 'em;font-size:';
+  var body = '<div contenteditable="true" data-pd="text" style="' + type + pdSz(61,38) + '">' +
+    HUB.esc(text) + '</div>';
+
+  if (PD.layout === 'text') {
+    return '<div style="position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:8%">' +
+      '<div style="max-width:1000px"><div style="font-size:70px;color:' + PD.accent + ';font-family:' + pdFace() + '">&ldquo;</div>' +
+      '<div contenteditable="true" data-pd="text" style="' + type + pdSz(67,45) + '">' + HUB.esc(text) + '</div></div></div>';
+  }
+  if (PD.layout === 'full') {
+    return '<div style="position:absolute;inset:0">' + pdWell() +
+      '<div style="position:absolute;inset:auto 0 0 0;padding:45px 54px;background:linear-gradient(transparent,' + pdRgba(PD.bgc,.92) + ')">' + body + '</div></div>';
+  }
+  if (PD.layout === 'stack') {
+    return '<div style="position:absolute;inset:0;display:flex;flex-direction:column">' +
+      '<div style="flex:0 0 58%;border-bottom:1px solid ' + PD.accent + '">' + pdWell() + '</div>' +
+      '<div style="flex:1 1 auto;padding:38px 48px">' + body + '</div></div>';
+  }
+
+  // Adjustable Center Split Layout with Draggable Divider Line
+  var pLeft = PD.splitPos;
+  var pRight = 100 - PD.splitPos;
+  return '<div id="pdSplitStage" style="position:absolute;inset:0;display:flex;width:100%;height:100%;">' +
+    '<div style="width:' + pLeft + '%;height:100%;position:relative;overflow:hidden;">' + pdWell() + '</div>' +
+    '<div id="pdSplitHandle" title="Drag to adjust split line" style="width:4px;cursor:col-resize;background:' + PD.accent + ';position:relative;z-index:20;flex-shrink:0;"></div>' +
+    '<div style="width:' + pRight + '%;height:100%;padding:51px;display:flex;flex-direction:column;justify-content:center;overflow:hidden;">' + body + '</div>' +
+  '</div>';
+}
+
+
+var PD_W = 1280, PD_H = 720;
+function pdCanvasHTML() {
+  return '<div class="pdstage" style="position:absolute;left:0;top:0;width:' + PD_W + 'px;height:' + PD_H + 'px;transform-origin:0 0;overflow:hidden">' + pdCanvasInner() + '</div>';
+}
+function pdFit(c) {
+  var st = c && c.querySelector('.pdstage'); if (!st) return;
+  var k = c.clientWidth / PD_W; if (!k) return;
+  st.style.transform = 'scale(' + k + ')';
+}
+
+function pdPrint() {
+  var keep = PD.slide, pages = '';
+  PD_SLIDES.forEach(function(sl) {
+    PD.slide = sl;
+    var inner = pdCanvasInner().replace(/ contenteditable="true"/g, '').replace(/ id="pdSplitHandle"/g, '').replace(/ id="pdSplitStage"/g, '');
+    pages += '<section class="pg" style="' + pdBgStyle() + ';color:' + PD.tx + '"><div class="pdstage">' + inner + '</div></section>';
+  });
+  PD.slide = keep;
+  var w = window.open('', '_blank');
+  if (!w) { alert('Allow pop-ups to export the deck.'); return; }
+  w.document.write('<!DOCTYPE html><html><head><meta charset="utf-8"><title>Pitch deck</title><style>' +
+    '@page{size:' + PD_W + 'px ' + PD_H + 'px;margin:0}html,body{margin:0;padding:0;background:#111}' +
+    '*{-webkit-print-color-adjust:exact;print-color-adjust:exact;box-sizing:border-box}' +
+    '.pg{position:relative;width:' + PD_W + 'px;height:' + PD_H + 'px;overflow:hidden;page-break-after:always;break-after:page;margin:0 auto}' +
+    '.pdstage{position:absolute;left:0;top:0;width:' + PD_W + 'px;height:' + PD_H + 'px;overflow:hidden}' +
+    '@media screen{.pg{margin:12px auto}}' +
+    '</style></head><body>' + pages + '</body></html>');
+  w.document.close();
+  setTimeout(function(){ try { w.print(); } catch(e){} }, 500);
+}
+
+function pdDraw(box) {
+  var canvas = box.querySelector('#pdCanvas'); if (!canvas) return;
+  canvas.setAttribute('style', 'position:relative;overflow:hidden;border-radius:10px;border:1px solid var(--line);aspect-ratio:16/9;width:100%;flex:0 0 auto;height:auto;' + pdBgStyle() + ';color:' + PD.tx + ';');
+  canvas.innerHTML = pdCanvasHTML();
+  pdFit(canvas);
+  if (!canvas.__ro && window.ResizeObserver) { canvas.__ro = new ResizeObserver(function(){ pdFit(canvas); }); canvas.__ro.observe(canvas); }
+
+  var tint = function(sel, on) {
+    box.querySelectorAll(sel).forEach(function(b) {
+      b.style.borderColor = on(b) ? PD.accent : 'var(--line)';
+      b.style.color = on(b) ? '#fff' : '#8794A6';
+    });
+  };
+  tint('[data-genre]', function(b){ return b.getAttribute('data-genre') === PD.genre; });
+  tint('[data-slide]', function(b){ return b.getAttribute('data-slide') === PD.slide; });
+  tint('[data-layout]', function(b){ return b.getAttribute('data-layout') === PD.layout; });
+  tint('[data-graphic]', function(b){ return b.getAttribute('data-graphic') === PD.graphicMode; });
+
+  var te = box.querySelector('#pdTextEdit');
+  if (te && document.activeElement !== te) te.value = PD.slides[PD.slide] || '';
+  if (te) te.placeholder = PD_PH[PD.slide] || 'Type the text for this slide...';
+  var tf2 = box.querySelector('#pdTextFor'); if (tf2) tf2.textContent = '· ' + PD.slide;
+  var f = box.querySelector('#pdFaceName'); if (f) f.textContent = PD_FACES[PD.display][0];
+  var bf = box.querySelector('#pdBodyName'); if (bf) bf.textContent = PD_BODIES[PD.body][0];
+  var ln = box.querySelector('#pdLayoutName'); if (ln) ln.textContent = PD.layout;
+  var av = box.querySelector('#pdAccentVal'); if (av) av.textContent = PD.accent;
+
+  // Sync circle control panels visibility
+  var cg = box.querySelector('#pdCircleControls');
+  if (cg) cg.style.display = (PD.graphicMode === 'circle') ? 'grid' : 'none';
+
+  pdBind(box);
+  pdBind2(box);
+}
+
+function pdBind(box) {
+  var te = box.querySelector('#pdTextEdit');
+  if (te) te.oninput = function(){
+    PD.slides[PD.slide] = te.value; pdPub();
+    var node = box.querySelector('[data-pd="text"]'); if (node) node.textContent = te.value || pdText(PD.slide);
+  };
+  var t = box.querySelector('[data-pd="text"]');
+  if (t) t.addEventListener('blur', function(){ PD.slides[PD.slide] = t.textContent.trim(); pdPub(); });
+  box.querySelectorAll('[data-genre]').forEach(function(b){ b.onclick = function(){ PD.genre = b.getAttribute('data-genre'); pdPub(); pdDraw(box); }; });
+  box.querySelectorAll('[data-slide]').forEach(function(b){ b.onclick = function(){ PD.slide = b.getAttribute('data-slide'); pdPub(); pdDraw(box); }; });
+  box.querySelectorAll('[data-layout]').forEach(function(b){ b.onclick = function(){ PD.layout = b.getAttribute('data-layout'); pdPub(); pdDraw(box); }; });
+  box.querySelectorAll('[data-graphic]').forEach(function(b){ b.onclick = function(){ PD.graphicMode = b.getAttribute('data-graphic'); pdPub(); pdDraw(box); }; });
+
+  // Draggable Split Divider Line
+  var handle = box.querySelector('#pdSplitHandle');
+  if (handle) {
+    handle.onmousedown = function(e) {
+      e.preventDefault();
+      var stage = box.querySelector('#pdSplitStage');
+      function onMove(ev) {
+        var rect = stage.getBoundingClientRect();
+        var pct = Math.round(((ev.clientX - rect.left) / rect.width) * 100);
+        PD.splitPos = Math.max(15, Math.min(85, pct));
+        var sl = box.querySelector('#pdSplitRange');
+        if (sl) sl.value = PD.splitPos;
+        pdDraw(box);
+      }
+      function onUp() {
+        window.removeEventListener('mousemove', onMove);
+        window.removeEventListener('mouseup', onUp);
+        pdPub();
+      }
+      window.addEventListener('mousemove', onMove);
+      window.addEventListener('mouseup', onUp);
+    };
+  }
+
+  if (handle) {
+    handle.addEventListener('touchstart', function(e){
+      var stage = box.querySelector('#pdSplitStage'); if (!stage) return;
+      function mv(ev){
+        ev.preventDefault();
+        var tt = ev.touches[0], rect = stage.getBoundingClientRect();
+        PD.splitPos = Math.max(15, Math.min(85, Math.round(((tt.clientX - rect.left) / rect.width) * 100)));
+        var sl = box.querySelector('#pdSplitRange'); if (sl) sl.value = PD.splitPos;
+        var kids = stage.children; kids[0].style.width = PD.splitPos + '%'; kids[2].style.width = (100 - PD.splitPos) + '%';
+      }
+      function up(){ window.removeEventListener('touchmove', mv); window.removeEventListener('touchend', up); pdPub(); pdDraw(box); }
+      window.addEventListener('touchmove', mv, {passive:false}); window.addEventListener('touchend', up);
+    }, {passive:true});
+  }
+
+  // Sliders for Split & Circle
+  var sSplit = box.querySelector('#pdSplitRange');
+  if (sSplit) sSplit.oninput = function() { PD.splitPos = +sSplit.value; pdDraw(box); pdPub(); };
+  var cSize = box.querySelector('#pdCircleSize');
+  if (cSize) cSize.oninput = function() { PD.circleSize = +cSize.value; pdDraw(box); pdPub(); };
+  var cX = box.querySelector('#pdCircleX');
+  if (cX) cX.oninput = function() { PD.circleX = +cX.value; pdDraw(box); pdPub(); };
+  var cY = box.querySelector('#pdCircleY');
+  if (cY) cY.oninput = function() { PD.circleY = +cY.value; pdDraw(box); pdPub(); };
+
+  var fs = box.querySelector('#pdFace'); if (fs) fs.onchange = function(){ PD.display = +fs.value; pdPub(); pdDraw(box); };
+  var bs = box.querySelector('#pdBody'); if (bs) bs.onchange = function(){ PD.body = +bs.value; pdPub(); pdDraw(box); };
+  var ac = box.querySelector('#pdAccent'); if (ac) { ac.oninput = function(){ PD.accent = ac.value; pdDraw(box); }; ac.onchange = function(){ pdPub(); }; }
+
+  var up = box.querySelector('#pdImgFile'); if (up) up.onchange = function(){
+    var f = up.files && up.files[0]; if (!f) return;
+    var fr = new FileReader(); fr.onload = function(){ PD.slidesAt[PD.slide] = fr.result; pdPub(); pdDraw(box); }; fr.readAsDataURL(f);
+  };
+  var u2 = box.querySelector('#pdImgUrl'); if (u2) u2.onclick = function(){
+    var u = window.prompt('Image URL for this slide:', ''); if (u) { PD.slidesAt[PD.slide] = u; pdPub(); pdDraw(box); }
+  };
+  var bu = box.querySelector('#pdBgFile'); if (bu) bu.onchange = function(){
+    var f = bu.files && bu.files[0]; if (!f) return;
+    var fr = new FileReader(); fr.onload = function(){ PD.bg = fr.result; PD.bgMode = 'image'; pdPub(); pdDraw(box); }; fr.readAsDataURL(f);
+  };
+  var b2 = box.querySelector('#pdBgUrl'); if (b2) b2.onclick = function(){
+    var u = window.prompt('Background image URL:', PD.bgMode === 'image' ? PD.bg : ''); if (u) { PD.bg = u; PD.bgMode = 'image'; pdPub(); pdDraw(box); }
+  };
+  var cl = box.querySelector('#pdBgClear'); if (cl) cl.onclick = function(){ PD.bg = ''; PD.bgMode = 'colour'; pdPub(); pdDraw(box); };
+  var pr = box.querySelector('#pdPrint'); if (pr) pr.onclick = pdPrint;
+}
+
+
+function pdBind2(box){
+  var $=function(i){return box.querySelector(i)};
+  var fs=$('#pdFs'),fv=$('#pdFsVal'),all=$('#pdFsAll');
+  if(fs){ if(document.activeElement!==fs) fs.value=pdScale(); fv.textContent=pdScale()+'%';
+    fs.oninput=function(){ var v=+fs.value; if(PD.fsScope==='all'){ PD.fsAll=v; PD.fs={}; } else { PD.fs[PD.slide]=v; } PD.tpl=''; fv.textContent=v+'%'; pdPub(); var c=$('#pdCanvas'); if(c) { c.innerHTML=pdCanvasHTML(); pdFit(c); pdBind(box); } }; }
+  if(all){ all.checked=PD.fsScope==='all'; all.onchange=function(){ PD.fsScope=all.checked?'all':'slide'; pdPub(); }; }
+  var tr=$('#pdTrack'); if(tr){ tr.value=PD.track; tr.oninput=function(){ PD.track=+tr.value; pdPub(); pdDraw(box); }; }
+  var wt=$('#pdWt'); if(wt){ wt.value=String(PD.wt); wt.onchange=function(){ PD.wt=+wt.value; pdPub(); pdDraw(box); }; }
+  var cp=$('#pdCaps'); if(cp){ cp.checked=!!PD.caps; cp.onchange=function(){ PD.caps=cp.checked?1:0; pdPub(); pdDraw(box); }; }
+  [['#pdBgc','bgc'],['#pdTx','tx'],['#pdAccent2','accent']].forEach(function(p){ var e=$(p[0]); if(!e) return; e.value=PD[p[1]];
+    e.oninput=function(){ PD[p[1]]=e.value; PD.tpl=''; var c=$('#pdCanvas'); if(c){ c.style.background=PD.bgc; c.style.color=PD.tx; c.innerHTML=pdCanvasHTML(); pdFit(c); pdBind(box);} };
+    e.onchange=function(){ pdPub(); pdDraw(box); }; });
+  var sw=$('#pdSwap'); if(sw) sw.onclick=function(){ var t=PD.bgc; PD.bgc=PD.tx; PD.tx=t; PD.tpl=''; pdPub(); pdDraw(box); };
+  box.querySelectorAll('[data-tpl]').forEach(function(b){ b.style.borderColor = b.getAttribute('data-tpl')===PD.tpl ? PD.accent : 'var(--line)';
+    b.onclick=function(){ pdApplyTpl(b.getAttribute('data-tpl')); pdPub(); var f=$('#pdFace'); if(f) f.value=PD.display; var bd=$('#pdBody'); if(bd) bd.value=PD.body; pdDraw(box); }; });
+}
+
+function renderPitchDeck(box) {
+  pdLoad();
+  function rail(label, items, attr) {
+    return '<div class="pd-rail" data-rail="' + attr + '"><div class="note pd-rail-lbl" style="margin:10px 0 4px;letter-spacing:.14em;font-size:9.5px;text-transform:uppercase">' +
+      label + '</div><div class="pd-rail-btns" style="display:grid;grid-template-columns:1fr 1fr;gap:4px">' +
+      items.map(function(it){
+        var v = (typeof it === 'string') ? it : it[0];
+        var lab = (typeof it === 'string') ? it : (it[1] || it[0]);
+        return '<button data-' + attr + '="' + HUB.esc(v) + '" style="font-size:10px;letter-spacing:.06em;padding:5px 4px;' +
+          'border-radius:4px;background:#0D1420;border:1px solid var(--line);color:#8794A6">' + HUB.esc(lab) + '</button>';
+      }).join('') + '</div></div>';
+  }
+
+  box.innerHTML = '<div class="pd-wrap" style="display:grid;grid-template-columns:230px 1fr;gap:14px;height:100%">' +
+    '<div class="pd-left" style="border-right:1px solid var(--line);padding-right:12px;overflow-y:auto">' +
+      rail('Style', PD_GENRES, 'genre') +
+      rail('Slide type', PD_SLIDES, 'slide') +
+      rail('Layout', [['split','Split'],['full','Full image'],['text','Text only'],['stack','Stacked']], 'layout') +
+      rail('Graphic Style', [['line','Split line'], ['circle','Circle frame'], ['none','Clean']], 'graphic') +
+    '</div>' +
+    '<div class="pd-right" style="display:flex;flex-direction:column;overflow-y:auto;padding-right:4px;">' +
+      '<div id="pdCanvas"></div>' +
+      '<div class="pd-textedit"><label class="note" for="pdTextEdit">Slide text <span id="pdTextFor"></span></label>' +
+        '<textarea id="pdTextEdit" rows="3" placeholder="Type the text for this slide..."></textarea></div>' +
+      '<div class="row pd-actions" style="gap:6px;flex-wrap:wrap;margin-top:10px">' +
+        '<div class="pd-g"><span class="note">Slide image</span><input type="file" id="pdImgFile" accept="image/*" style="width:auto;font-size:11px">' +
+        '<button id="pdImgUrl">Image URL</button></div>' +
+        '<div class="pd-g"><span class="note">Background</span><input type="file" id="pdBgFile" accept="image/*" style="width:auto;font-size:11px">' +
+        '<button id="pdBgUrl">Background URL</button><button id="pdBgClear">Clear Background</button></div>' +
+        '<button id="pdPrint" class="pri" style="margin-left:auto;">Export PDF</button>' +
+      '</div>' +
+
+      // Live Controls for Split Line & Circle Positioning
+      '<div class="pd-split" style="margin-top:10px;padding:8px 12px;border:1px solid var(--line);border-radius:6px;background:#0B101D;display:flex;gap:16px;align-items:center;flex-wrap:wrap;">' +
+        '<div style="display:flex;align-items:center;gap:6px;">' +
+          '<span class="note">Split Line:</span>' +
+          '<input type="range" id="pdSplitRange" min="15" max="85" value="' + PD.splitPos + '" style="width:90px;accent-color:var(--amber);">' +
+        '</div>' +
+        '<div id="pdCircleControls" style="display:none;align-items:center;gap:12px;">' +
+          '<div style="display:flex;align-items:center;gap:5px;"><span class="note">Circle Size:</span><input type="range" id="pdCircleSize" min="20" max="95" value="' + PD.circleSize + '" style="width:70px;accent-color:var(--amber);"></div>' +
+          '<div style="display:flex;align-items:center;gap:5px;"><span class="note">X:</span><input type="range" id="pdCircleX" min="10" max="90" value="' + PD.circleX + '" style="width:60px;accent-color:var(--amber);"></div>' +
+          '<div style="display:flex;align-items:center;gap:5px;"><span class="note">Y:</span><input type="range" id="pdCircleY" min="10" max="90" value="' + PD.circleY + '" style="width:60px;accent-color:var(--amber);"></div>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="pd-style" style="margin-top:10px;padding:10px 12px;border:1px solid var(--line);border-radius:6px;background:#0B101D;">' +
+        '<div class="note" style="font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:6px">Templates</div>' +
+        '<div id="pdTpls" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:6px">' +
+          Object.keys(PD_TEMPLATES).map(function(k){ var t = PD_TEMPLATES[k];
+            return '<button data-tpl="' + k + '" title="' + HUB.esc(t.d) + '" style="padding:0;border-radius:6px;overflow:hidden;border:1px solid var(--line);background:none;text-align:left;cursor:pointer">' +
+              '<div style="background:' + t.bgc + ';color:' + t.tx + ';padding:10px 8px 8px;font-family:' + PD_FACES[t.display][1] + ';font-weight:' + t.wt + ';font-size:15px;' + (t.caps?'text-transform:uppercase;letter-spacing:.06em;':'') + 'line-height:1">Aa<div style="height:3px;width:34px;background:' + t.accent + ';margin-top:7px"></div></div>' +
+              '<div style="font-size:10px;color:#C6D1DC;padding:5px 8px;background:#0D1420">' + HUB.esc(t.n) + '</div></button>';
+          }).join('') +
+        '</div>' +
+        '<div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-top:10px">' +
+          '<div style="display:flex;align-items:center;gap:8px;flex:1 1 260px"><span class="note" style="white-space:nowrap">Font size</span>' +
+            '<input type="range" id="pdFs" min="40" max="240" step="1" style="flex:1;accent-color:var(--amber)"><span id="pdFsVal" class="note" style="width:40px;text-align:right"></span></div>' +
+          '<label class="note" style="display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="pdFsAll" style="width:auto"> all slides</label>' +
+          '<div style="display:flex;align-items:center;gap:8px"><span class="note">Tracking</span><input type="range" id="pdTrack" min="-3" max="30" step="1" style="width:80px;accent-color:var(--amber)"></div>' +
+          '<select id="pdWt" style="font-size:11px"><option value="300">Light</option><option value="400">Regular</option><option value="500">Medium</option><option value="700">Bold</option><option value="800">Black</option></select>' +
+          '<label class="note" style="display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="pdCaps" style="width:auto"> CAPS</label>' +
+        '</div>' +
+        '<div style="display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin-top:10px">' +
+          '<label class="note" style="display:flex;align-items:center;gap:6px">Background <input type="color" id="pdBgc" style="width:34px;height:24px;padding:0;border:0;cursor:pointer"></label>' +
+          '<label class="note" style="display:flex;align-items:center;gap:6px">Text <input type="color" id="pdTx" style="width:34px;height:24px;padding:0;border:0;cursor:pointer"></label>' +
+          '<label class="note" style="display:flex;align-items:center;gap:6px">Accent <input type="color" id="pdAccent2" style="width:34px;height:24px;padding:0;border:0;cursor:pointer"></label>' +
+          '<button id="pdSwap" style="font-size:11px">Swap light/dark</button>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="pd-type" style="margin-top:12px;border-top:1px solid var(--line);padding-top:10px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px">' +
+        '<div><div class="note" style="font-size:9.5px;letter-spacing:.14em;text-transform:uppercase">Display face</div>' +
+          '<div id="pdFaceName" style="font-size:12.5px;color:#C6D1DC"></div><select id="pdFace" style="margin-top:4px;font-size:11px;width:100%">' +
+          PD_FACES.map(function(f,i){ return '<option value="' + i + '">' + HUB.esc(f[0]) + '</option>'; }).join('') + '</select></div>' +
+        '<div><div class="note" style="font-size:9.5px;letter-spacing:.14em;text-transform:uppercase">Body face</div>' +
+          '<div id="pdBodyName" style="font-size:12.5px;color:#C6D1DC"></div><select id="pdBody" style="margin-top:4px;font-size:11px;width:100%">' +
+          PD_BODIES.map(function(f,i){ return '<option value="' + i + '">' + HUB.esc(f[0]) + '</option>'; }).join('') + '</select></div>' +
+        '<div><div class="note" style="font-size:9.5px;letter-spacing:.14em;text-transform:uppercase">Accent</div>' +
+          '<div style="display:flex;align-items:center;gap:6px;margin-top:4px"><input type="color" id="pdAccent" value="' + PD.accent +
+          '" style="width:34px;height:24px;padding:0;border:0;cursor:pointer"><span id="pdAccentVal" class="note">' + PD.accent + '</span></div></div>' +
+        '<div><div class="note" style="font-size:9.5px;letter-spacing:.14em;text-transform:uppercase">Layout</div>' +
+          '<div id="pdLayoutName" style="font-size:12.5px;color:#C6D1DC;margin-top:4px;"></div></div>' +
+      '</div>' +
+    '</div></div>';
+
+  var fs = box.querySelector('#pdFace'); if (fs) fs.value = PD.display;
+  var bs = box.querySelector('#pdBody'); if (bs) bs.value = PD.body;
+  pdDraw(box);
+}
+/* =========================================================================
+   SUITE ROUTER & RUNTIME CONTROLLER
+   ========================================================================= */
+var CURRENT_APP = 'filmcraft';
+var APP_URLS = {
+  filmcraft: 'https://filmcraft.online/editor',
+  photopea: 'https://www.photopea.com/',
+  graphite: 'https://editor.graphite.rs/'
+};
+
+var DESK_ALIAS = {pitch:'pitchmaker', pitchdeck:'pitchmaker', scripts:'scriptlib', library:'scriptlib', draw:'graphite'};
+window.openDeskDetail = function(appId) {
+  if (!appId) return;
+  appId = String(appId).toLowerCase();
+  appId = DESK_ALIAS[appId] || appId;
+  if (!document.getElementById('view-' + appId)) return;   // unknown target: keep current screen
+  CURRENT_APP = appId;
+
+  document.querySelectorAll('#appTabs .tab-btn').forEach(function(btn){
+    btn.classList.toggle('active', btn.getAttribute('data-app') === appId);
+  });
+  document.querySelectorAll('.app-view, .native-studio').forEach(function(view){
+    view.classList.remove('active');
+  });
+
+  var target = document.getElementById('view-' + appId);
+  if (!target) return;
+  target.classList.add('active');
+
+  if (target.tagName === 'IFRAME') {
+    var computedSrc = APP_URLS[appId] || '';
+    if (computedSrc && target.getAttribute('src') !== computedSrc) {
+      target.src = computedSrc;
+    }
+  }
+};
+
+document.getElementById('appTabs').addEventListener('click', function(e){
+  var btn = e.target.closest('[data-app]');
+  if (btn) window.openDeskDetail(btn.getAttribute('data-app'));
+});
+
+document.getElementById('btnPopout').addEventListener('click', function(){
+  if (APP_URLS[CURRENT_APP]) {
+    window.open(APP_URLS[CURRENT_APP], '_blank', 'noopener');
+  } else if (CURRENT_APP === 'pitchmaker') {
+    pdPrint();
+  } else {
+    alert('This workspace operates natively inside the post suite.');
+  }
+});
+
+// Mount modules on load
+renderPitchDeck(document.getElementById('pdMount'));
+renderScriptLibrary(document.getElementById('slMount'));
+
+// Route from URL hash or fallback to FilmCraft
+var initApp = 'filmcraft';
+if (window.location.hash) {
+  var h = window.location.hash.replace('#', '').toLowerCase();
+  if (['filmcraft','photopea','graphite','pitchmaker','scriptlib'].indexOf(h) >= 0) initApp = h;
+}
+window.openDeskDetail(initApp);
+
+function hubGo(page, ev){
+  if(ev && ev.preventDefault) ev.preventDefault();
+  var u = page;
+  try { u = new URL(page, location.href).href; } catch(e) {}
+  var emb = false; try { emb = window.self !== window.top; } catch(e) { emb = true; }
+  if(emb){
+    /* inside the proHUB dashboard: never replace the whole window. Ask the dashboard to close or switch tile instead. */
+    try {
+      var base = String(page).split('#')[0].split('/').pop(), hash = (String(page).split('#')[1] || '');
+      if(!base || /^index\.html$/i.test(base)) { window.parent.postMessage({k:'close'}, '*'); return; }
+      window.parent.postMessage({k:'hub-open', file: base, a: hash}, '*'); return;
+    } catch(e) {}
+  }
+  try { location.href = u; } catch(e) {}
+}
+  /* =========================================================================
+   PARENT FRAME NAVIGATION LISTENER & DYNAMIC DESK ACTIVATION
+   ========================================================================= */
+window.addEventListener('message', function(ev){
+  if (!ev || !ev.data) return;
+  var d = ev.data;
+  var targetDesk = d.a || d.app || '';
+  if (targetDesk && typeof window.openDeskDetail === 'function') {
+    window.openDeskDetail(targetDesk);
+  }
+});
+
+window.addEventListener('hashchange', function(){
+  var h = (window.location.hash || '').replace('#', '').trim();
+  if (h && typeof window.openDeskDetail === 'function') {
+    window.openDeskDetail(h);
+  }
+});
+</script>
+<script>
+/* phone: scale the 800px slide canvas to the screen so the preview is the true slide */
+(function(){
+  function fit(){
+    var m=document.getElementById('pdMount'); if(!m) return;
+    if(window.innerWidth>768){document.documentElement.style.removeProperty('--pdz');return;}
+    var w=m.clientWidth; if(!w) return;
+    document.documentElement.style.setProperty('--pdz',Math.min(1,w/800).toFixed(4));
+  }
+  window.addEventListener('resize',fit);window.addEventListener('orientationchange',fit);
+  fit();setInterval(fit,1000);
+})();
+</script>
+<script id="sn-close-js">
+/* Close button: when a tile is opened on its own (not inside the proHUB dashboard), return to the home screen. Data is untouched. */
+(function(){
+if(window.top!==window.self)return; if(document.getElementById('sn-close'))return;
+function mk(){
+ var a=document.createElement('a');a.id='sn-close';a.textContent='✕';a.setAttribute('aria-label','Close');
+ a.href=(location.pathname.indexOf('/tiles/')>=0?'../index.html':'index.html');
+ a.title='Close and return to the home screen. Nothing is deleted.';
+ a.setAttribute('style','position:fixed;left:12px;bottom:12px;z-index:2147483000;font:700 18px/1 ui-monospace,Menlo,monospace;display:flex;align-items:center;justify-content:center;width:44px;height:44px;box-sizing:border-box;color:#FCA5A5;background:rgba(36,18,20,.94);border:1px solid #7F1D1D;border-radius:50%;padding:0;text-decoration:none;box-shadow:0 6px 20px rgba(0,0,0,.5)');
+ var st=document.createElement('style');st.textContent='@media (max-width:768px){#sn-close{bottom:84px!important;left:10px!important;padding:0!important}}@media print{#sn-close{display:none!important}}';
+ document.head.appendChild(st);document.body.appendChild(a);
+}
+if(document.body)mk();else document.addEventListener('DOMContentLoaded',mk);
+})();
+
+</script>
+</body>
+</html>
