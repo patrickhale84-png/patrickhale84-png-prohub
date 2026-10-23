@@ -10373,5 +10373,26 @@ new MutationObserver(function(){clearTimeout(fix._t);fix._t=setTimeout(fix,60);}
   html.pf-on .sn-left{left:2px!important}html.pf-on .sn-right{right:2px!important}
 }
 </style>
+<style id="std-layout-style">
+/* One standard shell for the three tile pages: 52px top bar, logo left, actions right, close at the top-right corner */
+#sn-close{position:fixed!important;top:8px!important;right:10px!important;left:auto!important;bottom:auto!important;width:36px!important;height:36px!important;font-size:15px!important;z-index:2147483000!important;box-shadow:none!important}
+.tmb,.topbar{height:52px!important;min-height:52px!important;box-sizing:border-box;padding-right:56px!important}
+.tmb .logo,.topbar .brand{font-size:22px!important;line-height:1;font-weight:800}
+.topbar .brand{color:#A3E635!important}.topbar .brand span{color:#fff!important}
+@media (min-width:769px){.hdr-bar{padding-right:56px!important}}
+@media (max-width:768px){
+  .tmb{padding-left:10px!important;gap:8px!important;overflow:hidden}
+  .tmb .bridge-pill,.tmb .stage-tag{display:none!important}
+  .tmb>.ml-auto{margin-left:auto;gap:6px!important;flex-wrap:nowrap!important}
+  .tmb .hbtn{padding:0 10px!important;min-height:36px!important}
+  .topbar{display:flex!important;flex-wrap:wrap!important;height:auto!important;min-height:52px!important;row-gap:0!important;padding-bottom:0!important;align-items:center}
+  .topbar .badge-stage{display:none!important}
+  .topbar .top-right{margin-left:auto!important;gap:6px!important;flex-wrap:nowrap!important}
+  .topbar .top-right .btn-util{display:none!important}
+  .topbar .app-tabs{order:5;flex:0 0 100%;display:flex!important;overflow-x:auto;gap:6px;padding:6px 0 8px;-webkit-overflow-scrolling:touch}
+  .topbar .app-tabs .tab-btn{flex:0 0 auto;white-space:nowrap}
+}
+@media (max-width:768px){body.m-inside #sn-close{display:none!important}}
+</style>
 </body>
 </html>
