@@ -191,6 +191,8 @@ textarea:focus, input:focus, select:focus { outline: 1px solid var(--amber); }
 }
 .toast.on { opacity: 1; }
 
+[data-slide][data-ov="1"]::after{content:' \2022';color:var(--amber,#E2A93B);}
+.pd-tplchip-custom{border-style:dashed!important;}
 .pd-textedit{display:none;}
 #pdCanvas{position:sticky!important;top:0;z-index:30;box-shadow:0 8px 0 var(--ink,#06090F);}
 
@@ -222,8 +224,9 @@ textarea:focus, input:focus, select:focus { outline: 1px solid var(--amber); }
     box-shadow:0 0 0 10px var(--ink);}
   .pd-textedit{display:flex;flex-direction:column;gap:6px;}
   .pd-textedit textarea{width:100%;min-height:92px;padding:12px;line-height:1.45;resize:vertical;}
-    .pd-rail[data-rail="tpl"]{order:2;} .pd-textedit{order:3;} .pd-rail[data-rail="slide"]{order:4;} .pd-rail[data-rail="layout"]{order:5;} .pd-rail[data-rail="graphic"]{order:6;}
-  .pd-split{order:7;} .pd-actions{order:8;} .pd-style{order:9;} .pd-rail[data-rail="genre"]{order:10;} .pd-type{order:11;}
+    .pd-rail[data-rail="tpl"]{order:2;} .pd-textedit{order:3;} .pd-rail[data-rail="slide"]{order:4;} .pd-rail[data-rail="scope"]{order:5;} .pd-rail[data-rail="layout"]{order:6;} .pd-rail[data-rail="graphic"]{order:7;}
+  .pd-split{order:8;} .pd-actions{order:9;} .pd-style{order:10;} .pd-rail[data-rail="genre"]{order:11;} .pd-type{order:12;}
+  .pd-rail[data-rail="scope"] .pd-rail-btns{display:grid!important;grid-template-columns:1fr 1fr 1fr!important;overflow:visible;} .pd-rail[data-rail="scope"] .pd-rail-btns button{border-radius:8px!important;padding:0 6px!important;}
   .pd-rail[data-rail="tpl"] .pd-rail-btns button{display:flex;align-items:center;gap:8px;}
   .pd-rail-lbl{margin:0 0 6px!important;font-size:10px!important;}
   .pd-rail-btns{display:flex!important;gap:8px!important;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
@@ -375,8 +378,15 @@ var PD = {
   circleSize: 55,     // Size percentage
   circleX: 50,        // Horizontal position %
   circleY: 50,        // Vertical position %
-  bgc: '#080C14', tx: '#F2F0EA', fsAll: 100, fs: {}, fsScope: 'all', wt: 500, caps: 0, track: 0, tpl: ''
+  bgc: '#080C14', tx: '#F2F0EA', fsAll: 100, fs: {}, fsScope: 'slide', wt: 500, caps: 0, track: 0, tpl: '', custom: 0, scope: 'slide', ov: {}
 };
+var PD_OVK = ['layout','graphicMode','splitPos','circleSize','circleX','circleY'];
+function pdV(k){ var o = PD.ov && PD.ov[PD.slide]; return (o && o[k] != null) ? o[k] : PD[k]; }
+function pdSet(k, v){
+  if (PD.scope === 'all') { PD[k] = v; Object.keys(PD.ov).forEach(function(sl){ delete PD.ov[sl][k]; }); }
+  else { (PD.ov[PD.slide] = PD.ov[PD.slide] || {})[k] = v; }
+}
+function pdHasOv(sl){ var o = PD.ov && PD.ov[sl]; return !!(o && Object.keys(o).length); }
 
 
 /* Templates interpret contemporary indie/genre deck styles: quiet A24-style prestige minimalism, stark thriller contrast,
@@ -396,7 +406,7 @@ function pdSz(t, b){ return Math.max(8, Math.round((PD.slide === 'TITLE' ? t : b
 function pdRgba(hex, a){ var h=(hex||'#000').replace('#',''); if(h.length===3) h=h.split('').map(function(c){return c+c}).join(''); var n=parseInt(h,16)||0; return 'rgba('+((n>>16)&255)+','+((n>>8)&255)+','+(n&255)+','+a+')'; }
 function pdApplyTpl(k){
   var t = PD_TEMPLATES[k]; if(!t) return;
-  PD.tpl=k; PD.bgc=t.bgc; PD.tx=t.tx; PD.accent=t.accent; PD.display=t.display; PD.body=t.body; PD.layout=t.layout; PD.graphicMode=t.graphic;
+  PD.tpl=k; PD.custom=0; PD.bgc=t.bgc; PD.tx=t.tx; PD.accent=t.accent; PD.display=t.display; PD.body=t.body; if(PD.scope==='all'){ PD.layout=t.layout; PD.graphicMode=t.graphic; PD.ov={}; } else { pdSet('layout',t.layout); pdSet('graphicMode',t.graphic); }
   PD.wt=t.wt; PD.caps=t.caps; PD.track=t.track; PD.fsAll=t.fs; PD.fs={}; PD.bg=''; PD.bgMode='colour';
 }
 
@@ -440,6 +450,7 @@ function pdLoad() {
     var raw = localStorage.getItem('deck_pitch_v1');
     if (raw) Object.assign(PD, JSON.parse(raw));
   } catch(e) {}
+  if (!PD.ov) PD.ov = {}; if (PD.scope !== 'all') PD.scope = 'slide'; PD.fsScope = PD.scope;
 
   if (!PD.slides.TITLE) {
     try {
@@ -469,11 +480,11 @@ function pdWell() {
   }
 
   // Configurable Graphic Element
-  if (PD.graphicMode === 'circle') {
+  if (pdV('graphicMode') === 'circle') {
     return '<div style="position:relative;width:100%;height:100%;overflow:hidden;">' +
-      '<div style="position:absolute;left:' + PD.circleX + '%;top:' + PD.circleY + '%;width:' + PD.circleSize + '%;aspect-ratio:1;border:2px solid ' + PD.accent + ';border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 0 20px rgba(0,0,0,0.5);pointer-events:none;"></div>' +
+      '<div style="position:absolute;left:' + pdV('circleX') + '%;top:' + pdV('circleY') + '%;width:' + pdV('circleSize') + '%;aspect-ratio:1;border:2px solid ' + PD.accent + ';border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 0 20px rgba(0,0,0,0.5);pointer-events:none;"></div>' +
     '</div>';
-  } else if (PD.graphicMode === 'line') {
+  } else if (pdV('graphicMode') === 'line') {
     return '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:rgba(128,128,128,0.08);">' +
       '<span style="font-size:16px;letter-spacing:0.14em;color:' + pdRgba(PD.tx,.4) + ';text-transform:uppercase;">Visual / Media Area</span>' +
     '</div>';
@@ -487,24 +498,24 @@ function pdCanvasInner() {
   var body = '<div contenteditable="true" data-pd="text" style="' + type + pdSz(61,38) + '">' +
     HUB.esc(text) + '</div>';
 
-  if (PD.layout === 'text') {
+  if (pdV('layout') === 'text') {
     return '<div style="position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:8%">' +
       '<div style="max-width:1000px"><div style="font-size:70px;color:' + PD.accent + ';font-family:' + pdFace() + '">&ldquo;</div>' +
       '<div contenteditable="true" data-pd="text" style="' + type + pdSz(67,45) + '">' + HUB.esc(text) + '</div></div></div>';
   }
-  if (PD.layout === 'full') {
+  if (pdV('layout') === 'full') {
     return '<div style="position:absolute;inset:0">' + pdWell() +
       '<div style="position:absolute;inset:auto 0 0 0;padding:45px 54px;background:linear-gradient(transparent,' + pdRgba(PD.bgc,.92) + ')">' + body + '</div></div>';
   }
-  if (PD.layout === 'stack') {
+  if (pdV('layout') === 'stack') {
     return '<div style="position:absolute;inset:0;display:flex;flex-direction:column">' +
       '<div style="flex:0 0 58%;border-bottom:1px solid ' + PD.accent + '">' + pdWell() + '</div>' +
       '<div style="flex:1 1 auto;padding:38px 48px">' + body + '</div></div>';
   }
 
   // Adjustable Center Split Layout with Draggable Divider Line
-  var pLeft = PD.splitPos;
-  var pRight = 100 - PD.splitPos;
+  var pLeft = pdV('splitPos');
+  var pRight = 100 - pdV('splitPos');
   return '<div id="pdSplitStage" style="position:absolute;inset:0;display:flex;width:100%;height:100%;">' +
     '<div style="width:' + pLeft + '%;height:100%;position:relative;overflow:hidden;">' + pdWell() + '</div>' +
     '<div id="pdSplitHandle" title="Drag to adjust split line" style="width:4px;cursor:col-resize;background:' + PD.accent + ';position:relative;z-index:20;flex-shrink:0;"></div>' +
@@ -559,8 +570,14 @@ function pdDraw(box) {
   };
   tint('[data-genre]', function(b){ return b.getAttribute('data-genre') === PD.genre; });
   tint('[data-slide]', function(b){ return b.getAttribute('data-slide') === PD.slide; });
-  tint('[data-layout]', function(b){ return b.getAttribute('data-layout') === PD.layout; });
-  tint('[data-graphic]', function(b){ return b.getAttribute('data-graphic') === PD.graphicMode; });
+  tint('[data-scope]', function(b){ var v=b.getAttribute('data-scope'); return v !== 'reset' && v === PD.scope; });
+  box.querySelectorAll('[data-slide]').forEach(function(b){ if (pdHasOv(b.getAttribute('data-slide'))) b.setAttribute('data-ov','1'); else b.removeAttribute('data-ov'); });
+  [['#pdSplitRange','splitPos'],['#pdCircleSize','circleSize'],['#pdCircleX','circleX'],['#pdCircleY','circleY']].forEach(function(p){ var e = box.querySelector(p[0]); if (e && document.activeElement !== e) e.value = pdV(p[1]); });
+  var sr = box.querySelector('#pdSplitRow'); if (sr) sr.style.display = (pdV('layout') === 'split') ? 'flex' : 'none';
+  var cb = box.querySelector('#pdCustomBar'); if (cb) cb.style.display = (PD.custom && PD.tpl) ? 'flex' : 'none';
+  box.querySelectorAll('[data-tpl]').forEach(function(b){ b.classList.toggle('pd-tplchip-custom', !!(PD.custom && b.getAttribute('data-tpl') === PD.tpl)); });
+  tint('[data-layout]', function(b){ return b.getAttribute('data-layout') === pdV('layout'); });
+  tint('[data-graphic]', function(b){ return b.getAttribute('data-graphic') === pdV('graphicMode'); });
 
   var te = box.querySelector('#pdTextEdit');
   if (te && document.activeElement !== te) te.value = PD.slides[PD.slide] || '';
@@ -568,12 +585,12 @@ function pdDraw(box) {
   var tf2 = box.querySelector('#pdTextFor'); if (tf2) tf2.textContent = '· ' + PD.slide;
   var f = box.querySelector('#pdFaceName'); if (f) f.textContent = PD_FACES[PD.display][0];
   var bf = box.querySelector('#pdBodyName'); if (bf) bf.textContent = PD_BODIES[PD.body][0];
-  var ln = box.querySelector('#pdLayoutName'); if (ln) ln.textContent = PD.layout;
+  var ln = box.querySelector('#pdLayoutName'); if (ln) ln.textContent = pdV('layout');
   var av = box.querySelector('#pdAccentVal'); if (av) av.textContent = PD.accent;
 
   // Sync circle control panels visibility
   var cg = box.querySelector('#pdCircleControls');
-  if (cg) cg.style.display = (PD.graphicMode === 'circle') ? 'grid' : 'none';
+  if (cg) cg.style.display = (pdV('graphicMode') === 'circle') ? 'grid' : 'none';
 
   pdBind(box);
   pdBind2(box);
@@ -589,8 +606,10 @@ function pdBind(box) {
   if (t) t.addEventListener('blur', function(){ PD.slides[PD.slide] = t.textContent.trim(); pdPub(); });
   box.querySelectorAll('[data-genre]').forEach(function(b){ b.onclick = function(){ PD.genre = b.getAttribute('data-genre'); pdPub(); pdDraw(box); }; });
   box.querySelectorAll('[data-slide]').forEach(function(b){ b.onclick = function(){ PD.slide = b.getAttribute('data-slide'); pdPub(); pdDraw(box); }; });
-  box.querySelectorAll('[data-layout]').forEach(function(b){ b.onclick = function(){ PD.layout = b.getAttribute('data-layout'); pdPub(); pdDraw(box); }; });
-  box.querySelectorAll('[data-graphic]').forEach(function(b){ b.onclick = function(){ PD.graphicMode = b.getAttribute('data-graphic'); pdPub(); pdDraw(box); }; });
+  box.querySelectorAll('[data-scope]').forEach(function(b){ b.onclick = function(){ var v = b.getAttribute('data-scope'); if (v === 'reset') { delete PD.ov[PD.slide]; } else { PD.scope = v; PD.fsScope = v; } pdPub(); pdDraw(box); }; });
+  var tr0 = box.querySelector('#pdTplReset'); if (tr0) tr0.onclick = function(){ if (PD.tpl) { pdApplyTpl(PD.tpl); pdPub(); var f=box.querySelector('#pdFace'); if(f) f.value=PD.display; var bd=box.querySelector('#pdBody'); if(bd) bd.value=PD.body; pdDraw(box); } };
+  box.querySelectorAll('[data-layout]').forEach(function(b){ b.onclick = function(){ pdSet('layout', b.getAttribute('data-layout')); pdPub(); pdDraw(box); }; });
+  box.querySelectorAll('[data-graphic]').forEach(function(b){ b.onclick = function(){ pdSet('graphicMode', b.getAttribute('data-graphic')); pdPub(); pdDraw(box); }; });
 
   // Draggable Split Divider Line
   var handle = box.querySelector('#pdSplitHandle');
@@ -601,9 +620,9 @@ function pdBind(box) {
       function onMove(ev) {
         var rect = stage.getBoundingClientRect();
         var pct = Math.round(((ev.clientX - rect.left) / rect.width) * 100);
-        PD.splitPos = Math.max(15, Math.min(85, pct));
+        pdSet('splitPos', Math.max(15, Math.min(85, pct)));
         var sl = box.querySelector('#pdSplitRange');
-        if (sl) sl.value = PD.splitPos;
+        if (sl) sl.value = pdV('splitPos');
         pdDraw(box);
       }
       function onUp() {
@@ -622,9 +641,9 @@ function pdBind(box) {
       function mv(ev){
         ev.preventDefault();
         var tt = ev.touches[0], rect = stage.getBoundingClientRect();
-        PD.splitPos = Math.max(15, Math.min(85, Math.round(((tt.clientX - rect.left) / rect.width) * 100)));
-        var sl = box.querySelector('#pdSplitRange'); if (sl) sl.value = PD.splitPos;
-        var kids = stage.children; kids[0].style.width = PD.splitPos + '%'; kids[2].style.width = (100 - PD.splitPos) + '%';
+        pdSet('splitPos', Math.max(15, Math.min(85, Math.round(((tt.clientX - rect.left) / rect.width) * 100))));
+        var sl = box.querySelector('#pdSplitRange'); if (sl) sl.value = pdV('splitPos');
+        var kids = stage.children; kids[0].style.width = pdV('splitPos') + '%'; kids[2].style.width = (100 - pdV('splitPos')) + '%';
       }
       function up(){ window.removeEventListener('touchmove', mv); window.removeEventListener('touchend', up); pdPub(); pdDraw(box); }
       window.addEventListener('touchmove', mv, {passive:false}); window.addEventListener('touchend', up);
@@ -633,13 +652,13 @@ function pdBind(box) {
 
   // Sliders for Split & Circle
   var sSplit = box.querySelector('#pdSplitRange');
-  if (sSplit) sSplit.oninput = function() { PD.splitPos = +sSplit.value; pdDraw(box); pdPub(); };
+  if (sSplit) sSplit.oninput = function() { pdSet('splitPos', +sSplit.value); pdDraw(box); pdPub(); };
   var cSize = box.querySelector('#pdCircleSize');
-  if (cSize) cSize.oninput = function() { PD.circleSize = +cSize.value; pdDraw(box); pdPub(); };
+  if (cSize) cSize.oninput = function() { pdSet('circleSize', +cSize.value); pdDraw(box); pdPub(); };
   var cX = box.querySelector('#pdCircleX');
-  if (cX) cX.oninput = function() { PD.circleX = +cX.value; pdDraw(box); pdPub(); };
+  if (cX) cX.oninput = function() { pdSet('circleX', +cX.value); pdDraw(box); pdPub(); };
   var cY = box.querySelector('#pdCircleY');
-  if (cY) cY.oninput = function() { PD.circleY = +cY.value; pdDraw(box); pdPub(); };
+  if (cY) cY.oninput = function() { pdSet('circleY', +cY.value); pdDraw(box); pdPub(); };
 
   var fs = box.querySelector('#pdFace'); if (fs) fs.onchange = function(){ PD.display = +fs.value; pdPub(); pdDraw(box); };
   var bs = box.querySelector('#pdBody'); if (bs) bs.onchange = function(){ PD.body = +bs.value; pdPub(); pdDraw(box); };
@@ -664,19 +683,23 @@ function pdBind(box) {
 }
 
 
+function pdCust(box){
+  var cb = box.querySelector('#pdCustomBar'); if (cb) cb.style.display = (PD.custom && PD.tpl) ? 'flex' : 'none';
+  box.querySelectorAll('[data-tpl]').forEach(function(b){ b.classList.toggle('pd-tplchip-custom', !!(PD.custom && b.getAttribute('data-tpl') === PD.tpl)); });
+}
 function pdBind2(box){
   var $=function(i){return box.querySelector(i)};
   var fs=$('#pdFs'),fv=$('#pdFsVal'),all=$('#pdFsAll');
   if(fs){ if(document.activeElement!==fs) fs.value=pdScale(); fv.textContent=pdScale()+'%';
-    fs.oninput=function(){ var v=+fs.value; if(PD.fsScope==='all'){ PD.fsAll=v; PD.fs={}; } else { PD.fs[PD.slide]=v; } PD.tpl=''; fv.textContent=v+'%'; pdPub(); var c=$('#pdCanvas'); if(c) { c.innerHTML=pdCanvasHTML(); pdFit(c); pdBind(box); } }; }
+    fs.oninput=function(){ var v=+fs.value; if(PD.fsScope==='all'){ PD.fsAll=v; PD.fs={}; } else { PD.fs[PD.slide]=v; } PD.custom=1; pdCust(box); fv.textContent=v+'%'; pdPub(); var c=$('#pdCanvas'); if(c) { c.innerHTML=pdCanvasHTML(); pdFit(c); pdBind(box); } }; }
   if(all){ all.checked=PD.fsScope==='all'; all.onchange=function(){ PD.fsScope=all.checked?'all':'slide'; pdPub(); }; }
   var tr=$('#pdTrack'); if(tr){ tr.value=PD.track; tr.oninput=function(){ PD.track=+tr.value; pdPub(); pdDraw(box); }; }
   var wt=$('#pdWt'); if(wt){ wt.value=String(PD.wt); wt.onchange=function(){ PD.wt=+wt.value; pdPub(); pdDraw(box); }; }
   var cp=$('#pdCaps'); if(cp){ cp.checked=!!PD.caps; cp.onchange=function(){ PD.caps=cp.checked?1:0; pdPub(); pdDraw(box); }; }
   [['#pdBgc','bgc'],['#pdTx','tx'],['#pdAccent2','accent']].forEach(function(p){ var e=$(p[0]); if(!e) return; e.value=PD[p[1]];
-    e.oninput=function(){ PD[p[1]]=e.value; PD.tpl=''; var c=$('#pdCanvas'); if(c){ c.style.background=PD.bgc; c.style.color=PD.tx; c.innerHTML=pdCanvasHTML(); pdFit(c); pdBind(box);} };
+    e.oninput=function(){ PD[p[1]]=e.value; PD.custom=1; pdCust(box); var c=$('#pdCanvas'); if(c){ c.style.background=PD.bgc; c.style.color=PD.tx; c.innerHTML=pdCanvasHTML(); pdFit(c); pdBind(box);} };
     e.onchange=function(){ pdPub(); pdDraw(box); }; });
-  var sw=$('#pdSwap'); if(sw) sw.onclick=function(){ var t=PD.bgc; PD.bgc=PD.tx; PD.tx=t; PD.tpl=''; pdPub(); pdDraw(box); };
+  var sw=$('#pdSwap'); if(sw) sw.onclick=function(){ var t=PD.bgc; PD.bgc=PD.tx; PD.tx=t; PD.custom=1; pdCust(box); pdPub(); pdDraw(box); };
   box.querySelectorAll('[data-tpl]').forEach(function(b){ var tt=PD_TEMPLATES[b.getAttribute('data-tpl')]; if(tt){ b.style.background=tt.bgc; b.style.color=tt.tx; b.style.boxShadow='inset 4px 0 0 '+tt.accent; b.style.borderWidth='2px'; } b.style.borderColor = b.getAttribute('data-tpl')===PD.tpl ? PD.accent : 'var(--line)';
     b.onclick=function(){ pdApplyTpl(b.getAttribute('data-tpl')); pdPub(); var f=$('#pdFace'); if(f) f.value=PD.display; var bd=$('#pdBody'); if(bd) bd.value=PD.body; pdDraw(box); }; });
 }
@@ -699,6 +722,7 @@ function renderPitchDeck(box) {
       rail('Style', Object.keys(PD_TEMPLATES).map(function(k){ return [k, PD_TEMPLATES[k].n]; }), 'tpl') +
       rail('Genre', PD_GENRES, 'genre') +
       rail('Slide type', PD_SLIDES, 'slide') +
+      rail('Layout, graphic and size apply to', [['slide','This slide'],['all','All slides'],['reset','Reset slide']], 'scope') +
       rail('Layout', [['split','Split'],['full','Full image'],['text','Text only'],['stack','Stacked']], 'layout') +
       rail('Graphic Style', [['line','Split line'], ['circle','Circle frame'], ['none','Clean']], 'graphic') +
     '</div>' +
@@ -716,7 +740,7 @@ function renderPitchDeck(box) {
 
       // Live Controls for Split Line & Circle Positioning
       '<div class="pd-split" style="margin-top:10px;padding:8px 12px;border:1px solid var(--line);border-radius:6px;background:#0B101D;display:flex;gap:16px;align-items:center;flex-wrap:wrap;">' +
-        '<div style="display:flex;align-items:center;gap:6px;">' +
+        '<div id="pdSplitRow" style="display:flex;align-items:center;gap:6px;">' +
           '<span class="note">Split Line:</span>' +
           '<input type="range" id="pdSplitRange" min="15" max="85" value="' + PD.splitPos + '" style="width:90px;accent-color:var(--amber);">' +
         '</div>' +
@@ -729,10 +753,10 @@ function renderPitchDeck(box) {
 
       '<div class="pd-style" style="margin-top:10px;padding:10px 12px;border:1px solid var(--line);border-radius:6px;background:#0B101D;">' +
         '<details class="pd-fine" open><summary class="note" style="font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;min-height:32px">Fine-tune type and colour</summary>' +
+          '<div id="pdCustomBar" style="display:none;margin:4px 0 8px;font-size:11px;color:#C6D1DC;align-items:center;gap:8px">Customised from the template <button id="pdTplReset" style="font-size:11px">Reset to template</button></div>' +
         '<div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-top:10px">' +
           '<div style="display:flex;align-items:center;gap:8px;flex:1 1 260px"><span class="note" style="white-space:nowrap">Font size</span>' +
             '<input type="range" id="pdFs" min="40" max="240" step="1" style="flex:1;accent-color:var(--amber)"><span id="pdFsVal" class="note" style="width:40px;text-align:right"></span></div>' +
-          '<label class="note" style="display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="pdFsAll" style="width:auto"> all slides</label>' +
           '<div style="display:flex;align-items:center;gap:8px"><span class="note">Tracking</span><input type="range" id="pdTrack" min="-3" max="30" step="1" style="width:80px;accent-color:var(--amber)"></div>' +
           '<select id="pdWt" style="font-size:11px"><option value="300">Light</option><option value="400">Regular</option><option value="500">Medium</option><option value="700">Bold</option><option value="800">Black</option></select>' +
           '<label class="note" style="display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="pdCaps" style="width:auto"> CAPS</label>' +
