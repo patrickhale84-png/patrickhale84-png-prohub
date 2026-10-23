@@ -2158,5 +2158,10 @@ new MutationObserver(function(){clearTimeout(fix._t);fix._t=setTimeout(fix,60);}
 /* inside the dashboard the layer bar already shows the logo and the close button: never repeat them */
 html.in-frame #m-bar #mb-x,html.in-frame #mb-x,html.in-frame body #hdr-x,html.in-frame #hdr-x,html.in-frame #sn-close,html.in-frame #m-bar .mb-title,html.in-frame .tmb .logo,html.in-frame .topbar .brand,html.in-frame .hdr-bar .hdr-logo{display:none!important}
 </style>
+<script id="std-drawer-close">
+(function(){var d=document.querySelector('.psb');if(!d)return;
+d.addEventListener('click',function(e){if(e.target.closest('.nl,button,a'))setTimeout(function(){if(window.togSB)togSB(false);},0);});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&d.classList.contains('mo')&&window.togSB)togSB(false);});})();
+</script>
 </body>
 </html>

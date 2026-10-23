@@ -962,5 +962,8 @@ if(document.readyState!=='loading')init();else document.addEventListener('DOMCon
 /* inside the dashboard the layer bar already shows the logo and the close button: never repeat them */
 html.in-frame #m-bar #mb-x,html.in-frame #mb-x,html.in-frame body #hdr-x,html.in-frame #hdr-x,html.in-frame #sn-close,html.in-frame #m-bar .mb-title,html.in-frame .tmb .logo,html.in-frame .topbar .brand,html.in-frame .hdr-bar .hdr-logo{display:none!important}
 </style>
+<script id="std-drawer-close">
+(function(){document.addEventListener('keydown',function(e){if(e.key!=='Escape')return;var d=document.getElementById('stdDrawer'),s=document.getElementById('stdScrim');if(d&&d.classList.contains('open')){d.classList.remove('open');if(s)s.classList.remove('on');}});})();
+</script>
 </body>
 </html>
