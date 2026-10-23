@@ -8639,8 +8639,8 @@ function pdfFromPages(pages){
   cooked.forEach(function(kept,pi){
     kept.forEach(function(L,li){
       var t=L.text.trim();
-      var top=L.h-L.y<58, bottom=L.y<46;
-      if((top||bottom)&&(/^\d+[.\-]?$/.test(t)||/^[A-Z ]{0,24}(REVISIONS?|DRAFT)\b.*$/i.test(t)||/^\(?(CONTINUED|MORE)\)?:?\s*(\(\d+\))?$/i.test(t)||t.length<=3)) { L.drop=true; return; }
+      var top=L.h-L.y<100, bottom=L.y<64;
+      if((top||bottom)&&(/^(page\s+)?\d+[.\-)]?(\s+of\s+\d+)?$/i.test(t)||/^\d+[.\-]?$/.test(t)||/^[A-Z ]{0,24}(REVISIONS?|DRAFT)\b.*$/i.test(t)||/^\(?(CONTINUED|MORE)\)?:?\s*(\(\d+\))?$/i.test(t)||t.length<=3)) { L.drop=true; return; }
       if(/^\(?\s*(CONTINUED|MORE)\s*\)?:?\s*(\(\d+\))?$/i.test(t)||/^CONTINUED:?\s*\(\d+\)$/i.test(t)||/^\d+[A-Z]?\s+CONTINUED:?$/i.test(t)){ L.more=/MORE/i.test(t); L.drop=true; return; }
       all.push(L);
     });
@@ -8663,8 +8663,11 @@ function pdfFromPages(pages){
   var body=all.filter(function(L){return L.page>=startPage;});
   /* line pitch */
   var hist={};
-  for(var i=1;i<body.length;i++){ if(body[i].page!==body[i-1].page) continue; var d=Math.round((body[i-1].y-body[i].y)*2)/2; if(d>=8&&d<=20) hist[d]=(hist[d]||0)+1; }
-  var pitch=12,bc=0; Object.keys(hist).forEach(function(k){ if(hist[k]>bc){ bc=hist[k]; pitch=+k; } });
+  for(var i=1;i<body.length;i++){ if(body[i].page!==body[i-1].page) continue; var d=Math.round((body[i-1].y-body[i].y)*2)/2; if(d>=8&&d<=60) hist[d]=(hist[d]||0)+1; }
+  /* line pitch = the smallest spacing that is common (single, 1.5 or double spaced PDFs all work) */
+  var pitch=12,bc=0; Object.keys(hist).forEach(function(k){ if(hist[k]>bc){ bc=hist[k]; } });
+  var pk=Object.keys(hist).map(Number).filter(function(k){ return hist[k]>=Math.max(3,bc*0.2); }).sort(function(a,b){return a-b;});
+  if(pk.length) pitch=pk[0];
   /* left margin = most common x of scene headings, else smallest common x */
   function headX(L){
     for(var q=0;q<L.items.length;q++){
