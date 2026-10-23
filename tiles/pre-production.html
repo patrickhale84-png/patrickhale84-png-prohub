@@ -2488,10 +2488,10 @@ body{background:var(--bg);color:var(--tx);font-family:var(--fui);margin:0;displa
     <div class="fdb-bar" style="padding:10px 16px;border-bottom:1px solid #1E293B;background:#080B12;display:flex;align-items:center;gap:10px;flex-shrink:0;">
       <i class="fa-solid fa-film" style="color:#F43F5E;font-size:13px;"></i>
       <input id="fdb-search-input" type="text" placeholder="Search films by title… (press Enter)" onkeydown="if(event.key==='Enter')fdbSearch(this.value)" style="flex:1;background:transparent;border:none;outline:none;color:#E2E8F0;font-family:monospace;font-size:12px;"/>
-      <button onclick="fdbSearch(document.getElementById('fdb-search-input').value)" style="background:rgba(244,63,94,.15);color:#FB7185;border:1px solid #9F1239;border-radius:4px;padding:4px 12px;font-size:9px;font-family:monospace;cursor:pointer;font-weight:700;">SEARCH</button>
+      <button onclick="fdbSearch(document.getElementById('fdb-search-input').value)" style="background:rgba(244,63,94,.15);color:#FB7185;border:1px solid #9F1239;border-radius:4px;padding:4px 12px;font-size:9px;font-family:monospace;cursor:pointer;font-weight:700;">SEARCH</button><button class="fdb-keytog" type="button" title="Show or hide the TMDB API key box" onclick="document.getElementById('v-filmdb').classList.toggle('key-on')">KEY</button>
       <div style="width:1px;background:#1E293B;height:20px;"></div>
-      <input id="fdb-key-input" type="password" placeholder="TMDB API Key" style="width:160px;background:#0A0D14;border:1px solid #1E293B;border-radius:4px;padding:4px 8px;color:#475569;font-family:monospace;font-size:9px;outline:none;" oninput="fdbSetKey(this.value)"/>
-      <a href="https://www.themoviedb.org/settings/api" target="_blank" style="font-size:8px;color:#334155;font-family:monospace;text-decoration:none;white-space:nowrap;" title="Get a free TMDB API key">GET KEY ↗</a>
+      <input id="fdb-key-input" class="fdb-keyx" type="password" placeholder="TMDB API Key" style="width:160px;background:#0A0D14;border:1px solid #1E293B;border-radius:4px;padding:4px 8px;color:#475569;font-family:monospace;font-size:9px;outline:none;" oninput="fdbSetKey(this.value)"/>
+      <a class="fdb-keyx" href="https://www.themoviedb.org/settings/api" target="_blank" style="font-size:8px;color:#334155;font-family:monospace;text-decoration:none;white-space:nowrap;" title="Get a free TMDB API key">GET KEY ↗</a>
       <div style="width:1px;background:#1E293B;height:20px;"></div>
       <button onclick="openFdbSrModal()" style="background:rgba(79,70,229,.18);color:#818CF8;border:1px solid #3730A3;border-radius:4px;padding:4px 10px;font-size:9px;font-family:monospace;cursor:pointer;font-weight:700;white-space:nowrap;" title="Open Script Reader alongside Film DB"><i class="fa-solid fa-scroll" style="margin-right:4px;"></i>SCRIPTS</button>
     </div>
@@ -10325,5 +10325,20 @@ window.addEventListener('load',fix);window.addEventListener('resize',fix);setTim
 new MutationObserver(function(){clearTimeout(fix._t);fix._t=setTimeout(fix,60);}).observe(document.documentElement,{attributes:true,attributeFilter:['class']});
 })();
 </script>
+<style id="fdb-key-style">
+#v-filmdb .fdb-keyx{display:none!important}
+#v-filmdb.key-on .fdb-keyx{display:inline-block!important}
+#v-filmdb .fdb-keytog{background:transparent;border:1px solid #1E293B;color:#475569;border-radius:4px;padding:4px 7px;font:700 8px monospace;cursor:pointer}
+@media (max-width:768px){
+  #v-filmdb .fdb-bar{flex-wrap:wrap!important;padding:8px 10px!important;gap:6px!important}
+  #v-filmdb .fdb-bar>div[style*="width:1px"]{display:none!important}
+  #v-filmdb .fdb-bar>i{display:none}
+  #v-filmdb #fdb-search-input{flex:1 1 100%!important;order:1;padding:6px 2px!important;font-size:14px!important}
+  #v-filmdb .fdb-bar>button{order:2;min-height:34px;flex:1 1 auto}
+  #v-filmdb .fdb-bar>button.fdb-keytog{flex:0 0 auto;order:3}
+  #v-filmdb #fdb-key-input.fdb-keyx{order:4;flex:1 1 100%;width:100%!important;font-size:13px!important;padding:8px!important}
+  #v-filmdb .fdb-bar>a.fdb-keyx{order:5;flex:1 1 100%}
+}
+</style>
 </body>
 </html>
