@@ -7792,9 +7792,18 @@ window.preHubReceiveScript = function(payload) {
   window.hubEnter = enter;
   function fromHash(){ return enter(location.hash); }
   /* retry while the big page finishes initialising so nothing flips back to the dashboard */
+  var LV='prehub_last_view';
+  function remember(){
+    if(typeof window.sw!=='function'||window.sw.__rem) return;
+    var o=window.sw; var w=function(id){ try{ if(id&&id!=='dashboard') sessionStorage.setItem(LV,id); else if(id==='dashboard') sessionStorage.removeItem(LV); }catch(e){} return o.apply(this,arguments); };
+    w.__rem=1; window.sw=w;
+  }
   function boot(){
-    if(!location.hash) return;
-    [0,120,350,800,1600].forEach(function(d){ setTimeout(fromHash,d); });
+    remember();
+    if(location.hash){ [0,120,350,800,1600].forEach(function(d){ setTimeout(fromHash,d); }); return; }
+    /* a reload or a stray reset inside the dashboard frame returns to the section you were in, not the tile grid */
+    var last=null; try{ last=sessionStorage.getItem(LV); }catch(e){}
+    if(last&&document.documentElement.classList.contains('in-frame')) [0,120,350,800,1600].forEach(function(d){ setTimeout(function(){ remember(); enter(last); },d); });
   }
   window.addEventListener('hashchange', fromHash);
   window.addEventListener('message', function(e){
