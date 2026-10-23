@@ -20,7 +20,7 @@ body{background:var(--bg);color:var(--tx);font-family:var(--fui);margin:0;displa
 .apc{display:flex;flex-grow:1;height:calc(100vh - 52px);overflow:hidden;}
 .psb{width:248px;background:var(--bg-sb);border-right:1px solid var(--bd);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;transition:width .3s,transform .3s;z-index:60;}
 .psb.cl{width:0;overflow:hidden;}
-@media(max-width:768px){.psb{position:fixed;top:52px;bottom:0;left:0;width:270px;transform:translateX(-100%);box-shadow:12px 0 35px rgba(0,0,0,.85);}.psb.mo{transform:translateX(0);}}
+@media(max-width:768px){.psb{position:fixed;top:52px;bottom:0;left:0;width:270px;transform:translateX(-100%);box-shadow:12px 0 35px rgba(0,0,0,.85);}.psb.dopen{transform:translateX(0);}}
 .nl{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:6px;cursor:pointer;color:var(--tx);margin-bottom:3px;transition:all .2s;font-size:12px;font-weight:500;white-space:nowrap;user-select:none;}
 .nl:hover{background:rgba(255,255,255,.05);}
 .nl.ac{background:rgba(212,160,52,.15);color:var(--acc);border-left:3px solid var(--acc);border-radius:0 6px 6px 0;}
@@ -643,7 +643,7 @@ body{background:var(--bg);color:var(--tx);font-family:var(--fui);margin:0;displa
 
       /* ── Hub sidebar overlay ── */
       .psb{position:fixed!important;top:52px!important;bottom:0!important;left:0!important;width:270px!important;transform:translateX(-100%)!important;z-index:200!important;overflow-y:auto!important;transition:transform .25s!important;}
-      .psb.mo{transform:translateX(0)!important;}
+      .psb.dopen{transform:translateX(0)!important;}
       .psb-overlay{display:block!important;}
       .tmb{flex-wrap:wrap!important;min-height:auto!important;padding:6px 10px!important;gap:6px!important;}
       .mtile-grid,.mtiles{grid-template-columns:repeat(2,1fr)!important;}
@@ -2090,7 +2090,7 @@ body{background:var(--bg);color:var(--tx);font-family:var(--fui);margin:0;displa
 @media (max-width:768px){.hdr-spacer.hdr-mob-only{display:none!important;}}
 /* ── Hamburger drawer: same menu at every width; replaces the dashboard's fixed side menu ── */
 .psb{position:fixed!important;top:52px!important;bottom:0!important;left:0!important;height:auto!important;width:270px!important;max-width:82vw!important;transform:translateX(-100%)!important;transition:transform .25s!important;z-index:260!important;box-shadow:12px 0 35px rgba(0,0,0,.85)!important;overflow-y:auto!important;}
-.psb.mo{transform:translateX(0)!important;}
+.psb.dopen{transform:translateX(0)!important;}
 .psb.cl{width:270px!important;}
 .hdr-drawer{position:fixed;top:52px;bottom:0;left:0;width:270px;max-width:82vw;background:#0A0E17;border-right:1px solid #1B2335;transform:translateX(-100%);transition:transform .25s;z-index:260;overflow-y:auto;padding:12px 10px;box-shadow:12px 0 35px rgba(0,0,0,.85);}
 .hdr-drawer.open{transform:none;}
@@ -2712,7 +2712,7 @@ function setZV(v){document.getElementById('zvl').innerText=v+'%';if(ytP&&ytP.set
 function toast(m){const c=document.getElementById('tc'),t=document.createElement('div');t.className='tm';t.innerText=m;c.appendChild(t);setTimeout(()=>t.remove(),3000);}
 // ========== NAVIGATION ==========
 function sw(id){if(id==='festivals'){sw('outreach');if(typeof obTab==='function')obTab('fest');return;}if(id==='pitch'){hubGo('post-production.html#pitchmaker');return;}document.querySelectorAll('.vs').forEach(e=>e.classList.remove('ac'));document.querySelectorAll('.nl').forEach(e=>e.classList.remove('ac'));const v=document.getElementById('v-'+id),n=document.getElementById('n-'+id);if(v)v.classList.add('ac');if(n)n.classList.add('ac');if(window.innerWidth<=768){const s=document.getElementById('psb');if(s)s.classList.remove('mo');}}
-function togSB(force){const s=document.getElementById('psb');const sc=document.getElementById('hdr-scrim');const on=typeof force==='boolean'?force:!s.classList.contains('mo');s.classList.toggle('mo',on);if(sc)sc.classList.toggle('on',on);}
+function togSB(force){const s=document.getElementById('psb');const sc=document.getElementById('hdr-scrim');const on=typeof force==='boolean'?force:!s.classList.contains('dopen');s.classList.toggle('dopen',on);if(sc)sc.classList.toggle('on',on);}
 function syncT(){const p=document.getElementById('pni')?.value||'UNTITLED PROJECT';S.projectName=p;document.title=p+' | proHUB';}
 // ========== VAULT ==========
 function openVault(){document.getElementById('vm').classList.add('op');document.getElementById('vls').innerText=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});renderVV();}
@@ -6286,10 +6286,10 @@ function pslCalc18Rule(){
 
 // ==================== MOBILE: sidebar hamburger ====================
 function pslInitMobile(){
-  // Ensure sidebar toggle works on mobile (already handled by .psb.mo class)
+  // Ensure sidebar toggle works on mobile (already handled by .psb.dopen class)
   const hamburger=document.getElementById('sb-toggle');
   if(hamburger)hamburger.addEventListener('click',()=>{
-    document.querySelector('.psb')?.classList.toggle('mo');
+    document.querySelector('.psb')?.classList.toggle('dopen');
   });
 }
 
@@ -6624,7 +6624,7 @@ _populateScribePanel = function(){
       mb.onclick=function(e){
         e.stopPropagation();
         var psb=document.querySelector('.psb');
-        if(psb)psb.classList.toggle('mo');
+        if(psb)psb.classList.toggle('dopen');
       };
       sec.appendChild(mb);
 
@@ -6748,7 +6748,7 @@ function hubGo(page, ev){
     y0=null;
     if(dy>60 && dx<60){
       var s=document.getElementById('psb');
-      if(s && !s.classList.contains('mo')) s.classList.add('mo');
+      if(s && !s.classList.contains('dopen')) s.classList.add('dopen');
     }
   }, {passive:true});
 })();
@@ -10062,7 +10062,7 @@ if(document.readyState!=='loading')setTimeout(init,0);else document.addEventList
   #sp-pgnum-layer{display:none!important;}
 }
 
-@media (max-width:768px){#mob-scribe-panel:not(.open){box-shadow:none!important;}#psb:not(.mo){box-shadow:none!important;}}
+@media (max-width:768px){#mob-scribe-panel:not(.open){box-shadow:none!important;}#psb:not(.dopen){box-shadow:none!important;}}
 #m-sheet{z-index:100001!important;max-height:85vh!important;}
 #m-scrim{z-index:100000!important;}
 #m-sheet .ms-item{padding:10px 12px!important;margin-bottom:5px!important;}
