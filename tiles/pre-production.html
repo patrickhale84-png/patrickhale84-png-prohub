@@ -4737,20 +4737,8 @@ function _findCitableLines(parsed) {
 }
 
 function _compFilms(parsed, finalScores) {
-  /* Suggest comparable films based on genre signals & scores */
-  const raw = (parsed.rawLines || []).join(' ').toLowerCase();
-  const comps = [];
-  if (/detective|murder|crime|investigat|noir|case|cop|fbi/.test(raw)) comps.push({ title: 'Chinatown (1974)', reason: 'Labyrinthine investigation, moral compromise at every turn' });
-  if (/heist|vault|robbery|crew|getaway/.test(raw)) comps.push({ title: 'Heat (1995)', reason: 'Parallel antagonist arcs, clinical procedural tension' });
-  if (/horror|demon|haunt|monster|ghost|shadow crawl/.test(raw)) comps.push({ title: 'Hereditary (2018)', reason: 'Dread built through domestic intimacy, not jump scares' });
-  if (/sci.?fi|spaceship|alien|future|robot|ai|cyborg/.test(raw)) comps.push({ title: 'Arrival (2016)', reason: 'High-concept premise grounded in emotional specificity' });
-  if (/war|battle|soldier|military|platoon|combat/.test(raw)) comps.push({ title: 'Dunkirk (2017)', reason: 'Experiential rather than expository, visceral present-tense filmmaking' });
-  if (/road trip|journey|travel|highway|motel/.test(raw)) comps.push({ title: 'Nomadland (2020)', reason: 'Episodic structure held by an indelible protagonist consciousness' });
-  if (/love|romance|relationship|heart|together|kiss/.test(raw)) comps.push({ title: 'Normal People (TV, 2020)', reason: 'Subtext-heavy dialogue, emotional stakes without melodrama' });
-  if (/drug|addiction|dealer|hustle|street/.test(raw)) comps.push({ title: 'Euphoria (TV, 2019)', reason: 'Volatile interiority, fragmented structure matching protagonist chaos' });
-  if (comps.length === 0) comps.push({ title: 'Moonlight (2016)', reason: 'Quiet, specific, awards-trajectory; proof that restraint is bankable' });
-  if (comps.length < 2) comps.push({ title: 'A24 / Neon slate (current cycle)', reason: 'Market appetite for auteur-forward prestige material' });
-  return comps.slice(0, 3);
+  /* modern comps matched to the script's genre, tone and themes (see cov-arc-js) */
+  try{ return window.__covComps(parsed, finalScores); }catch(e){ return [{title:'Past Lives (2023)',reason:'Restraint and specificity'}]; }
 }
 
 function _coverageScores(finalScores) {
@@ -4824,7 +4812,8 @@ function renderHalionCoverage(parsed,finalScores,axisResults,allResults){const v
   `:'';
 
   /* Comparative films */
-  const compHtml=`<div style="margin-top:4px">${compFilms.map(cf=>`<div style="display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid #1E293B"><div style="min-width:160px;font-weight:700;color:#E2E8F0;font-size:11px">${cf.title}</div><div style="font-size:11px;color:#94A3B8;font-style:italic">${cf.reason}</div></div>`).join('')}</div>`;
+  const compHtml=window.__covCompHtml(compFilms);
+  const arcHtml=window.__covArcHtml(parsed);
 
   document.getElementById('cv-body').innerHTML=`
     ${blHtml}
@@ -4842,7 +4831,8 @@ function renderHalionCoverage(parsed,finalScores,axisResults,allResults){const v
     <div class="cv-section"><h3>Strengths</h3>${strengths.map(s=>`<div class="cv-strength">${s}</div>`).join('')||'<p>Analysis insufficient.</p>'}</div>
     <div class="cv-section"><h3>Vulnerabilities</h3>${vulns.map(vv=>`<div class="cv-vuln">${vv}</div>`).join('')||'<p>No critical vulnerabilities.</p>'}</div>
     <div class="cv-section"><h3>Revision Priorities</h3>${suggestions.map(s=>`<div class="cv-suggestion">${s}</div>`).join('')||'<p>No specific suggestions.</p>'}</div>
-    <div class="cv-section"><h3>Comparative Analysis</h3><p style="color:#94A3B8;font-size:11px;margin-bottom:8px">Films this material resonates with — useful for pitch context and to identify tone targets:</p>${compHtml}</div>
+    <div class="cv-section"><h3>Story Arc &amp; Structure</h3>${arcHtml}</div>
+    <div class="cv-section"><h3>Comparative Analysis · Modern Comps</h3><p style="color:#94A3B8;font-size:11px;margin-bottom:8px">Recent films matched to your script’s genre, tone and themes. Use them for pitch context and as tone targets.</p>${compHtml}</div>
     <div class="cv-section"><h3>Market Assessment</h3><p>${market}</p></div>
     <div class="cv-section" style="border-top:2px solid #7C3AED;margin-top:20px;padding-top:16px">
       <h3 style="color:#A78BFA">Producer Query Letter Template</h3>
@@ -8606,7 +8596,15 @@ function parseText(raw){
     var ind=l.match(/^ */)[0].length;
     return {t:l.trim(),ind:ind};
   });
-  return {title:tp.title,author:tp.author,contact:tp.contact,lines:build(entries)};
+  var built=build(entries), joined=[];
+  /* hard-wrapped action: a line that stops mid-sentence continues into the next action line */
+  built.forEach(function(n){
+    var p=joined[joined.length-1];
+    if(p&&p.type==='ACTION'&&n.type==='ACTION'&&!/[.!?:;"”)\]…—]$/.test(p.text.trim())&&!/^(INT|EXT|I\/E)[. ]/i.test(n.text)&&p.text.length<260) p.text=p.text.replace(/\s+$/,'')+' '+n.text.replace(/^\s+/,'');
+    else joined.push(n);
+  });
+  joined.forEach(function(n){ if(n.type==='ACTION') n.text=n.text.replace(/\s*\n\s*/g,' '); });
+  return {title:tp.title,author:tp.author,contact:tp.contact,lines:joined};
 }
 
 /* ---------- PDF: glyph positions -> indented lines ---------- */
@@ -10403,6 +10401,353 @@ html.in-frame #m-bar #mb-x,html.in-frame #mb-x,html.in-frame body #hdr-x,html.in
 (function(){var d=document.getElementById('psb');if(!d)return;
 d.addEventListener('click',function(e){if(e.target.closest('.nl,button,a'))setTimeout(function(){if(window.togSB)togSB(false);},0);});
 document.addEventListener('keydown',function(e){if(e.key==='Escape'&&d.classList.contains('dopen')&&window.togSB)togSB(false);});})();
+</script>
+<style id="sp-flex-fix">html body #editor-scroller-viewport #screenplay-paper-sheet,html body #editor-scroller-viewport #screenplay-title-page-view,html body #editor-scroller-viewport .paper-sheet-container{flex:0 0 auto!important;height:auto!important;max-height:none!important;}html body #editor-scroller-viewport{overflow-y:auto!important;}</style>
+<script id="cov-arc-js">
+/* Coverage: modern comp matching + story arc analysis */
+(function(){
+var LEX={
+ g:{
+  crime:/\b(detective|murder(?:ed)?|homicide|cops?|police|fbi|badge|mob|gangster|cartel|crime|suspect|arrest(?:ed)?|prison|inmate|dealer|corrupt|informant)\b/gi,
+  thriller:/\b(suspect|conspiracy|surveillance|hostage|kidnap(?:ped)?|stalk(?:s|ed|ing)?|trapped|ransom|assassin|spy|agent|blackmail|witness|threat(?:en|ens|ened)?)\b/gi,
+  horror:/\b(demon|haunt(?:ed|ing)?|ghost|monster|blood|corpse|scream(?:s|ed|ing)?|possess(?:ed)?|ritual|creature|nightmare|cult|dread|grave|skeleton|coffin)\b/gi,
+  scifi:/\b(spaceship|alien|robot|android|future|planet|galaxy|cyborg|simulation|a\.i\.|artificial intelligence|laser|drone|quantum|clone|orbit|starship|hologram)\b/gi,
+  comedy:/\b(laughs?|giggles?|grins?|jokes?|awkward(?:ly)?|funny|hilarious|prank|embarrass(?:ed|ing)?|silly|chuckles?|smirks?|idiot)\b/gi,
+  romance:/\b(kiss(?:es|ed)?|lover|romance|romantic|date|dating|wedding|boyfriend|girlfriend|marry|marriage|crush|flirt(?:s|ing)?|embrace[sd]?|heart)\b/gi,
+  action:/\b(explo(?:des?|sion)|chase[sd]?|gunfire|shoot(?:s|ing|out)?|fight(?:s|ing)?|punch(?:es|ed)?|crash(?:es|ed)?|sprints?|grenade|rifle|ambush|battle)\b/gi,
+  war:/\b(soldier|platoon|sergeant|trench(?:es)?|battalion|enlist(?:ed)?|army|infantry|combat|regiment|frontline|bunker|casualt(?:y|ies))\b/gi,
+  western:/\b(sheriff|saloon|horseback|ranch|outlaw|frontier|cowboy|stagecoach|revolver|canyon)\b/gi,
+  fantasy:/\b(wizard|magic(?:al)?|dragon|sword|kingdom|spell|curse[sd]?|prophecy|sorcer\w+|elf|realm|throne)\b/gi,
+  mystery:/\b(clue|mystery|vanish(?:ed|es)?|missing|disappear(?:ed|s|ance)?|alibi|investigat\w+|secret|evidence|riddle)\b/gi,
+  sports:/\b(coach|team|tournament|locker room|stadium|boxing|ring|match|referee|training camp|championship|league|season)\b/gi,
+  road:/\b(highway|road trip|motel|gas station|diner|hitchhik\w+|interstate|rv|van|roadside|passenger seat)\b/gi,
+  heist:/\b(heist|vault|getaway|score|safe ?cracker|inside man|crew|casino|blueprint|alarm)\b/gi,
+  comingofage:/\b(high school|prom|teenager|teen|homeroom|locker|graduation|summer|sophomore|curfew|mom's car|first time|sleepover)\b/gi,
+  political:/\b(senator|campaign|president|election|congress|lobby(?:ist)?|governor|mayor|minister|policy|protest|debate|press secretary)\b/gi,
+  family:/\b(mother|father|mom|dad|sister|brother|grandma|grandmother|grandfather|daughter|son|family|parents|dinner table)\b/gi
+ },
+ t:{
+  dark:/\b(dead|death|kill(?:s|ed|ing)?|blood|dark(?:ness)?|corpse|grave|rot(?:ting)?|bleed(?:s|ing)?|cold|empty|void|decay)\b/gi,
+  tense:/\b(slowly|silence|silent|whisper(?:s|ed|ing)?|waits?|watch(?:es|ing)?|footsteps|creak(?:s|ing)?|tense|holds? (?:his|her|their) breath|listens?|freezes?|frozen|trembl\w+)\b/gi,
+  warm:/\b(smile[sd]?|hug(?:s|ged)?|laugh(?:s|ter)?|warm(?:ly)?|home|friend(?:s|ship)?|gentle|gently|tender(?:ly)?|kind(?:ly)?|sunlight|golden|together)\b/gi,
+  comic:/\b(laughs?|grins?|jokes?|awkward(?:ly)?|funny|hilarious|deadpan|beat\.|blank stare|sheepish(?:ly)?|oops|ridiculous)\b/gi,
+  melancholic:/\b(tears?|cries|crying|weeps?|grief|funeral|alone|lonely|miss(?:es|ed)?|goodbye|memory|memories|sighs?|empty|ache[sd]?|mourn\w*|quiet(?:ly)?)\b/gi,
+  surreal:/\b(dream(?:s|ing)?|strange(?:ly)?|impossible|vision|hallucinat\w+|surreal|float(?:s|ing)?|dissolv\w+|morph(?:s|ing)?|uncanny|trance|unreal)\b/gi,
+  satirical:/\b(corporate|ceo|boss|viral|influencer|followers|brand(?:ing)?|pitch|startup|spin|press release|poll(?:s|ing)?|cable news|reality show|synergy|hashtag)\b/gi,
+  kinetic:/\b(runs?|sprints?|leaps?|slams?|bursts?|crashes?|tears? through|races?|whips?|lunges?|dives?|swerves?|explodes?|blur)\b/gi,
+  intimate:/\b(whispers?|touches?|hand in|eyes meet|beside|close(?:r)?|breath|holds?|presses?|bedroom|kitchen table|window|quietly|softly)\b/gi,
+  epic:/\b(army|armies|thousands|horizon|vast|mountain|empire|kingdom|ocean|battlefield|storm|towering|sweeping|ancient)\b/gi,
+  gritty:/\b(street|alley|dumpster|rust(?:y|ed)?|grime|dirty|motel|cheap|gutter|junkie|graffiti|sweat(?:s|ing)?|fluorescent|rundown|trailer)\b/gi,
+  hopeful:/\b(hope(?:s|ful|fully)?|dawn|sunrise|chance|believe[sd]?|dream(?:s)? of|new start|forgive[sn]?|rebuild\w*|second chance|finally|free)\b/gi
+ },
+ h:{
+  grief:/\b(grief|funeral|died|death of|mourn\w*|loss|widow\w*|cemetery|gone|late (?:husband|wife|mother|father))\b/gi,
+  family:/\b(mother|father|mom|dad|sister|brother|daughter|son|family|parents|grandmother|grandfather)\b/gi,
+  identity:/\b(who (?:am|are) (?:i|you)|pretend(?:s|ing)?|mask|name change|passing|true self|reinvent\w*|secret life|disguise)\b/gi,
+  addiction:/\b(addict\w*|relapse|rehab|overdose|needle|pills?|bottle|drunk|sober\w*|high|fix|withdrawal|dealer)\b/gi,
+  class:/\b(rent|eviction|poor|wealthy|landlord|debt|mortgage|paycheck|billionaire|mansion|laid off|minimum wage|foreclos\w+)\b/gi,
+  justice:/\b(trial|court|verdict|lawyer|attorney|judge|jury|innocent|guilty|wrongful\w*|testif\w+|justice|sentence[sd]?)\b/gi,
+  revenge:/\b(revenge|vengeance|payback|retaliat\w+|make (?:them|him|her) pay|avenge[sd]?)\b/gi,
+  love:/\b(love[sd]?|in love|lover|kiss(?:es|ed)?|marry|marriage|heartbreak|affair|devotion|longing)\b/gi,
+  survival:/\b(survive[sd]?|survival|starv\w+|stranded|rescue[sd]?|shelter|wilderness|lost at sea|rations|storm|escape[sd]?)\b/gi,
+  ambition:/\b(ambition|promotion|empire|climb(?:s|ing)?|rise to|make it|success|fame|career|deal|win|legacy)\b/gi,
+  faith:/\b(god|pray(?:s|ed|er)?|church|faith|priest|pastor|sin(?:s|ned)?|soul|heaven|hell|sacred|temple|miracle)\b/gi,
+  technology:/\b(algorithm|screen|phone|online|data|network|code|server|app|hack(?:s|ed|er)?|ai|digital|feed)\b/gi,
+  memory:/\b(memory|memories|remember(?:s|ed)?|forgot(?:ten)?|flashback|amnesia|childhood|photograph(?:s)?|archive|past)\b/gi,
+  power:/\b(power|control(?:s|led)?|authority|command(?:s|ed)?|obey|regime|corrupt\w*|senator|dictator|surveillance|blackmail)\b/gi,
+  loneliness:/\b(alone|lonely|isolat\w+|solitude|empty apartment|no one|nobody|silence)\b/gi,
+  redemption:/\b(redeem\w*|forgive(?:ness|s|n)?|atone\w*|make amends|second chance|apolog\w+|sorry|penance|absolv\w+)\b/gi,
+  community:/\b(neighborhood|neighbors?|town|community|block party|village|congregation|everyone|crowd|together)\b/gi,
+  race:/\b(racis\w+|segregat\w+|discriminat\w+|slur|immigrant|border|ethnic|prejudice|colonial\w*|ancestry)\b/gi,
+  war:/\b(war|soldier|front|enemy|occupation|draft|deploy(?:ed|ment)?|veteran|bombing|refugee)\b/gi
+ }
+};
+/* [title, year, genres, tones, themes, tier, why] */
+var F=[
+['Get Out',2017,'horror,thriller,comedy','tense,satirical,dark','race,identity,class','micro','Social horror that makes one clean premise do all the work'],
+['Hereditary',2018,'horror,family','dark,tense,melancholic','grief,family','indie','Dread built from domestic intimacy and unresolved grief, not jump scares'],
+['Midsommar',2019,'horror,fantasy','surreal,dark,warm','grief,community,love','indie','Daylight horror; a breakup story told as ritual'],
+['A Quiet Place',2018,'horror,scifi,family','tense,intimate','family,survival','mid','Sound as a rule that drives every scene'],
+['The Babadook',2014,'horror,family','dark,tense,melancholic','grief,family,loneliness','micro','Monster as a metaphor you can feel in the kitchen'],
+['It Follows',2014,'horror,comingofage','tense,dark,surreal','identity,loneliness','micro','A simple rule, relentless pacing, wide-frame suspense'],
+['The Witch',2015,'horror,fantasy','dark,tense,gritty','faith,family,survival','indie','Period language and slow-burn dread'],
+['Talk to Me',2023,'horror,comingofage','dark,kinetic,tense','grief,addiction,loneliness','indie','Teen thrill-seeking as addiction, grief underneath'],
+['Barbarian',2022,'horror,thriller','tense,dark,comic','power,survival','indie','Structure that keeps pulling the rug'],
+['Nope',2022,'scifi,horror,mystery','tense,epic,satirical','technology,family','studio','Spectacle used to interrogate spectacle'],
+['Parasite',2019,'thriller,comedy,crime','satirical,tense,dark','class,family,ambition','mid','Genre shifts held together by one tight location'],
+['Knives Out',2019,'mystery,comedy,crime','comic,tense,warm','family,justice,class','mid','A crowd-pleasing whodunit with a moral spine'],
+['Prisoners',2013,'crime,thriller,mystery','dark,gritty,tense','justice,family,revenge','mid','Moral rot under a procedural surface'],
+['Sicario',2015,'crime,thriller,action','tense,gritty,dark','power,justice','mid','Dread through restraint, point of view as a trap'],
+['No Country for Old Men',2007,'crime,thriller,western','tense,dark,gritty','justice,survival,power','mid','Relentless pursuit, near-silent suspense'],
+['Nightcrawler',2014,'crime,thriller','dark,satirical,gritty','ambition,class,technology','indie','A magnetic antihero in a satire of the news cycle'],
+['Gone Girl',2014,'thriller,mystery,crime','tense,dark,satirical','love,identity,power','studio','Twist structure with sharp social satire'],
+['Zodiac',2007,'crime,mystery,thriller','tense,gritty,melancholic','justice,ambition','studio','Obsession as a procedural, years in the making'],
+['Killers of the Flower Moon',2023,'crime,western,political','epic,dark,melancholic','power,race,justice','studio','A sprawling true crime told from inside the complicity'],
+['Drive',2011,'crime,thriller,romance','tense,dark,intimate','redemption,love,revenge','mid','Minimal dialogue, maximum atmosphere'],
+['Heat',1995,'crime,heist,thriller','tense,gritty,epic','justice,loneliness','studio','Parallel antagonists in a procedural built for scale'],
+['Widows',2018,'heist,crime,thriller','tense,gritty,dark','grief,class,power','mid','Heist as an emotional and political engine'],
+['Baby Driver',2017,'heist,action,romance','kinetic,warm,comic','love,redemption','mid','Choreographed action locked to music'],
+['Ocean’s Eleven',2001,'heist,comedy,crime','comic,warm,kinetic','ambition,community','studio','A heist as pure charm and clean structure'],
+['Mad Max: Fury Road',2015,'action,scifi,road','kinetic,epic,gritty','survival,redemption,power','studio','A chase with a full story told in motion'],
+['John Wick',2014,'action,crime,thriller','kinetic,dark,gritty','revenge,grief','mid','Simple wound, world-built violence'],
+['Top Gun: Maverick',2022,'action,sports,family','kinetic,epic,hopeful','redemption,family,ambition','studio','Practical spectacle with an emotional line through it'],
+['Everything Everywhere All at Once',2022,'scifi,comedy,family','surreal,comic,warm','family,identity,love','indie','Maximalist genre play anchored by a mother and daughter'],
+['Arrival',2016,'scifi,mystery','melancholic,intimate,epic','grief,memory,family','mid','High concept grounded in emotional specificity'],
+['Ex Machina',2014,'scifi,thriller','tense,dark,intimate','technology,power,identity','micro','Three characters, one location, enormous ideas'],
+['Annihilation',2018,'scifi,horror,mystery','surreal,dark,tense','grief,identity,survival','studio','Mood-first science fiction about self-destruction'],
+['Her',2013,'scifi,romance','melancholic,warm,intimate','love,loneliness,technology','mid','A near-future love story with a tender, specific tone'],
+['Blade Runner 2049',2017,'scifi,mystery','melancholic,epic,dark','identity,memory,technology','studio','Slow, immersive world-building with a human question'],
+['Dune',2021,'scifi,fantasy,war','epic,dark,kinetic','power,faith,survival','studio','Scale, myth, and political intrigue'],
+['Interstellar',2014,'scifi,family','epic,melancholic,hopeful','family,survival,memory','studio','Spectacle powered by a parent-child bond'],
+['Moonlight',2016,'drama,comingofage','intimate,melancholic,warm','identity,loneliness,love','indie','Quiet, specific, formally patient'],
+['Manchester by the Sea',2016,'drama,family','melancholic,intimate,comic','grief,family,redemption','indie','Grief handled with dry humor and restraint'],
+['Marriage Story',2019,'drama,family,romance','intimate,melancholic,comic','love,family,justice','mid','A breakup rendered with generosity to both sides'],
+['Nomadland',2020,'drama,road','melancholic,intimate,hopeful','loneliness,community,class','indie','Episodic structure held by a magnetic protagonist'],
+['Minari',2020,'drama,family','warm,melancholic,hopeful','family,ambition,faith','indie','Intimate immigrant story told with humor and love'],
+['The Farewell',2019,'drama,comedy,family','warm,comic,melancholic','family,grief,identity','indie','A family lie that turns into a love letter'],
+['Aftersun',2022,'drama,family','melancholic,intimate,warm','memory,grief,family','micro','A memory film where what is unsaid does the work'],
+['Past Lives',2023,'drama,romance','melancholic,intimate,warm','love,memory,identity','indie','Restraint, silence, and the lives not led'],
+['The Whale',2022,'drama,family','melancholic,intimate,dark','grief,redemption,addiction,family','indie','One room, one body, a plea for forgiveness'],
+['Whiplash',2014,'drama,sports','kinetic,dark,tense','ambition,power','micro','A thriller structure inside a music conservatory'],
+['The Father',2020,'drama,family','melancholic,surreal,intimate','memory,family,grief','indie','Subjective form that lets us feel the loss'],
+['Roma',2018,'drama,family','melancholic,intimate,epic','family,class,memory','mid','A domestic life against a sweeping social backdrop'],
+['Lady Bird',2017,'drama,comingofage,comedy','warm,comic,intimate','family,identity,love','indie','A funny, specific mother-daughter love story'],
+['Eighth Grade',2018,'drama,comingofage,comedy','intimate,comic,melancholic','identity,loneliness,technology','micro','Cringe and compassion in equal measure'],
+['Booksmart',2019,'comedy,comingofage','comic,warm,kinetic','identity,love,ambition','mid','Raunchy buddy comedy with real heart'],
+['Superbad',2007,'comedy,comingofage','comic,warm,kinetic','love,identity','mid','Friendship at the center of a single chaotic night'],
+['Palm Springs',2020,'comedy,romance,scifi','comic,warm,surreal','love,identity,redemption','indie','A time-loop comedy that earns its romance'],
+['Bridesmaids',2011,'comedy,romance','comic,warm,satirical','love,identity,community','mid','Ensemble comedy built on emotional stakes'],
+['The Big Sick',2017,'comedy,romance,family','warm,comic,melancholic','love,family,identity,race','indie','A romcom that sits with real fear'],
+['Crazy Rich Asians',2018,'romance,comedy,family','warm,comic,epic','love,class,family','mid','A romantic comedy with spectacle and cultural specificity'],
+['Challengers',2024,'drama,romance,sports','kinetic,tense,intimate','love,ambition,power','mid','A love triangle staged like a match'],
+['Anyone But You',2023,'romance,comedy','warm,comic,hopeful','love','mid','A classic romcom engine with chemistry first'],
+['Portrait of a Lady on Fire',2019,'romance,drama','intimate,melancholic,tense','love,memory,identity','indie','Gaze as the drama: restrained, charged, devastating'],
+['La La Land',2016,'romance,drama,musical','warm,melancholic,hopeful','love,ambition,memory','mid','Dreamers choosing art or each other'],
+['Normal People',2020,'romance,drama','intimate,melancholic,warm','love,class,identity','indie','Subtext-heavy dialogue, emotional stakes without melodrama'],
+['Dunkirk',2017,'war,thriller','tense,kinetic,epic','survival,war','studio','Experiential war told in present tense'],
+['1917',2019,'war,thriller','tense,kinetic,epic','survival,war,community','studio','One continuous mission as a structure'],
+['Saving Private Ryan',1998,'war','epic,dark,gritty','war,redemption,community','studio','The template for visceral combat with human stakes'],
+['The Zone of Interest',2023,'war,drama,family','dark,surreal,intimate','war,family,power','indie','The banality of evil, filmed at a distance'],
+['Oppenheimer',2023,'political,drama,war','epic,tense,melancholic','power,ambition,technology,war','studio','Chronology shattered to sharpen a moral question'],
+['The Social Network',2010,'drama,political','satirical,tense,kinetic','ambition,technology,power','mid','Dialogue as action: rivalry, ambition, betrayal'],
+['Succession',2018,'drama,family,political','satirical,dark,comic','family,power,class','mid','Wealth and dysfunction as a Shakespearean family drama'],
+['Don’t Look Up',2021,'comedy,scifi,political','satirical,comic,dark','power,technology','studio','Apocalyptic satire aimed at institutions'],
+['Vice',2018,'political,comedy,drama','satirical,dark,comic','power,ambition','mid','A biopic with a point of view and a sense of play'],
+['Spotlight',2015,'drama,mystery,political','tense,gritty,melancholic','justice,faith,community,power','mid','Procedural investigation with moral weight'],
+['The Revenant',2015,'western,drama,action','epic,dark,gritty','revenge,survival,family','studio','Elemental revenge story in brutal landscapes'],
+['The Power of the Dog',2021,'western,drama','tense,melancholic,dark','identity,power,family','mid','A slow-burn character study as western'],
+['True Grit',2010,'western,action,comedy','comic,gritty,warm','revenge,justice,redemption','mid','Dry humor, moral clarity, and a determined heroine'],
+['Hell or High Water',2016,'western,crime,heist','gritty,melancholic,tense','family,class,justice','indie','Heist as a portrait of an economic landscape'],
+['Logan',2017,'action,western,family','dark,gritty,melancholic','family,redemption,survival','studio','A genre franchise turned elegy'],
+['The Lighthouse',2019,'horror,drama','surreal,dark,gritty','loneliness,identity,power','indie','Two actors, one location, escalating madness'],
+['Joker',2019,'drama,crime,thriller','dark,gritty,surreal','loneliness,class,identity','mid','A character study that builds menace out of invisibility'],
+['Uncut Gems',2019,'crime,thriller,comedy','kinetic,gritty,tense','addiction,ambition,family','indie','Anxiety as a narrative engine'],
+['Good Time',2017,'crime,thriller','kinetic,gritty,tense','family,class,survival','micro','A single-night spiral shot like a fever'],
+['Euphoria',2019,'drama,comingofage','surreal,dark,intimate','addiction,identity,love,loneliness','mid','Volatile interiority and chaos matched to the lead'],
+['Requiem for a Dream',2000,'drama,crime','dark,gritty,kinetic','addiction,ambition,loneliness','indie','Addiction told in escalating, subjective form'],
+['Beau Is Afraid',2023,'comedy,horror,fantasy','surreal,dark,comic','family,identity,memory','mid','A nightmare odyssey about guilt and mothers'],
+['Barbie',2023,'comedy,fantasy','satirical,comic,warm','identity,power,family','studio','Big-brand comedy with something to argue'],
+['The Banshees of Inisherin',2022,'drama,comedy','comic,melancholic,dark','loneliness,community,identity','mid','Pettiness and heartbreak in a tiny world'],
+['Poor Things',2023,'fantasy,comedy,romance','surreal,satirical,comic','identity,power,love','mid','A hyperstylized coming-of-age fable'],
+['The Holdovers',2023,'drama,comedy,family','warm,comic,melancholic','loneliness,family,redemption','mid','A small ensemble in a single place, warm and funny'],
+['Coda',2021,'drama,family,musical','warm,hopeful,intimate','family,identity,ambition,community','indie','A family story told with sound, silence, and joy'],
+['Hidden Figures',2016,'drama,political','hopeful,warm,epic','race,ambition,community','mid','A true story with an inspiring ensemble'],
+['Creed',2015,'sports,drama','kinetic,hopeful,warm','family,ambition,redemption','mid','A franchise recast as a personal underdog story'],
+['Rocky',1976,'sports,drama','warm,gritty,hopeful','ambition,love,redemption','indie','The underdog template, still working fifty years on'],
+['Moneyball',2011,'sports,drama,comedy','warm,comic,kinetic','ambition,technology,power','mid','Sports story told through analysis and conversation'],
+['Searching',2018,'thriller,mystery,family','tense,intimate,warm','family,technology,loneliness','micro','A thriller formally built from screens'],
+['Hunt for the Wilderpeople',2016,'comedy,road,family','comic,warm,hopeful','family,survival,redemption','indie','A road adventure with a wry voice'],
+['Little Miss Sunshine',2006,'comedy,road,family','comic,warm,melancholic','family,ambition,community','indie','A dysfunctional-family road comedy with heart'],
+['Y Tu Mamá También',2001,'road,comingofage,drama','warm,gritty,melancholic','love,class,identity','indie','A road trip with a class-conscious backbone'],
+['Mank',2020,'drama,political','satirical,melancholic,comic','ambition,power,memory','mid','A portrait of a writer in a rigged room'],
+['Tár',2022,'drama,political','tense,dark,intimate','power,ambition,identity','mid','A character study that watches control unravel']
+];
+function cnt(txt,re){ var m=txt.match(re); return m?m.length:0; }
+function words(txt){ return Math.max(300,(txt.match(/\S+/g)||[]).length); }
+function profile(txt){
+  var w=words(txt), out={g:{},t:{},h:{}};
+  ['g','t','h'].forEach(function(k){
+    var mx=0;
+    Object.keys(LEX[k]).forEach(function(n){ var c=cnt(txt,LEX[k][n]); out[k][n]=c; });
+  });
+  return out;
+}
+function norm(o,w){ var r={},mx=0; Object.keys(o).forEach(function(n){ r[n]=o[n]/w*1000; mx=Math.max(mx,r[n]); }); if(!mx) return r; Object.keys(r).forEach(function(n){ r[n]=r[n]/mx; }); return r; }
+function topKeys(o,n,min){ return Object.keys(o).filter(function(k){return o[k]>=(min||.25);}).sort(function(a,b){return o[b]-o[a];}).slice(0,n); }
+var LBL={comingofage:'coming-of-age',scifi:'sci-fi',road:'road movie',comic:'comic',dark:'dark',tense:'tense',warm:'warm',melancholic:'melancholic',surreal:'surreal',satirical:'satirical',kinetic:'kinetic',intimate:'intimate',epic:'epic',gritty:'gritty',hopeful:'hopeful'};
+function lb(x){ return LBL[x]||x; }
+function list(a){ a=a.map(lb); return a.length<2?a.join(''):a.slice(0,-1).join(', ')+' and '+a[a.length-1]; }
+function rawText(parsed){ var t=(parsed&&parsed.rawLines&&parsed.rawLines.join('\n'))||''; if(!t){ var el=document.getElementById('cta'); t=el?el.value:''; } return t||''; }
+window.__covProfile=function(parsed){
+  var txt=rawText(parsed), w=words(txt), p=profile(txt);
+  var g=norm(p.g,w), t=norm(p.t,w), h=norm(p.h,w);
+  /* dialogue ratio changes tone: dialogue heavy favors intimate, visual favors epic/kinetic */
+  var lines=txt.split('\n'), dlg=0; lines.forEach(function(l){ if(/^\s{8,}\S/.test(l)||/^\s{4,}\S/.test(l)) dlg++; });
+  return {g:g,t:t,h:h,txt:txt,top:{g:topKeys(g,3,.35),t:topKeys(t,3,.3),h:topKeys(h,3,.3)}};
+};
+window.__covComps=function(parsed,finalScores){
+  var P=window.__covProfile(parsed), n=0;
+  var hasSignal=(P.top.g.length+P.top.t.length+P.top.h.length)>0;
+  var res=F.map(function(f){
+    var gs=f[2].split(','), ts=f[3].split(','), hs=f[4].split(','), sc=0, ov={g:[],t:[],h:[]};
+    gs.forEach(function(x,i){ var v=P.g[x]||0; if(v>=.25){ sc+=v*3*(i===0?1.2:1); ov.g.push(x);} });
+    ts.forEach(function(x){ var v=P.t[x]||0; if(v>=.25){ sc+=v*2; ov.t.push(x);} });
+    hs.forEach(function(x){ var v=P.h[x]||0; if(v>=.25){ sc+=v*1.5; ov.h.push(x);} });
+    if(f[1]>=2014) sc+=.35; else if(f[1]<2000) sc-=.5;
+    return {f:f,sc:sc,ov:ov};
+  }).sort(function(a,b){return b.sc-a.sc;});
+  var out=[], tiers={}, titles={};
+  res.forEach(function(r){
+    if(out.length>=6) return; if(hasSignal&&r.sc<=.4) return;
+    var f=r.f; if((tiers[f[5]]||0)>=3) return; tiers[f[5]]=(tiers[f[5]]||0)+1;
+    var bits=[]; if(r.ov.g.length) bits.push('genre: '+list(r.ov.g.slice(0,2))); if(r.ov.t.length) bits.push('tone: '+list(r.ov.t.slice(0,2))); if(r.ov.h.length) bits.push('theme: '+list(r.ov.h.slice(0,2)));
+    out.push({title:f[0]+' ('+f[1]+')',name:f[0],year:f[1],reason:f[6],why:bits.join(' · '),tier:f[5],score:r.sc});
+  });
+  if(!out.length){ ['Past Lives','The Holdovers','Aftersun'].forEach(function(x){ var f=F.filter(function(q){return q[0]===x;})[0]; out.push({title:f[0]+' ('+f[1]+')',name:f[0],year:f[1],reason:f[6],why:'general match: the script gave few clear genre or tone signals',tier:f[5],score:0}); }); }
+  var best=out[0]?out[0].score:1; out.forEach(function(o){ o.match=Math.max(40,Math.min(97,Math.round(55+o.score/Math.max(best,1)*40-(out.indexOf(o)*3)))); });
+  out.profile=P.top; return out;
+};
+/* ---------------- STORY ARC ---------------- */
+var NEG=/\b(dead|death|kill(?:s|ed|ing)?|blood|cry|cries|crying|scream\w*|fear|afraid|pain|hurt|lost|lose|loss|alone|fail(?:s|ed|ure)?|betray\w*|lie[sd]?|hate[sd]?|angry|rage|fire[sd]?|gun|knife|trap(?:ped)?|panic|run|escape|threat\w*|sorry|never|gone|dark|cold|broken|break|crash\w*|bleed\w*)\b/gi;
+var POS=/\b(smile[sd]?|laugh\w*|love[sd]?|hug\w*|kiss\w*|hope\w*|win|won|safe|home|free|together|forgive\w*|proud|joy\w*|warm|thank\w*|saved?|alive|friend\w*|celebrat\w*|dance[sd]?|better|trust\w*)\b/gi;
+var INT=/\b(explo\w+|crash\w*|scream\w*|shoot\w*|gun\w*|fight\w*|chase[sd]?|run[s]?|ru?sh\w*|slam\w*|burst\w*|bleed\w*|kill\w*|die[sd]?|fire|knife|trap\w*|panic\w*|lunges?|struggl\w+|sprints?|threat\w*|attack\w*|beat(?:s|en|ing)?|smash\w*|collapse[sd]?)\b/gi;
+function parseStruct(txt){
+  var L=txt.split('\n'), scenes=[], cur=null, cues={}, i;
+  function ns(h){ cur={h:h.trim(),w:0,text:'',dlg:{},act:'',cueOrder:[]}; scenes.push(cur); }
+  for(i=0;i<L.length;i++){
+    var raw=L[i], t=raw.trim(); if(!t) continue;
+    if(/^(?:#?\d+[A-Z]?[.)#]?\s+)?(?:INT|EXT|I\/E|INT\/EXT)[. \/]/i.test(t)){ ns(t); continue; }
+    if(!cur) continue;
+    var up=t===t.toUpperCase()&&/[A-Z]/.test(t);
+    var next=(L[i+1]||'').trim();
+    if(up&&t.length<=38&&!/(TO:|FADE|CUT|DISSOLVE|SMASH|MATCH|THE END)\b/.test(t)&&next&&!/^(?:#?\d+[A-Z]?[.)#]?\s+)?(?:INT|EXT)[. ]/i.test(next)&&!/[.!?]$/.test(t.replace(/\(.*?\)/g,'').trim())){
+      var nm=t.replace(/\(.*?\)/g,'').replace(/[^A-Z0-9 .'\-]/g,'').trim(); if(!nm||nm.length<2) { continue; }
+      var d=[]; var j=i+1; while(j<L.length&&L[j].trim()&&!(/^\(.*\)$/.test(L[j].trim())&&false)){ d.push(L[j].trim()); j++; }
+      var dt=d.filter(function(x){return !/^\(.*\)$/.test(x);}).join(' ');
+      cur.dlg[nm]=(cur.dlg[nm]||'')+' '+dt; cur.text+=' '+dt; cur.w+=dt.split(/\s+/).length; cues[nm]=(cues[nm]||0)+1; if(cur.cueOrder.indexOf(nm)<0) cur.cueOrder.push(nm); i=j-1; continue;
+    }
+    cur.text+=' '+t; cur.w+=t.split(/\s+/).length; cur.act+=' '+t;
+  }
+  return {scenes:scenes,cues:cues};
+}
+function sceneMetrics(s){
+  var w=Math.max(20,s.w), neg=cnt(s.text,NEG), pos=cnt(s.text,POS), it=cnt(s.text,INT), ex=(s.text.match(/!/g)||[]).length, qs=(s.text.match(/\?/g)||[]).length;
+  var tension=(it*2+neg*1.1+ex*.8+qs*.3)/w*100, val=(pos-neg)/w*100;
+  return {tension:tension,val:val};
+}
+function smooth(a,k){ return a.map(function(_,i){ var s=0,c=0; for(var j=i-k;j<=i+k;j++){ if(j>=0&&j<a.length){ s+=a[j]; c++; } } return s/c; }); }
+var BEATS=[
+ {n:'Opening image',p:.01,key:'open',tip:'Establish tone, world and the protagonist’s “before”.'},
+ {n:'Catalyst / inciting incident',p:.11,key:'cat',tip:'The event that breaks the status quo. By page 10–15 on a feature.'},
+ {n:'Break into Act II',p:.25,key:'b2',tip:'The protagonist commits to a new world or goal. No way back.'},
+ {n:'Midpoint',p:.5,key:'mid',tip:'A reversal or revelation: false victory or false defeat. Stakes rise.'},
+ {n:'All is lost',p:.75,key:'lost',tip:'The lowest point. Something is lost and the old way of coping fails.'},
+ {n:'Break into Act III',p:.82,key:'b3',tip:'A decision that comes from what the protagonist learned.'},
+ {n:'Climax',p:.93,key:'clx',tip:'The highest-tension confrontation, resolving the central question.'},
+ {n:'Final image',p:.995,key:'fin',tip:'Mirror the opening. Show how the world and protagonist changed.'}
+];
+window.__covArc=function(parsed){
+  var txt=rawText(parsed), S=parseStruct(txt), sc=S.scenes.filter(function(s){return s.w>3;});
+  if(sc.length<6) return null;
+  var tot=0; sc.forEach(function(s){ s.m=sceneMetrics(s); s.s=tot; tot+=s.w; s.e=tot; });
+  var T=sc.map(function(s){return s.m.tension;}), V=sc.map(function(s){return s.m.val;});
+  var k=Math.max(1,Math.round(sc.length/25)); var Ts=smooth(T,k), Vs=smooth(V,k);
+  var tmax=Math.max.apply(null,Ts)||1; var Tn=Ts.map(function(x){return x/tmax;});
+  var pages=(parsed&&parsed.pageEst)||Math.round(tot/180);
+  function at(p){ var x=p*tot; for(var i=0;i<sc.length;i++){ if(sc[i].e>=x) return i; } return sc.length-1; }
+  function win(i0,i1){ return {a:Math.max(0,Math.min(i0,i1)),b:Math.min(sc.length-1,Math.max(i0,i1))}; }
+  function avg(a,i0,i1){ var s=0,c=0; for(var i=Math.max(0,i0);i<=Math.min(a.length-1,i1);i++){ s+=a[i];c++; } return c?s/c:0; }
+  var beats=BEATS.map(function(b){
+    var idx=at(b.p), w=Math.max(1,Math.round(sc.length*.05)), st='soft', note='';
+    var before=avg(Tn,idx-3*w,idx-1), around=avg(Tn,idx-w,idx+w), after=avg(Tn,idx+1,idx+3*w), vb=avg(Vs,idx-3*w,idx-1), va=avg(Vs,idx,idx+2*w);
+    if(b.key==='open'){ st=sc[0].w>=15?'lands':'soft'; note=st==='lands'?'Opening scene has room to set tone.':'Very short opening: consider a stronger image.'; }
+    else if(b.key==='cat'){ var lo=Math.max(0,at(.05)), hi=at(.2), mx=0; for(var i=lo;i<=hi;i++) mx=Math.max(mx,Tn[i]); var jump=mx-avg(Tn,0,Math.max(0,lo)); st=jump>.12?'lands':jump>.04?'soft':'missing'; note=st==='lands'?'Tension rises clearly in the first act.':'The first act stays flat. Make the inciting event arrive sooner and hit harder.'; }
+    else if(b.key==='b2'){ var a1=avg(Tn,0,at(.2)), a2=avg(Tn,at(.25),at(.4)); st=a2>a1*1.05?'lands':a2>a1*.9?'soft':'missing'; note=st==='lands'?'Energy steps up after the first quarter.':'Act II does not feel different from Act I. Make the commitment a visible choice.'; }
+    else if(b.key==='mid'){ var m0=at(.42), m1=at(.58), peak=0,pi=idx; for(var q=m0;q<=m1;q++){ if(Tn[q]>peak){peak=Tn[q];pi=q;} } var shift=Math.abs(avg(Vs,m1,m1+3*w)-avg(Vs,m0-3*w,m0)); var rise=peak-avg(Tn,at(.3),m0); st=(rise>.1||shift>.25*(Math.abs(avg(Vs,0,sc.length-1))+.5))?'lands':(rise>.03?'soft':'missing'); idx=pi; note=st==='lands'?'A noticeable turn around the middle.':'The middle sags. Add a reversal, a revelation or a false victory.'; }
+    else if(b.key==='lost'){ var l0=at(.66), l1=at(.84), mn=1e9, mi=idx; for(var r=l0;r<=l1;r++){ if(Vs[r]<mn){mn=Vs[r];mi=r;} } var base=avg(Vs,at(.3),at(.6)); st=mn<base-.3?'lands':mn<base?'soft':'missing'; idx=mi; note=st==='lands'?'A clear low point before the final push.':'No true low point. Take something away from the protagonist before Act III.'; }
+    else if(b.key==='b3'){ var r1=avg(Vs,at(.8),at(.9)), r0=avg(Vs,at(.7),at(.8)); st=r1>=r0?'lands':'soft'; note=st==='lands'?'Momentum recovers into the finale.':'The turn into the third act is hard to feel. Show the decision.'; }
+    else if(b.key==='clx'){ var c0=at(.8), peakI=c0, pk=0; for(var z=c0;z<sc.length;z++){ if(Tn[z]>pk){pk=Tn[z];peakI=z;} } var gp=Math.max.apply(null,Tn); st=pk>=gp*.85?'lands':pk>=gp*.65?'soft':'missing'; idx=peakI; note=st==='lands'?'The highest tension lives in the last act.':'The biggest moment happens before the last act. Build to the climax.'; }
+    else { st=sc[sc.length-1].w>=12?'lands':'soft'; note=st==='lands'?'The ending has room to show change.':'The final scene is very short. Give the closing image weight.'; }
+    var pg=Math.max(1,Math.round(sc[idx].s/tot*pages));
+    return {n:b.n,tip:b.tip,st:st,note:note,idx:idx,page:pg,heading:sc[idx].h.slice(0,52),pos:sc[idx].s/tot};
+  });
+  /* characters */
+  var names=Object.keys(S.cues).sort(function(a,b){return S.cues[b]-S.cues[a];}).slice(0,5), chars=names.map(function(nm){
+    var buckets=[0,0,0,0], texts=['','',''];
+    sc.forEach(function(s){ var mid=(s.s+s.e)/2/tot, bi=Math.min(3,Math.floor(mid*4)), ti=Math.min(2,Math.floor(mid*3)); if(s.dlg[nm]){ buckets[bi]+=s.dlg[nm].split(/\s+/).length; texts[ti]+=' '+s.dlg[nm]; } });
+    var first=sc.findIndex(function(s){return s.dlg[nm];}), last=-1; sc.forEach(function(s,i){ if(s.dlg[nm]) last=i; });
+    function v(t){ var w=Math.max(30,t.split(/\s+/).length); return (cnt(t,POS)-cnt(t,NEG))/w*100; }
+    var d=v(texts[2])-v(texts[0]), cls, tot3=buckets.reduce(function(a,b){return a+b;},0);
+    var tw=[texts[0],texts[2]].map(function(t){return t.split(/\s+/).length;});
+    if(tot3<60||tw[0]<20||tw[1]<20) cls='Too little dialogue to read an arc'; else cls=d>.9?'Moves from darker to lighter':d<-.9?'Moves from lighter to darker':'Emotional register barely moves';
+    var out=null; if(last>=0&&last/sc.length<.8) out='Disappears from the dialogue by '+Math.round(sc[last].e/tot*100)+'% of the script. Bring them back for the finale, or cut them.';
+    var late=first>=0&&first/sc.length>.3?'Enters late, at about '+Math.round(sc[first].s/tot*100)+'%. Seed them earlier.':null;
+    return {name:nm,lines:S.cues[nm],buckets:buckets,cls:cls,flag:out||late||''};
+  });
+  /* shape */
+  var thirds=[avg(Vs,0,Math.floor(sc.length/3)),avg(Vs,Math.floor(sc.length/3),Math.floor(sc.length*2/3)),avg(Vs,Math.floor(sc.length*2/3),sc.length-1)];
+  var th=function(a,b){ return b-a>.25?'up':b-a<-.25?'down':'flat'; }, d1=th(thirds[0],thirds[1]), d2=th(thirds[1],thirds[2]), shape;
+  if(d1==='down'&&d2==='up') shape=['Man in a hole','The protagonist falls into trouble, then climbs out changed.'];
+  else if(d1==='up'&&d2==='down') shape=['Icarus','A rise followed by a fall. Ambition has a price.'];
+  else if(d1==='up'&&d2==='up') shape=['Rags to riches','A steady climb in fortune and feeling.'];
+  else if(d1==='down'&&d2==='down') shape=['Tragedy','A descent. Make the cost of each choice felt.'];
+  else if(d1==='up'&&d2==='flat') shape=['Boy meets girl','Good fortune gained and held.'];
+  else if(d1==='flat'&&d2==='up') shape=['Slow-burn redemption','Pressure builds quietly before relief.'];
+  else if(d1==='flat'&&d2==='down') shape=['Slow-burn decline','Quiet start, mounting damage.'];
+  else if(d1==='down'&&d2==='flat') shape=['Cinderella in reverse','Early loss that never recovers.'];
+  else shape=['Level line','Emotion barely changes across the story. Look for turns in fortune.'];
+  /* act stats */
+  var acts=[['Act I',0,.25],['Act IIa',.25,.5],['Act IIb',.5,.75],['Act III',.75,1]].map(function(a){
+    var i0=at(a[1]+.0001), i1=at(a[2]); return {n:a[0],scenes:Math.max(1,i1-i0+(a[1]===0?1:0)),pages:Math.round((a[2]-a[1])*pages),ten:avg(Tn,i0,i1)};
+  });
+  return {tension:Tn,val:Vs,beats:beats,chars:chars,shape:shape,acts:acts,scenes:sc.length,pages:pages,n:sc.length,pos:sc.map(function(s){return (s.s+s.e)/2/tot;})};
+};
+function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+window.__covArcHtml=function(parsed){
+  var A; try{ A=window.__covArc(parsed); }catch(e){ A=null; }
+  if(!A) return '<p style="color:#94A3B8;font-size:11px">Not enough scenes found to map a story arc. Use scene headings (INT./EXT.) and at least six scenes.</p>';
+  var W=600,H=150,pl=8,pr=8,pt=10,pb=22,iw=W-pl-pr,ih=H-pt-pb;
+  function X(p){return pl+p*iw;} function Y(v){return pt+ih-(v*ih);}
+  var pts=A.tension.map(function(v,i){return [X(A.pos[i]),Y(v)];});
+  var path='M'+pts.map(function(p){return p[0].toFixed(1)+','+p[1].toFixed(1);}).join(' L');
+  var area=path+' L'+X(A.pos[A.pos.length-1])+','+Y(0)+' L'+X(A.pos[0])+','+Y(0)+' Z';
+  var vmin=Math.min.apply(null,A.val),vmax=Math.max.apply(null,A.val),vr=(vmax-vmin)||1;
+  var vp='M'+A.val.map(function(v,i){return X(A.pos[i]).toFixed(1)+','+(pt+ih-((v-vmin)/vr)*ih).toFixed(1);}).join(' L');
+  var cols={lands:'#A3E635',soft:'#D4A034',missing:'#EF4444'};
+  var svg='<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto;display:block" role="img" aria-label="Tension and emotion across the script">'+
+   [.25,.5,.75].map(function(p){return '<line x1="'+X(p)+'" y1="'+pt+'" x2="'+X(p)+'" y2="'+(pt+ih)+'" stroke="#334155" stroke-dasharray="3 4"/>';}).join('')+
+   [['ACT I',.125],['ACT IIa',.375],['ACT IIb',.625],['ACT III',.875]].map(function(a){return '<text x="'+X(a[1])+'" y="'+(H-7)+'" fill="#64748B" font-size="9" text-anchor="middle" font-family="monospace">'+a[0]+'</text>';}).join('')+
+   '<path d="'+area+'" fill="#BE1B7D" fill-opacity=".16"/><path d="'+path+'" fill="none" stroke="#E879A8" stroke-width="2"/>'+
+   '<path d="'+vp+'" fill="none" stroke="#60A5FA" stroke-width="1.5" stroke-dasharray="4 3"/>'+
+   A.beats.map(function(b,i){var x=X(b.pos), y=Y(A.tension[b.idx]||0); return '<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="5" fill="'+cols[b.st]+'" stroke="#0B1020" stroke-width="1.5"/><text x="'+x.toFixed(1)+'" y="'+(y-8).toFixed(1)+'" fill="#CBD5E1" font-size="8" text-anchor="middle" font-family="monospace">'+(i+1)+'</text>';}).join('')+'</svg>';
+  var beatRows=A.beats.map(function(b,i){return '<div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid #1E293B;align-items:flex-start"><div style="min-width:22px;height:22px;border-radius:50%;background:'+cols[b.st]+';color:#0B1020;font:700 11px monospace;display:flex;align-items:center;justify-content:center">'+(i+1)+'</div><div style="flex:1"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><b style="color:#E2E8F0;font-size:12px">'+esc(b.n)+'</b><span style="color:#64748B;font:10px monospace">p.~'+b.page+' · '+esc(b.heading)+'</span></div><div style="color:#94A3B8;font-size:11px;margin-top:2px">'+esc(b.note)+'</div><div style="color:#64748B;font-size:10px;font-style:italic;margin-top:2px">Target: '+esc(b.tip)+'</div></div></div>';}).join('');
+  var actRows='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:10px 0">'+A.acts.map(function(a){return '<div style="background:#0F1420;border:1px solid #1E293B;border-radius:6px;padding:8px;text-align:center"><div style="color:#E2E8F0;font-weight:700;font-size:11px">'+a.n+'</div><div style="color:#64748B;font:10px monospace">~'+a.pages+' pp · '+a.scenes+' sc</div><div style="height:4px;background:#1E293B;border-radius:2px;margin-top:6px"><div style="height:4px;border-radius:2px;background:#E879A8;width:'+Math.round(a.ten*100)+'%"></div></div></div>';}).join('')+'</div>';
+  var chRows=A.chars.map(function(c){var mx=Math.max.apply(null,c.buckets)||1; return '<div style="padding:8px 0;border-bottom:1px solid #1E293B"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:flex-end"><b style="color:#E2E8F0;font-size:12px">'+esc(c.name)+' <span style="color:#64748B;font:10px monospace">'+c.lines+' speeches</span></b><span style="display:inline-flex;gap:3px;align-items:flex-end;height:22px">'+c.buckets.map(function(b){return '<i style="display:block;width:10px;background:#60A5FA;height:'+Math.max(2,Math.round(b/mx*22))+'px;border-radius:1px"></i>';}).join('')+'</span></div><div style="color:#94A3B8;font-size:11px">'+esc(c.cls)+'</div>'+(c.flag?'<div style="color:#FB923C;font-size:11px;margin-top:2px">'+esc(c.flag)+'</div>':'')+'</div>';}).join('');
+  return '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:8px"><span style="background:#312E81;color:#C7D2FE;border-radius:999px;padding:4px 12px;font:700 11px monospace">Story shape: '+esc(A.shape[0])+'</span><span style="color:#94A3B8;font-size:11px">'+esc(A.shape[1])+'</span></div>'+svg+
+   '<div style="display:flex;gap:14px;font:10px monospace;color:#64748B;margin:4px 0 8px;flex-wrap:wrap"><span><b style="color:#E879A8">━</b> tension</span><span><b style="color:#60A5FA">┅</b> emotional tone (low = darker)</span><span><b style="color:#A3E635">●</b> beat lands</span><span><b style="color:#D4A034">●</b> soft</span><span><b style="color:#EF4444">●</b> missing</span></div>'+actRows+
+   '<h4 style="font-size:11px;font-weight:700;color:#E879A8;text-transform:uppercase;letter-spacing:.08em;margin:14px 0 4px">Structural beats</h4>'+beatRows+
+   '<h4 style="font-size:11px;font-weight:700;color:#60A5FA;text-transform:uppercase;letter-spacing:.08em;margin:16px 0 4px">Character arcs <span style="color:#64748B;text-transform:none;font-weight:400">(bars show share of dialogue by quarter)</span></h4>'+chRows;
+};
+/* tone profile + poster loader for comps */
+window.__covCompHtml=function(comps){
+  var P=comps.profile||{g:[],t:[],h:[]};
+  var chips=function(a,c){return a.map(function(x){return '<span style="background:'+c+';color:#0B1020;border-radius:999px;padding:2px 9px;font:700 10px monospace;margin-right:4px">'+esc(lb(x))+'</span>';}).join('');};
+  var prof='<div style="margin:0 0 10px;display:flex;flex-wrap:wrap;gap:6px;align-items:center"><span style="color:#64748B;font:10px monospace">YOUR SCRIPT READS AS</span>'+(chips(P.g,'#A3E635')+chips(P.t,'#E879A8')+chips(P.h,'#60A5FA')||'<span style="color:#94A3B8;font-size:11px">no strong signals</span>')+'</div>';
+  var rows=comps.map(function(c,i){return '<div style="display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid #1E293B"><div class="cv-poster" data-t="'+esc(c.name)+'" data-y="'+c.year+'" style="width:44px;height:66px;border-radius:3px;background:#141C2E;flex-shrink:0;overflow:hidden"></div><div style="flex:1"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><b style="color:#E2E8F0;font-size:12px">'+esc(c.title)+'</b><span style="color:#A3E635;font:700 10px monospace">'+c.match+'% match · '+esc(c.tier)+'</span></div><div style="color:#94A3B8;font-size:11px;font-style:italic;margin-top:2px">'+esc(c.reason)+'</div>'+(c.why?'<div style="color:#64748B;font:10px monospace;margin-top:3px">'+esc(c.why)+'</div>':'')+'</div></div>';}).join('');
+  setTimeout(function(){
+    try{
+      var key=(typeof tmdbGetKey==='function')&&tmdbGetKey(); if(!key) return;
+      [].forEach.call(document.querySelectorAll('.cv-poster'),function(el){
+        fetch('https://api.themoviedb.org/3/search/movie?api_key='+encodeURIComponent(key)+'&query='+encodeURIComponent(el.getAttribute('data-t'))+'&year='+el.getAttribute('data-y')).then(function(r){return r.json();}).then(function(d){
+          var m=d&&d.results&&d.results[0]; if(m&&m.poster_path) el.innerHTML='<img alt="" src="https://image.tmdb.org/t/p/w92'+m.poster_path+'" style="width:100%;height:100%;object-fit:cover">';
+        }).catch(function(){});
+      });
+    }catch(e){}
+  },60);
+  return prof+rows;
+};
+})();
+
 </script>
 </body>
 </html>
