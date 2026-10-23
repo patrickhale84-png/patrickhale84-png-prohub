@@ -74,3 +74,17 @@ Fully editable line-item budget: Top Sheet / Detail / Variables & Fringes tabs; 
 - **filmHUB → Client site**: downloads a self-contained HTML presentation (overview, pitch deck, scenes, cast, schedule, shots, budget). **Site + backup** also embeds the full backup, so filmHUB → Import restores everything from that same HTML file.
 - **Close** button: on every tile (dashboard bar, Esc, and a Close pill when a tool is opened by itself) returns to the home screen without deleting anything.
 - **Pitch deck**: 8 style templates, font-size slider (this slide or all), tracking, weight, caps, and background/text/accent colours.
+
+
+## Print / Export (new)
+
+`filmhub.html` has a **Print / Export** tile (also `filmhub.html#print`, linked from every page's menu).
+It builds PDFs on the device with `lib/pdf-lib.min.js` (keep this file next to `filmhub.html`; no internet needed).
+
+- Documents: Cover, Call Sheet, Sides, Cast & Crew In Times, Shooting Script, Stripboard, Shooting Schedule, Day Out of Days, Cast List, Crew List, Script Breakdown, Shot List, Storyboards, Location Report, Vendor List, Budget Top Sheet.
+- Presets: AD, Director, Producer/UPM, Production office, Department heads, Camera/DP, Talent packet, Full package, plus your own saved presets.
+- Options per document, plus paper (Letter/A4/Legal), margins, text size, 12/24-hour times, color or B&W, footer, watermark, logo, cover page, combined or separate files.
+- **Production Setup** tile: company, people, crew by department, cast contacts, shoot start date.
+- **Call Sheet** tile: day setup, set address lookup (OpenStreetMap), weather (Open-Meteo) and nearest hospital that update by themselves, vendor search near the set with a verify checkbox that prints on the call sheet.
+- All of it is stored in the browser under `filmhub_prod_v1` (included in the JSON backup).
+- Online lookups need a connection; everything else works offline.

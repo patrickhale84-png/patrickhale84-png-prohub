@@ -261,7 +261,7 @@ textarea:focus, input:focus, select:focus { outline: 1px solid var(--amber); }
 </head>
 <body>
 <div class="topbar">
-  <div class="brand" onclick="hubGo('../index.html',event)">pro<span>HUB</span></div>
+  <div class="brand one-logo" onclick="hubGo('../index.html',event)">pro<span>HUB</span></div>
   <span class="badge-stage">POST-PRODUCTION</span>
   
   <nav class="app-tabs" id="appTabs">
@@ -274,6 +274,7 @@ textarea:focus, input:focus, select:focus { outline: 1px solid var(--amber); }
 
   <div class="top-right">
     <a class="fh-tab" href="../filmhub.html" onclick="hubGo('../filmhub.html',event)">filmHUB</a>
+    <a class="fh-tab" href="../filmhub.html#print" onclick="hubGo('../filmhub.html#print',event)">Print</a>
     <button class="btn-util" id="btnPopout" title="Open current tool in a new browser tab"><i class="fa-solid fa-arrow-up-right-from-square"></i> Tab</button>
     <button class="btn-util" onclick="hubGo('../index.html',event)" title="Return to Dashboard"><i class="fa-solid fa-border-all"></i> Hub</button>
   </div>
@@ -289,7 +290,7 @@ textarea:focus, input:focus, select:focus { outline: 1px solid var(--amber); }
   <!-- 3. Graphite 2D Suite -->
   <iframe id="view-graphite" class="app-view" title="Graphite" src="https://editor.graphite.rs/" allow="clipboard-read; clipboard-write; fullscreen"></iframe>
 
-  <!-- 4. Pitch Deck Maker Studio Container -->
+  <!-- 4. Pitch Deck Studio Container -->
   <div id="view-pitchmaker" class="native-studio">
     <div id="pdMount" style="width:100%;height:100%;"></div>
   </div>
@@ -892,6 +893,20 @@ function mk(){
 if(document.body)mk();else document.addEventListener('DOMContentLoaded',mk);
 })();
 
+</script>
+<style id="one-logo-style">html.in-frame .one-logo,.one-logo[data-dup]{display:none!important}</style>
+<script id="one-logo-js">
+(function(){
+var inF=false;try{inF=window.self!==window.top;}catch(e){inF=true;}
+if(inF)document.documentElement.classList.add('in-frame');
+function vis(e){return !!(e.getClientRects().length);}
+function fix(){
+  var a=[].slice.call(document.querySelectorAll('.one-logo'));a.forEach(function(e){e.removeAttribute('data-dup');});
+  if(inF)return;var seen=false;a.forEach(function(e){if(!vis(e))return;if(seen)e.setAttribute('data-dup','1');else seen=true;});
+}
+window.addEventListener('load',fix);window.addEventListener('resize',fix);setTimeout(fix,300);setTimeout(fix,1500);
+new MutationObserver(function(){clearTimeout(fix._t);fix._t=setTimeout(fix,60);}).observe(document.documentElement,{attributes:true,attributeFilter:['class']});
+})();
 </script>
 </body>
 </html>

@@ -185,6 +185,34 @@ a{color:inherit;text-decoration:none;}
   #filmHubLink span{display:inline!important;}
 }
 </style>
+<style id="ix-burger-style">
+#ixBurger{display:none}
+@media (max-width:768px){
+  .topbar{flex-wrap:nowrap!important;height:48px!important;flex:0 0 48px!important;padding:0 8px!important;row-gap:0!important;gap:6px!important;align-items:center;}
+  .brand{margin:0;padding:6px 4px;line-height:1;font-size:21px!important;}
+  .top-right{margin-left:auto!important;display:flex;align-items:center;gap:6px;}
+  .top-right #importBtn,.top-right #saveAllBtn,.top-right #loadAllBtn,.top-right #resetBtn,.top-right #printLink,.top-right .proj{display:none!important;}
+  #filmHubLink{min-height:40px;padding:0 12px!important;}
+  #ixBurger{display:inline-flex;align-items:center;justify-content:center;width:44px;height:40px;border-radius:9px;background:#0C1220;border:1px solid #26344E;flex:0 0 auto;padding:0;}
+  #ixBurger span,#ixBurger span:before,#ixBurger span:after{display:block;width:20px;height:2px;background:#E9EDF5;border-radius:2px;position:relative;content:"";}
+  #ixBurger span:before{position:absolute;top:-6px;left:0}#ixBurger span:after{position:absolute;top:6px;left:0}
+  .tabs{order:0!important;flex:none!important;position:absolute;left:-9999px;}
+  .shell{--tabsH:0px}
+  #ixTabs{display:flex;gap:6px;padding:0 8px 8px;background:var(--bg,#060911)}
+  #ixTabs button{flex:1 1 0;min-height:38px;border-radius:8px;font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border:1px solid #1B2436;background:#0C1220;color:#8794A6}
+  #ixTabs button.on{background:#A3E635;color:#0B1220;border-color:#A3E635}
+}
+#ix-scrim{position:fixed;inset:0;background:rgba(0,0,0,.55);opacity:0;pointer-events:none;transition:opacity .18s;z-index:99980}
+#ix-scrim.on{opacity:1;pointer-events:auto}
+#ix-sheet{position:fixed;left:0;right:0;bottom:0;max-height:82vh;overflow:auto;background:#0B111E;border-top:1px solid #26344E;border-radius:16px 16px 0 0;padding:8px 10px calc(14px + env(safe-area-inset-bottom));transform:translateY(105%);transition:transform .2s ease;z-index:99990}
+#ix-sheet.on{transform:none}
+#ix-sheet .g{width:42px;height:4px;border-radius:2px;background:#26344E;margin:2px auto 10px}
+#ix-sheet .t{font-weight:800;font-size:15px;color:#E9EDF5;padding:0 6px}
+#ix-sheet .s{font-size:11px;color:#8794A6;padding:0 6px 8px}
+#ix-sheet button,#ix-sheet a{display:flex;flex-direction:column;align-items:flex-start;width:100%;text-align:left;padding:13px 12px;margin:0 0 6px;border-radius:10px;background:#101828;border:1px solid #1B2436;color:#E9EDF5;font:700 14px/1.2 inherit;text-decoration:none}
+#ix-sheet small{font-weight:500;font-size:11px;color:#8794A6;margin-top:3px}
+#ix-sheet .x{background:rgba(127,29,29,.25);border-color:#7F1D1D;color:#FCA5A5}
+</style>
 </head>
 <body>
 <div class="shell">
@@ -204,6 +232,7 @@ a{color:inherit;text-decoration:none;}
       <button class="ibtn" id="saveAllBtn" title="Save everything (all tools) to one JSON file"><i class="fa-solid fa-floppy-disk"></i><span>Save all</span></button>
       <button class="ibtn" id="loadAllBtn" title="Load a saved master JSON file"><i class="fa-solid fa-folder-open"></i><span>Load all</span></button>
       <button class="ibtn" id="resetBtn" title="Reset tile sizes"><i class="fa-solid fa-rotate-left"></i></button>
+      <a class="ibtn" id="printLink" href="filmhub.html#print" title="Print / Export: call sheet, script, stripboard to PDF"><i class="fa-solid fa-print"></i><span>Print / Export</span></a>
       <a class="ibtn" id="filmHubLink" href="filmhub.html" title="Front desk"><i class="fa-solid fa-arrow-up-right-from-square"></i><span>filmHUB</span></a>
     </div>
   </header>
@@ -255,25 +284,25 @@ var SCREENS = {
 var TILES = [
   // --- PRE-PRODUCTION (5 Tiles) ---
   {n:1,  id:'writer',      mod:'pre',  frame:'pre',  title:'Screenwriter',       sub:'Courier Prime · tab engine · built-in reader', badge:'AST Parser',  icon:'fa-file-lines',           t:['#0B4F4E','#127E76'], enter:{k:'sw', a:'writer'}},
-  {n:2,  id:'coverage',    mod:'pre',  frame:'pre',  title:'Evaluator Studio',   sub:'100-parameter · HALION engine',            badge:'Heuristic',   icon:'fa-stethoscope',          t:['#55103E','#8C1B63'], enter:{k:'sw', a:'coverage'}},
-  {n:3,  id:'pitch',       mod:'pre',  frame:'post',  title:'Pitch Deck Maker',   sub:'8 genres · 4 layouts · split line · PDF',  badge:'Architect',   icon:'fa-images',               t:['#2A1668','#4A2A9E'], enter:{k:'desk', a:'pitchmaker'}},
-  {n:4,  id:'filmdb',      mod:'pre',  frame:'pre',  title:'Film Database',      sub:'TMDB comps · loglines · film research',    badge:'TMDB',        icon:'fa-film',                 t:['#4A1120','#7C1B33'], enter:{k:'sw', a:'filmdb'}},
+  {n:2,  id:'coverage',    mod:'pre',  frame:'pre',  title:'Script Coverage',   sub:'100-parameter script analysis',            badge:'Heuristic',   icon:'fa-stethoscope',          t:['#55103E','#8C1B63'], enter:{k:'sw', a:'coverage'}},
+  {n:3,  id:'pitch',       mod:'pre',  frame:'post',  title:'Pitch Deck',   sub:'8 genres · 4 layouts · split line · PDF',  badge:'Architect',   icon:'fa-images',               t:['#2A1668','#4A2A9E'], enter:{k:'desk', a:'pitchmaker'}},
+  {n:4,  id:'filmdb',      mod:'pre',  frame:'pre',  title:'Film Research',      sub:'TMDB comps · loglines · film research',    badge:'TMDB',        icon:'fa-film',                 t:['#4A1120','#7C1B33'], enter:{k:'sw', a:'filmdb'}},
   {n:5,  id:'outreach',    mod:'pre',  frame:'pre',  title:'Outreach',           sub:'Distributor tracker · query letters · log',badge:'Tracker',     icon:'fa-envelope-open-text',   t:['#4E3A0C','#8C6A12'], enter:{k:'sw', a:'outreach'}},
   {n:19, id:'festivals',   mod:'pre',  frame:'pre',  title:'Festivals & Labs',   sub:'Script contests · film & genre festivals · rated', badge:'Rated',      icon:'fa-award',                t:['#4A2C0A','#8A5412'], enter:{k:'sw', a:'festivals'}},
 
   // --- PRODUCTION (8 Tiles) ---
-  {n:6,  id:'budget',      mod:'shoot',frame:'pre',  title:'Advanced Budget',    sub:'COA 1000-5700 · editable rates · fringes',  badge:'Calculator',  icon:'fa-file-invoice-dollar',  t:['#0C3F22','#146B39'], enter:{k:'sw', a:'budget'}},
-  {n:7,  id:'oneliner',    mod:'shoot',frame:'pro',  title:'Stripboard',         sub:'Drag scenes between days · enforced lunch · live thumbs',badge:'One-Liner', icon:'fa-bars-staggered',       t:['#5A2408','#8C3A0D'], enter:{k:'sw', a:'oneliner'}},
+  {n:6,  id:'budget',      mod:'shoot',frame:'pre',  title:'Budget',    sub:'Chart of accounts · ATL / BTL · fringes · top sheet',  badge:'Calculator',  icon:'fa-file-invoice-dollar',  t:['#0C3F22','#146B39'], enter:{k:'sw', a:'budget'}},
+  {n:7,  id:'oneliner',    mod:'shoot',frame:'pro',  title:'Stripboard',         sub:'Drag strips between days · meal breaks · day banners',badge:'Schedule', icon:'fa-bars-staggered',       t:['#5A2408','#8C3A0D'], enter:{k:'sw', a:'oneliner'}},
   {n:8,  id:'callsheet',   mod:'shoot',frame:'pro',  title:'Call Sheet',         sub:'Crew · cast in-times · safety · sides',    badge:'Daily',       icon:'fa-calendar-days',        t:['#5E3A08','#96610F'], enter:{k:'sw', a:'callsheet'}},
-  {n:9,  id:'cast',        mod:'shoot',frame:'pro',  title:'Crew & Cast (DOOD)', sub:'SAG DOOD matrix · HMU continuity · sign-in',badge:'Roster',     icon:'fa-users',                t:['#4C1A0A','#7E2C10'], enter:{k:'sw', a:'callsheet'}},
+  {n:9,  id:'cast',        mod:'shoot',frame:'pro',  title:'Cast & Crew (DOOD)', sub:'Day Out of Days · cast & crew lists · in times',badge:'Roster',     icon:'fa-users',                t:['#4C1A0A','#7E2C10'], enter:{k:'sw', a:'callsheet'}},
   {n:10, id:'masterscript',mod:'shoot',frame:'pro',  title:'Shooting Script',    sub:'Colored revisions · inline tagger · review', badge:'Revisions',  icon:'fa-scroll',               t:['#4C1A0A','#7E2C10'], enter:{k:'sw', a:'masterscript'}},
-  {n:11, id:'props',       mod:'shoot',frame:'pro',  title:'Props Tracker',      sub:'Strict keyword parser · scene cue tags',   badge:'Metadata',    icon:'fa-wand-magic-sparkles',  t:['#1D4ED8','#1E3A8A'], enter:{k:'sw', a:'scriptation'}},
-  {n:12, id:'gearlist',    mod:'shoot',frame:'pro',  title:'Gear Checklist',     sub:'Camera, lighting, audio kits & photo log', badge:'Equipment',   icon:'fa-boxes-stacked',        t:['#6D28D9','#4C1D95'], enter:{k:'sw', a:'gearlist'}},
-  {n:13, id:'mastershot',  mod:'shoot',frame:'pro',  title:'Master Shot List',   sub:'Setups · camera movement · lenses · status',badge:'Master',      icon:'fa-list-check',           t:['#E8703A','#964019'], enter:{k:'sw', a:'shotlist'}},
+  {n:11, id:'props',       mod:'shoot',frame:'pro',  title:'Props Tracker',      sub:'Props by scene · cue tags',   badge:'Metadata',    icon:'fa-wand-magic-sparkles',  t:['#1D4ED8','#1E3A8A'], enter:{k:'sw', a:'scriptation'}},
+  {n:12, id:'gearlist',    mod:'shoot',frame:'pro',  title:'Equipment Checklist',     sub:'Camera, lighting, audio kits & photo log', badge:'Equipment',   icon:'fa-boxes-stacked',        t:['#6D28D9','#4C1D95'], enter:{k:'sw', a:'gearlist'}},
+  {n:13, id:'mastershot',  mod:'shoot',frame:'pro',  title:'Shot List',   sub:'Setups · camera movement · lenses · status',badge:'Master',      icon:'fa-list-check',           t:['#E8703A','#964019'], enter:{k:'sw', a:'shotlist'}},
 
   // --- POST-PRODUCTION (5 Tiles) ---
   {n:14, id:'scriptlib',   mod:'pre',  frame:'pre',  title:'Script Library',     sub:'Daily Script index · 400+ complete scripts',badge:'Library',     icon:'fa-book-open',            t:['#0B3550','#1461A0'], enter:{k:'sw', a:'scriptlib'}},
-  {n:15, id:'storyboard',  mod:'shoot',frame:'pro',  title:'Storyboard Studio',  sub:'A board per story beat · sketch · upload · print',badge:'Auto-board',      icon:'fa-clapperboard',         t:['#55300C','#8E4412'], enter:{k:'desk', a:'storyboard'}},
+  {n:15, id:'storyboard',  mod:'shoot',frame:'pro',  title:'Storyboards',  sub:'A board per story beat · sketch · upload · print',badge:'Auto-board',      icon:'fa-clapperboard',         t:['#55300C','#8E4412'], enter:{k:'desk', a:'storyboard'}},
   {n:16, id:'filmcraft',   mod:'post', frame:'post', title:'FilmCraft',          sub:'Non-linear editor & colour suite online',  badge:'NLE',         icon:'fa-clapperboard',         t:['#E8703A','#8F3A15'], enter:{k:'desk', a:'filmcraft'}},
   {n:17, id:'photopea',    mod:'post', frame:'post', title:'Photopea',           sub:'Online photo & raster PSD editor',         badge:'IMAGE',       icon:'fa-image',                t:['#3B7BF6','#1E4DB8'], enter:{k:'desk', a:'photopea'}},
   {n:18, id:'graphite',    mod:'post', frame:'post', title:'Graphite',           sub:'2D vector graphics & illustration suite',  badge:'VECTOR',      icon:'fa-pen-ruler',            t:['#E2A93B','#966A19'], enter:{k:'desk', a:'graphite'}}
@@ -706,7 +735,7 @@ window.addEventListener('message', function(e){
   if(d.k==='close' || d.type==='HUB_CLOSE'){ closeLayer(); return; }
   if(d.k==='hub-open' && d.file){
     var fk2 = null; Object.keys(SCREENS).forEach(function(k){ if(SCREENS[k].file.split('/').pop()===d.file) fk2 = k; });
-    if(!fk2){ if(d.file==='filmhub.html') location.href='filmhub.html'; return; }
+    if(!fk2){ if(d.file==='filmhub.html') location.href='filmhub.html'+(d.a?'#'+d.a:''); return; }
     var hit = null;
     TILES.forEach(function(t){ var fr = t.frame || fk(t.mod); var a = (t.enter && t.enter.a) || ''; if(!hit && fr===fk2 && (a===d.a || t.id===d.a)) hit = t; });
     if(!hit) TILES.forEach(function(t){ if(!hit && (t.frame || fk(t.mod))===fk2) hit = t; });
@@ -784,6 +813,32 @@ function pick(after){var i=document.createElement('input');i.type='file';i.accep
 window.SNMaster={save:save,load:load,pick:pick,dump:dump,extract:extract,apply:apply};
 })();
 
+</script>
+<script id="ix-burger-js">
+(function(){
+var tb=document.querySelector('.topbar'),tr=document.querySelector('.top-right');if(!tb||!tr||document.getElementById('ixBurger'))return;
+var b=document.createElement('button');b.id='ixBurger';b.type='button';b.setAttribute('aria-label','Menu');b.innerHTML='<span></span>';tr.appendChild(b);
+/* phone tab row under the bar (mirrors the original tabs, which stay for desktop) */
+var tabs=document.getElementById('tabs'),row=document.createElement('div');row.id='ixTabs';row.style.display='none';
+function mq(){return window.matchMedia('(max-width:768px)').matches;}
+function syncTabs(){row.innerHTML='';[].forEach.call(tabs.querySelectorAll('.tab'),function(t){var c=document.createElement('button');c.textContent=t.textContent;if(t.classList.contains('on'))c.className='on';c.onclick=function(){t.click();setTimeout(syncTabs,30);};row.appendChild(c);});row.style.display=mq()?'flex':'none';}
+tb.parentNode.insertBefore(row,tb.nextSibling);syncTabs();window.addEventListener('resize',syncTabs);tabs.addEventListener('click',function(){setTimeout(syncTabs,30);});
+var sc=document.createElement('div');sc.id='ix-scrim';var sh=document.createElement('div');sh.id='ix-sheet';sh.setAttribute('role','dialog');document.body.appendChild(sc);document.body.appendChild(sh);
+function close(){sc.classList.remove('on');sh.classList.remove('on');}
+function open(){
+  var proj=(document.getElementById('projName')||{}).textContent||'';
+  var items=[['importBtn','Import script','Brings it into every tool'],['saveAllBtn','Save all','Download everything as one file'],['loadAllBtn','Load all','Restore a saved file'],['resetBtn','Reset tile sizes','Put the dashboard back to normal']];
+  var h='<div class="g"></div><div class="t">proHUB</div><div class="s">'+proj+'</div>';
+  h+='<a href="filmhub.html#print">Print / Export<small>Call sheet, script, stripboard, sides to PDF</small></a>';
+  h+='<a href="filmhub.html">filmHUB<small>Front desk: all tiles in one place</small></a>';
+  items.forEach(function(x,i){h+='<button data-i="'+i+'">'+x[1]+'<small>'+x[2]+'</small></button>';});
+  h+='<button class="x" data-x="1">&#10005; Close menu</button>';
+  sh.innerHTML=h;
+  [].forEach.call(sh.querySelectorAll('button'),function(x){x.onclick=function(){close();if(x.getAttribute('data-x'))return;var el=document.getElementById(items[+x.getAttribute('data-i')][0]);setTimeout(function(){if(el)el.click();},60);};});
+  sc.classList.add('on');sh.classList.add('on');sh.scrollTop=0;
+}
+b.onclick=open;sc.onclick=close;
+})();
 </script>
 </body>
 </html>

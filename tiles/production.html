@@ -172,7 +172,7 @@ body{background:var(--bg);color:var(--tx);font-family:var(--fui);margin:0;displa
 .mtile .msub{color:rgba(255,255,255,.78);}
 </style>
 <style id="studio-css">
-/* ===== Storyboard Studio + Stripboard ===== */
+/* ===== Storyboards + Stripboard ===== */
 #v-storyboard,#v-oneliner{background:#080B13;}
 .sbs-bar,.sbd-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--bg2);border-bottom:1px solid var(--bd);padding:8px 14px;flex-shrink:0;}
 .sbs-title,.sbd-title{font-family:var(--fds);font-weight:900;font-size:15px;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;}
@@ -376,7 +376,7 @@ window.SNCue={name:name,demote:demote,strip:strip};
 <!-- TOPBAR -->
 <header class="tmb">
   <button class="mob-menu-btn" onclick="togSB()" aria-label="Menu">&#9776;</button>
-  <div class="logo" onclick="sw('dashboard')"><span class="pre">pro</span><span class="hub">HUB</span></div>
+  <div class="logo one-logo" onclick="sw('dashboard')"><span class="pre">pro</span><span class="hub">HUB</span></div>
   <span class="stage-tag" style="font-family:var(--fm);font-size:9px;color:#FCD34D;background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.4);padding:2px 6px;border-radius:4px;">PRODUCTION COMMAND</span>
   
   <div class="flex items-center gap-2 ml-auto">
@@ -385,6 +385,7 @@ window.SNCue={name:name,demote:demote,strip:strip};
     </div>
     <button onclick="loadBridgeData(true)" class="hbtn acc"><i class="fa-solid fa-rotate"></i> <span>Sync Master</span></button>
     <a href="../filmhub.html" id="hb-film" onclick="hubGo('../filmhub.html',event)" class="hbtn acc"><i class="fa-solid fa-display"></i> <span>filmHUB</span></a>
+    <a href="../filmhub.html#print" id="hb-print" onclick="hubGo('../filmhub.html#print',event)" class="hbtn"><i class="fa-solid fa-print"></i> <span>Print / Export</span></a>
     <a href="../index.html" onclick="hubGo('../index.html',event)" class="hbtn"><i class="fa-solid fa-table-cells-large"></i> <span>Index Home</span></a>
   </div>
 </header>
@@ -397,14 +398,14 @@ window.SNCue={name:name,demote:demote,strip:strip};
       <div class="nl" onclick="hubGo('../filmhub.html',event)" id="n-filmhub" style="border:1px solid rgba(232,123,48,.5);background:rgba(232,123,48,.1);"><i class="fa-solid fa-display" style="color:#F6A36B;width:18px;"></i>filmHUB &middot; Front desk</div>
       <div class="nl ac" onclick="sw('dashboard')" id="n-dashboard"><i class="fa-solid fa-border-all" style="color:#FBBF24;width:18px;"></i>Dashboard</div>
       <div class="nl" onclick="sw('writer')" id="n-writer"><i class="fa-solid fa-file-lines" style="color:#22D3EE;width:18px;"></i>Screenwriter</div>
-      <div class="nl" onclick="sw('scriptation')" id="n-scriptation"><i class="fa-solid fa-highlighter" style="color:#FDE047;width:18px;"></i>Scriptation</div>
+      <div class="nl" onclick="sw('scriptation')" id="n-scriptation"><i class="fa-solid fa-highlighter" style="color:#FDE047;width:18px;"></i>Breakdown</div>
       <div class="nl" onclick="sw('coverage')" id="n-coverage"><i class="fa-solid fa-stethoscope" style="color:#E879F9;width:18px;"></i>Evaluator (HALION)</div>
-      <div class="nl" onclick="sw('storyboard')" id="n-storyboard"><i class="fa-solid fa-clapperboard" style="color:#FB923C;width:18px;"></i>Storyboard Studio</div>
+      <div class="nl" onclick="sw('storyboard')" id="n-storyboard"><i class="fa-solid fa-clapperboard" style="color:#FB923C;width:18px;"></i>Storyboards</div>
       <div class="nl" onclick="sw('shotlist')" id="n-shotlist"><i class="fa-solid fa-list-ol" style="color:#F59E0B;width:18px;"></i>Shot List</div>
       <div class="nl" onclick="sw('oneliner')" id="n-oneliner"><i class="fa-solid fa-bars-staggered" style="color:#38BDF8;width:18px;"></i>Stripboard (One-Liner)</div>
       <div class="nl" onclick="sw('masterscript')" id="n-masterscript"><i class="fa-solid fa-scroll" style="color:#C084FC;width:18px;"></i>Master Script</div>
       <div class="nl" onclick="sw('callsheet')" id="n-callsheet"><i class="fa-solid fa-calendar-days" style="color:#4ADE80;width:18px;"></i>Call Sheet</div>
-      <div class="nl" onclick="sw('gearlist')" id="n-gearlist"><i class="fa-solid fa-boxes-stacked" style="color:#A78BFA;width:18px;"></i>Gear Checklist</div>
+      <div class="nl" onclick="sw('gearlist')" id="n-gearlist"><i class="fa-solid fa-boxes-stacked" style="color:#A78BFA;width:18px;"></i>Equipment Checklist</div>
       <div class="nl" onclick="sw('dailies')" id="n-dailies"><i class="fa-solid fa-film" style="color:#FB7185;width:18px;"></i>Dailies Log</div>
     </div>
     
@@ -441,7 +442,7 @@ window.SNCue={name:name,demote:demote,strip:strip};
         <div class="mtile" onclick="sw('scriptation')" style="border-top:3px solid #FDE047;--t1:#564c18;--t2:#9c8a2c;">
           <div class="mbadge">TAGGING</div>
           <div class="micon" style="color:#FDE047;"><i class="fa-solid fa-highlighter"></i></div>
-          <div class="mtit">Scriptation</div>
+          <div class="mtit">Breakdown</div>
           <div class="msub" id="tb-scriptation">Tag once, push to every tile</div>
         </div>
 
@@ -455,7 +456,7 @@ window.SNCue={name:name,demote:demote,strip:strip};
         <div class="mtile" onclick="sw('storyboard')" style="border-top:3px solid #FB923C;--t1:#553114;--t2:#9b5a25;">
           <div class="mbadge">6-RULE</div>
           <div class="micon" style="color:#FB923C;"><i class="fa-solid fa-clapperboard"></i></div>
-          <div class="mtit">3. Storyboard Studio</div>
+          <div class="mtit">3. Storyboards</div>
           <div class="msub" id="tb-storyboard">0 Camera Setups</div>
         </div>
 
@@ -470,7 +471,7 @@ window.SNCue={name:name,demote:demote,strip:strip};
           <div class="mbadge">SCHEDULE</div>
           <div class="micon" style="color:#38BDF8;"><i class="fa-solid fa-bars-staggered"></i></div>
           <div class="mtit">5. One-Liner</div>
-          <div class="msub" id="tb-oneliner">Stripboard Breakdown</div>
+          <div class="msub" id="tb-oneliner">Stripboard</div>
         </div>
 
         <div class="mtile" onclick="sw('masterscript')" style="border-top:3px solid #C084FC;--t1:#412c55;--t2:#77519c;">
@@ -490,7 +491,7 @@ window.SNCue={name:name,demote:demote,strip:strip};
         <div class="mtile" onclick="sw('gearlist')" style="border-top:3px solid #A78BFA;--t1:#382f55;--t2:#67569b;">
           <div class="mbadge">KITS</div>
           <div class="micon" style="color:#A78BFA;"><i class="fa-solid fa-boxes-stacked"></i></div>
-          <div class="mtit">Gear Checklist</div>
+          <div class="mtit">Equipment Checklist</div>
           <div class="msub" id="tb-gearlist">Camera, lighting, audio, grip</div>
         </div>
 
@@ -537,7 +538,7 @@ window.SNCue={name:name,demote:demote,strip:strip};
     <!-- VIEW: SCRIPTATION (script tagging + metadata hub) -->
     <section id="v-scriptation" class="vs" style="background:#090D16;padding:12px;">
       <div style="background:var(--bg2);border-bottom:1px solid var(--bd);padding:8px 12px;display:flex;flex-wrap:wrap;align-items:center;gap:6px;flex-shrink:0;">
-        <span style="font-family:var(--fds);font-size:14px;font-weight:900;color:#FDE047;text-transform:uppercase;margin-right:8px;">Scriptation</span>
+        <span style="font-family:var(--fds);font-size:14px;font-weight:900;color:#FDE047;text-transform:uppercase;margin-right:8px;">Breakdown</span>
         <span id="sc-pal" style="display:flex;flex-wrap:wrap;gap:4px;"></span>
         <button class="hbtn pri" onclick="scTagSel()">Tag Selection</button>
         <button class="hbtn acc" onclick="metaPush()">Push to All Tiles</button>
@@ -554,7 +555,7 @@ window.SNCue={name:name,demote:demote,strip:strip};
     <section id="v-coverage" class="vs" style="background:#060910;padding:24px;font-family:var(--fm);">
       <div style="border-bottom:1px solid #1E293B;padding-bottom:12px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;">
         <div>
-          <h2 style="font-size:18px;font-weight:900;color:#fff;text-transform:uppercase;margin:0;">HALION Evaluator Studio</h2>
+          <h2 style="font-size:18px;font-weight:900;color:#fff;text-transform:uppercase;margin:0;">HALION Script Coverage</h2>
           <span style="font-size:10px;color:#A78BFA;">Automated Narrative Heuristics</span>
         </div>
         <button class="hbtn acc" onclick="evaluateCurrentScript()"><i class="fa-solid fa-rotate"></i> Re-Calculate</button>
@@ -654,7 +655,7 @@ window.SNCue={name:name,demote:demote,strip:strip};
 
     <!-- VIEW: GEAR CHECKLIST -->
     <section id="v-gearlist" class="vs" style="background:#08090F;">
-      <div class="cs-top"><div class="cs-title"><i class="fa-solid fa-boxes-stacked"></i> Gear Checklist</div>
+      <div class="cs-top"><div class="cs-title"><i class="fa-solid fa-boxes-stacked"></i> Equipment Checklist</div>
         <button class="cs-btn" onclick="gearReset()">Reset ticks</button></div>
       <div class="gear-grid" id="gear-grid" style="overflow-y:auto;"></div>
     </section>
@@ -1143,7 +1144,7 @@ function build(){
 function save(){try{localStorage.setItem(KEY,JSON.stringify(ST));localStorage.setItem(OUT,JSON.stringify(META));}catch(e){}}
 function dayOf(num){for(const d of META.days)if(d.scenes.some(x=>x.num===num))return d.n;return 0;}
 function sceneOf(num){return META.scenes.find(x=>x.num===num)||{};}
-/* ---- Scriptation tile ---- */
+/* ---- Breakdown tile ---- */
 window.renderScriptation=function(){
   const pal=document.getElementById('sc-pal');if(!pal)return;
   pal.innerHTML=Object.keys(CATS).map(k=>`<button class="hbtn" style="border-color:${CATS[k][1]};color:${CATS[k][1]};${curCat===k?'background:'+CATS[k][1]+'33;':''}" onclick="scSetCat('${k}')">${CATS[k][0]}</button>`).join('')+
@@ -1222,8 +1223,8 @@ window.msRender=function(){const con=document.getElementById('ms-container');if(
   return `<div class="ms-scene" style="background:#0F1420;border-radius:4px;padding:8px 12px;margin-bottom:12px;border-left:4px solid ${d.dot};${m.omit?'opacity:.5;':''}"><div style="color:${d.color};font-weight:700;font-family:var(--fsc);font-size:12px;${m.omit?'text-decoration:line-through;':''}">${m.omit?'OMITTED ':''}SCENE ${m.num} \u00B7 ${esc(m.heading)} <span style="color:#64748B;font-size:9px;">pg ${m.pg} \u00B7 day ${m.omit?'\u2014':dayOf(m.num)}</span></div>${m.notes?`<div style="background:#FEF08A;color:#000;font-size:10px;padding:2px 6px;margin-top:4px;">\u270E ${esc(m.notes)}</div>`:''}<div style="color:#CBD5E1;font-family:var(--fsc);font-size:11px;margin-top:6px;line-height:1.6;white-space:pre-wrap;">${t}</div></div>`;}).join('');};
 const _ad=window.msAdvanceDraft;window.msAdvanceDraft=function(){_ad();msRender();};
 window.renderCallsheet=function(){if(!META)return;const dd=document.getElementById('cs-day'),dc=document.getElementById('cs-cast');if(!dd||!dc)return;
-  dd.innerHTML='<h3>Shoot Days (from Scriptation)</h3>'+META.days.map(d=>`<div style="font-family:var(--fm);font-size:11px;line-height:1.7;color:#CBD5E1;border-top:1px solid #1F2A42;padding:6px 0;"><strong style="color:#FCD34D;">Day ${d.n}</strong> \u2014 ${esc(d.loc)} \u2014 General call 07:00 \u2014 Sc ${d.scenes.map(x=>x.num).join(', ')}<br>Cast: ${esc(d.cast.map((c,i)=>c+' '+String(7+Math.floor((30+i*15)/60)).padStart(2,'0')+':'+String((30+i*15)%60).padStart(2,'0')).join(' \u00B7 ')||'\u2014')}<br>${Object.keys(d.needs).map(k=>`<span style="color:${CATS[k][1]}">${CATS[k][0]}: ${esc(d.needs[k].join(', '))}</span>`).join(' \u00B7 ')}</div>`).join('');
-  dc.innerHTML='<h3>Cast Day-Out-of-Days</h3><table style="width:100%;font-size:10px;font-family:var(--fm);"><thead><tr><th>Cast</th>'+META.days.map(d=>`<th>D${d.n}</th>`).join('')+'<th>Tot</th></tr></thead><tbody>'+META.cast.map(c=>{const w=META.days.map(d=>d.cast.includes(c));return `<tr><td>${esc(c)}</td>`+w.map(x=>`<td style="text-align:center;color:#4ADE80;">${x?'W':''}</td>`).join('')+`<td style="text-align:center;">${w.filter(Boolean).length}</td></tr>`;}).join('')+'</tbody></table>';};
+  dd.innerHTML='<h3>Shoot Days (from Breakdown)</h3>'+META.days.map(d=>`<div style="font-family:var(--fm);font-size:11px;line-height:1.7;color:#CBD5E1;border-top:1px solid #1F2A42;padding:6px 0;"><strong style="color:#FCD34D;">Day ${d.n}</strong> \u2014 ${esc(d.loc)} \u2014 General call 07:00 \u2014 Sc ${d.scenes.map(x=>x.num).join(', ')}<br>Cast: ${esc(d.cast.map((c,i)=>c+' '+String(7+Math.floor((30+i*15)/60)).padStart(2,'0')+':'+String((30+i*15)%60).padStart(2,'0')).join(' \u00B7 ')||'\u2014')}<br>${Object.keys(d.needs).map(k=>`<span style="color:${CATS[k][1]}">${CATS[k][0]}: ${esc(d.needs[k].join(', '))}</span>`).join(' \u00B7 ')}</div>`).join('');
+  dc.innerHTML='<h3>Cast Day Out of Days</h3><table style="width:100%;font-size:10px;font-family:var(--fm);"><thead><tr><th>Cast</th>'+META.days.map(d=>`<th>D${d.n}</th>`).join('')+'<th>Tot</th></tr></thead><tbody>'+META.cast.map(c=>{const w=META.days.map(d=>d.cast.includes(c));return `<tr><td>${esc(c)}</td>`+w.map(x=>`<td style="text-align:center;color:#4ADE80;">${x?'W':''}</td>`).join('')+`<td style="text-align:center;">${w.filter(Boolean).length}</td></tr>`;}).join('')+'</tbody></table>';};
 window.publishCallsheet=function(){try{localStorage.setItem('prohub_callsheet_v1',JSON.stringify({days:META.days,ts:Date.now()}));}catch(e){}toast('Call sheet published for filmHUB');};
 window.renderDailies=function(){const el=document.getElementById('dl-takes');if(!el||!META)return;
   el.innerHTML='<h3>Shooting Log</h3><table style="width:100%;text-align:left;font-family:var(--fm);font-size:11px;"><thead><tr style="color:#64748B;"><th>Day</th><th>Scene</th><th>Loc</th><th>Setups done</th></tr></thead><tbody>'+META.days.flatMap(d=>d.scenes.map(m=>{const ss=shots.filter(s=>s.scene===m.num),dn=ss.filter(s=>s.status==='done').length;return `<tr style="border-top:1px solid #1F2A42;"><td style="padding:4px 0;">${d.n}</td><td>Sc ${m.num}</td><td>${esc(m.loc)}</td><td style="color:${dn&&dn===ss.length?'#34D399':'#FBBF24'};">${dn}/${ss.length}</td></tr>`;})).join('')+'</tbody></table>';};
@@ -1611,7 +1612,7 @@ function kcls(m){
 function mountSB(){
   var v=$('v-storyboard'); if(!v||v.getAttribute('data-studio')) return; v.setAttribute('data-studio','1'); v.style.padding='0';
   v.innerHTML=
-  '<div class="sbs-bar"><div class="sbs-title"><i class="fa-solid fa-clapperboard"></i> Storyboard Studio</div>'+
+  '<div class="sbs-bar"><div class="sbs-title"><i class="fa-solid fa-clapperboard"></i> Storyboards</div>'+
     '<div class="sbs-tools">'+
       '<button class="hbtn acc" onclick="sbResync()" title="Rebuild beats from the script. Your edits and art are kept."><i class="fa-solid fa-rotate"></i><span> Sync script</span></button>'+
       '<select id="sbs-cols" class="sbs-sel" onchange="sbOpt()" title="Frames per row"><option value="0">Auto</option><option value="1">1 / row</option><option value="2">2 / row</option><option value="3">3 / row</option><option value="4">4 / row</option></select>'+
@@ -2084,7 +2085,7 @@ window.renderCallsheet=function(){
   var dd=$('cs-day'),dc=$('cs-cast'); if(!dd||!dc) return; var M=meta(); if(!M) return; sLoad(); var days=scheduleDays();
   dd.innerHTML='<h3>Shoot Days (from the Stripboard)</h3>'+days.map(function(d){
     return '<div style="font-family:var(--fm);font-size:11px;line-height:1.7;color:#CBD5E1;border-top:1px solid #1F2A42;padding:6px 0;"><strong style="color:#FCD34D;">Day '+d.n+'</strong> · '+E(d.date)+' · '+E(d.loc)+'<br>General call '+d.call+' · Lunch '+(d.lunch||'—')+' · Est. wrap '+d.wrap+(d.flags.length?' <span style="color:#F87171">⚠ '+d.flags.join(', ')+'</span>':'')+'<br>Sc '+d.scenes.map(function(x){return x.num;}).join(', ')+'<br>Cast: '+E(d.cast.join(' · ')||'—')+'</div>'; }).join('');
-  dc.innerHTML='<h3>Cast Day-Out-of-Days</h3><table style="width:100%;font-size:10px;font-family:var(--fm);"><thead><tr><th>Cast</th>'+days.map(function(d){return '<th>D'+d.n+'</th>';}).join('')+'<th>Tot</th></tr></thead><tbody>'+
+  dc.innerHTML='<h3>Cast Day Out of Days</h3><table style="width:100%;font-size:10px;font-family:var(--fm);"><thead><tr><th>Cast</th>'+days.map(function(d){return '<th>D'+d.n+'</th>';}).join('')+'<th>Tot</th></tr></thead><tbody>'+
     M.cast.map(function(c){ var w=days.map(function(d){return d.cast.indexOf(c)>=0;}); return '<tr><td>'+E(c)+'</td>'+w.map(function(x){return '<td style="text-align:center;color:#4ADE80;">'+(x?'W':'')+'</td>';}).join('')+'<td style="text-align:center;">'+w.filter(Boolean).length+'</td></tr>'; }).join('')+'</tbody></table>';
 };
 window.publishCallsheet=function(){ try{ localStorage.setItem('prohub_callsheet_v1',JSON.stringify({days:scheduleDays().map(function(d){return {n:d.n,date:d.date,call:d.call,wrap:d.wrap,lunch:d.lunch,loc:d.loc,eighths:d.eighths,scenes:d.scenes,cast:d.cast,needs:d.needs};}),ts:Date.now()})); }catch(e){} say('Call sheet published for filmHUB'); };
@@ -2112,6 +2113,20 @@ function mk(){
 if(document.body)mk();else document.addEventListener('DOMContentLoaded',mk);
 })();
 
+</script>
+<style id="one-logo-style">html.in-frame .one-logo,.one-logo[data-dup]{display:none!important}</style>
+<script id="one-logo-js">
+(function(){
+var inF=false;try{inF=window.self!==window.top;}catch(e){inF=true;}
+if(inF)document.documentElement.classList.add('in-frame');
+function vis(e){return !!(e.getClientRects().length);}
+function fix(){
+  var a=[].slice.call(document.querySelectorAll('.one-logo'));a.forEach(function(e){e.removeAttribute('data-dup');});
+  if(inF)return;var seen=false;a.forEach(function(e){if(!vis(e))return;if(seen)e.setAttribute('data-dup','1');else seen=true;});
+}
+window.addEventListener('load',fix);window.addEventListener('resize',fix);setTimeout(fix,300);setTimeout(fix,1500);
+new MutationObserver(function(){clearTimeout(fix._t);fix._t=setTimeout(fix,60);}).observe(document.documentElement,{attributes:true,attributeFilter:['class']});
+})();
 </script>
 </body>
 </html>

@@ -1094,7 +1094,7 @@ body{background:var(--bg);color:var(--tx);font-family:var(--fui);margin:0;displa
 <div class="tmb hdr-bar">
   <button onclick="togSB()" class="hdr-slot hdr-burger text-gray-300 hover:text-white rounded-md text-base shrink-0" aria-label="Menu"><i class="fa-solid fa-bars"></i></button>
   <div class="flex flex-col justify-center min-w-0">
-    <div class="hdr-row"><span class="hdr-logo"><span class="pre">pro</span>HUB</span><span class="hdr-stage">PRE-PRODUCTION</span></div>
+    <div class="hdr-row"><span class="hdr-logo one-logo"><span class="pre">pro</span>HUB</span><span class="hdr-stage">PRE-PRODUCTION</span></div>
     <div class="flex items-center gap-1.5">
       <input type="text" id="pni" value="UNTITLED PROJECT" onchange="syncT()" class="bg-transparent border-b border-transparent hover:border-gray-600 focus:border-[#D4A034] outline-none text-[#D4A034] font-bold w-36 sm:w-48 uppercase tracking-wider text-[11px] truncate transition-colors">
       <span class="text-gray-600 hidden sm:inline text-[10px]">•</span>
@@ -1162,13 +1162,13 @@ body{background:var(--bg);color:var(--tx);font-family:var(--fui);margin:0;displa
     <div class="text-[10.5px] uppercase tracking-widest text-gray-500 font-bold mb-2">Studios</div>
     <div class="nl" onclick="hubGo('../filmhub.html',event)" id="n-filmhub" style="border:1px solid rgba(232,123,48,.5);background:rgba(232,123,48,.1);"><i class="fa-solid fa-display text-orange-400 w-5"></i>filmHUB &middot; Front desk</div>
     <div class="nl" onclick="sw('writer')" id="n-writer"><i class="fa-solid fa-file-lines text-cyan-400 w-5"></i>1. Screenwriter</div>
-    <div class="nl" onclick="sw('coverage')" id="n-coverage"><i class="fa-solid fa-stethoscope text-pink-400 w-5"></i>2. Evaluator Studio</div>
+    <div class="nl" onclick="sw('coverage')" id="n-coverage"><i class="fa-solid fa-stethoscope text-pink-400 w-5"></i>2. Script Coverage</div>
     <div class="nl" onclick="hubGo('post-production.html#pitchmaker',event)" id="n-pitch"><i class="fa-solid fa-images text-purple-400 w-5"></i>3. Pitch Deck Creator</div>
     <div class="nl" onclick="sw('storyboard')" id="n-storyboard"><i class="fa-solid fa-clapperboard text-orange-400 w-5"></i>4. Storyboards (6-Rule)</div>
     <div class="nl" onclick="sw('budget')" id="n-budget"><i class="fa-solid fa-file-invoice-dollar text-green-400 w-5"></i>5. Pre-Lim Budget</div>
     <div class="nl" onclick="sw('scripts')" id="n-scripts"><i class="fa-solid fa-scroll text-amber-400 w-5"></i>6. Script Reader</div>
     <div class="nl" onclick="sw('scriptlib')" id="n-scriptlib"><i class="fa-solid fa-book-open text-sky-400 w-5"></i>7. Script Library</div>
-    <div class="nl" onclick="sw('filmdb')" id="n-filmdb"><i class="fa-solid fa-film text-rose-400 w-5"></i>8. Film Database</div>
+    <div class="nl" onclick="sw('filmdb')" id="n-filmdb"><i class="fa-solid fa-film text-rose-400 w-5"></i>8. Film Research</div>
     <div class="nl" onclick="sw('outreach')" id="n-outreach"><i class="fa-solid fa-envelope-open-text text-violet-400 w-5"></i>9. Outreach</div>
     <div class="nl" onclick="sw('festivals')" id="n-festivals"><i class="fa-solid fa-award text-amber-400 w-5"></i>10. Festivals &amp; Labs</div>
     <div class="nl" onclick="sw('shotlist')" id="n-shotlist"><i class="fa-solid fa-list-ol text-amber-300 w-5"></i>11. Shot List</div>
@@ -1218,7 +1218,7 @@ body{background:var(--bg);color:var(--tx);font-family:var(--fui);margin:0;displa
     <div class="mtile tile-coverage" onclick="sw('coverage')">
       <div class="mbadge">HEURISTIC</div>
       <div class="micon"><i class="fa-solid fa-stethoscope"></i></div>
-      <div><div class="mtit">Evaluator Studio</div><div class="msub">100-Param · HALION Engine</div></div>
+      <div><div class="mtit">Script Coverage</div><div class="msub">100-Param · HALION Engine</div></div>
     </div>
     <div class="mtile tile-pitch" onclick="hubGo('post-production.html#pitchmaker',event)">
       <div class="mbadge">ARCHITECT</div>
@@ -1249,7 +1249,7 @@ body{background:var(--bg);color:var(--tx);font-family:var(--fui);margin:0;displa
     <div class="mtile tile-filmdb" onclick="sw('filmdb')">
       <div class="mbadge">TMDB</div>
       <div class="micon"><i class="fa-solid fa-film"></i></div>
-      <div><div class="mtit">Film Database</div><div class="msub">Comps · Loglines · Research</div></div>
+      <div><div class="mtit">Film Research</div><div class="msub">Comps · Loglines · Research</div></div>
     </div>
     <div class="mtile tile-outreach" onclick="sw('outreach')">
       <div class="mbadge">TRACKER</div>
@@ -1291,7 +1291,7 @@ body{background:var(--bg);color:var(--tx);font-family:var(--fui);margin:0;displa
   <header class="bg-[#0A0E17] border-b border-slate-900 px-4 py-1.5 flex items-center justify-between shrink-0 sans-ui sticky top-0 z-40 select-none z-30">
     <div class="flex items-center gap-6">
       <!-- Pre-production Bauhaus Vector Brand Logo -->
-      <div class="h-6 w-24 flex items-center justify-start select-none cursor-pointer" onclick="sw('dashboard')" title="Dashboard">
+      <div class="h-6 w-24 flex items-center justify-start select-none cursor-pointer one-logo" onclick="sw('dashboard')" title="Dashboard">
         <span style="font-family:var(--fbh);font-weight:700;font-size:22px;line-height:24px;letter-spacing:0;white-space:nowrap;color:#fff;"><span style="color:#A3E635">pro</span>HUB</span>
       </div>
 
@@ -1783,7 +1783,7 @@ body{background:var(--bg);color:var(--tx);font-family:var(--fui);margin:0;displa
 
   <div id="mob-scribe-panel">
     <div class="sp-head">
-      <div class="sp-title"><span class="pre">pro</span><span class="hub">HUB</span><span class="pipe">|</span><span class="app">Scribe</span></div>
+      <div class="sp-title"><span class="app">Scribe</span></div>
       <button class="sp-close" onclick="closeScribePanel()">✕</button>
     </div>
     <div class="sp-body">
@@ -1876,7 +1876,7 @@ body{background:var(--bg);color:var(--tx);font-family:var(--fui);margin:0;displa
       <!-- RETICULATING SPLINES loading overlay -->
       <div id="cv-loading" class="hidden absolute inset-0 flex flex-col items-center justify-center bg-[#060910] z-10 p-8">
         <div class="text-[#BE1B7D] text-lg font-black tracking-widest uppercase mb-2" style="font-family:var(--fds)"><span class="cv-spinner">◈</span> RETICULATING SPLINES</div>
-        <div class="text-[11px] font-mono text-slate-500 mb-4" id="cv-spline-label">Initializing HALION Engine...</div>
+        <div class="text-[11px] font-mono text-slate-500 mb-4" id="cv-spline-label">Initializing Coverage engine...</div>
         <div class="w-full max-w-xs bg-slate-900 border border-slate-800 rounded-full h-1.5 overflow-hidden mb-2">
           <div id="cv-spline-bar" class="h-full bg-[#BE1B7D] transition-all duration-700" style="width:0%"></div>
         </div>
@@ -2058,7 +2058,7 @@ body{background:var(--bg);color:var(--tx);font-family:var(--fui);margin:0;displa
   #m-sheet .ms-save{margin-top:10px;width:100%;padding:12px;border-radius:12px;border:0;background:#E6ECF5;color:#0B0F19;font-weight:700;font-size:14px;}
 }
 
-/* Screenwriter always first on the Pre-production dashboard, Evaluator Studio second */
+/* Screenwriter always first on the Pre-production dashboard, Script Coverage second */
 #db-grid .tile-writer{order:-2!important;}
 #db-grid .tile-coverage{order:-1!important;}
 
@@ -2684,7 +2684,7 @@ body{background:var(--bg);color:var(--tx);font-family:var(--fui);margin:0;displa
 </div>
 
 <script>
-/* TMDB key for the Film Database and pitch comps. Seeded once per browser; the field still lets you change it. */
+/* TMDB key for the Film Research and pitch comps. Seeded once per browser; the field still lets you change it. */
 try{ if(!localStorage.getItem('fdb_tmdb_key')) localStorage.setItem('fdb_tmdb_key','3fa2777399d08f82967184990e0bbd86'); }catch(e){}
 </script>
 <script>
@@ -4686,7 +4686,7 @@ The material occupies the space between ${comp1} and ${comp2}: [brief descriptio
 
 [One paragraph on thematic relevance — why this story now, why this voice. Be specific about the cultural or emotional moment the film addresses.]
 
-The script has been evaluated by HALION coverage and received an overall score of ${finalScores.OVERALL?.toFixed(1)}/10 with particular strength in [strongest axis from scores].
+The script has been evaluated by script coverage and received an overall score of ${finalScores.OVERALL?.toFixed(1)}/10 with particular strength in [strongest axis from scores].
 
 I would be grateful for the opportunity to send the full screenplay at your request. I can be reached at [email] or [phone].
 
@@ -4841,8 +4841,8 @@ function renderHalionCoverage(parsed,finalScores,axisResults,allResults){const v
   document.getElementById('cv-score-summary-table')?.classList.remove('hidden');
   renderHalionScoreTiles(finalScores);
 }
-function exportCoverage(){const body=document.getElementById('cv-body');if(!body||body.classList.contains('hidden'))return toast('Run coverage first.');const txt=body.innerText;const bl=new Blob([txt],{type:'text/plain'});const u=URL.createObjectURL(bl);const a=document.createElement('a');a.href=u;a.download=(document.getElementById('pni')?.value||'script').replace(/\s+/g,'_')+'_HALION_coverage.txt';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(u);toast('Coverage exported.');}
-async function runCov(){const tx=document.getElementById('cta').value.trim();if(!tx)return toast('Paste or sync a screenplay first.');const fmt=document.getElementById('cff').value||'FEATURE';document.getElementById('ce').classList.add('hidden');document.getElementById('cv-score-tiles').classList.add('hidden');document.getElementById('cv-score-tiles').innerHTML='';document.getElementById('cv-verdict').classList.add('hidden');document.getElementById('cv-body').classList.add('hidden');document.getElementById('cv-export-row').classList.add('hidden');const loadEl=document.getElementById('cv-loading');loadEl.classList.remove('hidden');const logEl=document.getElementById('cv-spline-log');if(logEl)logEl.innerHTML='';const barEl=document.getElementById('cv-spline-bar');const lblEl=document.getElementById('cv-spline-label');const stpEl=document.getElementById('cv-spline-step');const pctEl=document.getElementById('cv-spline-pct');if(barEl)barEl.style.width='0%';const splines=['Initializing HALION Engine...','Parsing scene headings...','Indexing character slugs...','Building dialogue distribution map...','Mapping protagonist dialogue arc...','Evaluating agency markers (P01-P03)...','Scoring supporting cast depth (P04-P07)...','Analyzing relationship dynamics (P08-P14)...','Calculating three-act structure (P15-P17)...','Running pacing dead-zone scan (P18)...','Measuring inciting incident placement (P20)...','Midpoint shift analysis (P21)...','Exposition distribution check (P28)...','Voice differentiation matrix (P29-P31)...','Subtext density pass (P30)...','Measuring climactic dialogue power (P40)...','Originality and premise analysis (P41-P50)...','Emotional stakes scan (P51-P55)...','Sensory specificity index (P52)...','Catharsis delivery check (P56-P60)...','Central theme mapping (P61-P65)...','Thematic payoff analysis (P69)...','Commercial viability pass (P71-P80)...','Craft integrity evaluation (P81-P100)...','Aggregating 100-parameter scores...','Computing axis-weighted averages...','Generating coverage narrative...','Drafting market diagnostics...','Final QA pass...','Coverage ready. Rendering report...'];for(let i=0;i<30;i++){await new Promise(r=>requestAnimationFrame(()=>setTimeout(r,900)));const pct=Math.round(((i+1)/30)*100);if(logEl){const ln=document.createElement('div');ln.className='text-[10px] font-mono text-emerald-400/70';ln.textContent='> '+(splines[i]||'Processing...');logEl.appendChild(ln);logEl.scrollTop=logEl.scrollHeight;}if(barEl)barEl.style.width=pct+'%';if(lblEl)lblEl.textContent=splines[i]||'Processing...';if(stpEl)stpEl.textContent=(i+1)+'/30';if(pctEl)pctEl.textContent=pct+'%';}try{const parsed=HalionParser.parse(tx,fmt);const{finalScores,axisResults,allResults}=computeAxisScores(parsed);loadEl.classList.add('hidden');const tilesEl=document.getElementById('cv-score-tiles');tilesEl.innerHTML=renderHalionScoreTiles(finalScores);tilesEl.classList.remove('hidden');document.getElementById('cv-verdict').classList.remove('hidden');document.getElementById('cv-body').classList.remove('hidden');document.getElementById('cv-export-row').classList.remove('hidden');renderHalionCoverage(parsed,finalScores,axisResults,allResults);toast('HALION coverage complete.');}catch(err){loadEl.classList.add('hidden');document.getElementById('ce').classList.remove('hidden');toast('Coverage error: '+(err.message||'parse failed'));}}
+function exportCoverage(){const body=document.getElementById('cv-body');if(!body||body.classList.contains('hidden'))return toast('Run coverage first.');const txt=body.innerText;const bl=new Blob([txt],{type:'text/plain'});const u=URL.createObjectURL(bl);const a=document.createElement('a');a.href=u;a.download=(document.getElementById('pni')?.value||'script').replace(/\s+/g,'_')+'_Script_Coverage.txt';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(u);toast('Coverage exported.');}
+async function runCov(){const tx=document.getElementById('cta').value.trim();if(!tx)return toast('Paste or sync a screenplay first.');const fmt=document.getElementById('cff').value||'FEATURE';document.getElementById('ce').classList.add('hidden');document.getElementById('cv-score-tiles').classList.add('hidden');document.getElementById('cv-score-tiles').innerHTML='';document.getElementById('cv-verdict').classList.add('hidden');document.getElementById('cv-body').classList.add('hidden');document.getElementById('cv-export-row').classList.add('hidden');const loadEl=document.getElementById('cv-loading');loadEl.classList.remove('hidden');const logEl=document.getElementById('cv-spline-log');if(logEl)logEl.innerHTML='';const barEl=document.getElementById('cv-spline-bar');const lblEl=document.getElementById('cv-spline-label');const stpEl=document.getElementById('cv-spline-step');const pctEl=document.getElementById('cv-spline-pct');if(barEl)barEl.style.width='0%';const splines=['Initializing Coverage engine...','Parsing scene headings...','Indexing character slugs...','Building dialogue distribution map...','Mapping protagonist dialogue arc...','Evaluating agency markers (P01-P03)...','Scoring supporting cast depth (P04-P07)...','Analyzing relationship dynamics (P08-P14)...','Calculating three-act structure (P15-P17)...','Running pacing dead-zone scan (P18)...','Measuring inciting incident placement (P20)...','Midpoint shift analysis (P21)...','Exposition distribution check (P28)...','Voice differentiation matrix (P29-P31)...','Subtext density pass (P30)...','Measuring climactic dialogue power (P40)...','Originality and premise analysis (P41-P50)...','Emotional stakes scan (P51-P55)...','Sensory specificity index (P52)...','Catharsis delivery check (P56-P60)...','Central theme mapping (P61-P65)...','Thematic payoff analysis (P69)...','Commercial viability pass (P71-P80)...','Craft integrity evaluation (P81-P100)...','Aggregating 100-parameter scores...','Computing axis-weighted averages...','Generating coverage narrative...','Drafting market diagnostics...','Final QA pass...','Coverage ready. Rendering report...'];for(let i=0;i<30;i++){await new Promise(r=>requestAnimationFrame(()=>setTimeout(r,900)));const pct=Math.round(((i+1)/30)*100);if(logEl){const ln=document.createElement('div');ln.className='text-[10px] font-mono text-emerald-400/70';ln.textContent='> '+(splines[i]||'Processing...');logEl.appendChild(ln);logEl.scrollTop=logEl.scrollHeight;}if(barEl)barEl.style.width=pct+'%';if(lblEl)lblEl.textContent=splines[i]||'Processing...';if(stpEl)stpEl.textContent=(i+1)+'/30';if(pctEl)pctEl.textContent=pct+'%';}try{const parsed=HalionParser.parse(tx,fmt);const{finalScores,axisResults,allResults}=computeAxisScores(parsed);loadEl.classList.add('hidden');const tilesEl=document.getElementById('cv-score-tiles');tilesEl.innerHTML=renderHalionScoreTiles(finalScores);tilesEl.classList.remove('hidden');document.getElementById('cv-verdict').classList.remove('hidden');document.getElementById('cv-body').classList.remove('hidden');document.getElementById('cv-export-row').classList.remove('hidden');renderHalionCoverage(parsed,finalScores,axisResults,allResults);toast('script coverage complete.');}catch(err){loadEl.classList.add('hidden');document.getElementById('ce').classList.remove('hidden');toast('Coverage error: '+(err.message||'parse failed'));}}
 // ========== PITCH DECK ==========
 function exportPitchPDF(){printView('pitch');}
 function printView(view){document.body.setAttribute('data-print-view',view);window.print();document.body.removeAttribute('data-print-view');}
@@ -4963,7 +4963,7 @@ function genPitch(){const g=document.getElementById('pg');if(!g)return;const wn=
   const tmpls=[
     {ti:'TITLE PAGE',kw:'cinematic title credits dark film noir',body:`<div class="pitch-hero" style="text-align:center;padding:24px 0"><div style="font-size:32px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:#fff;font-family:var(--fds);text-shadow:0 2px 20px rgba(0,0,0,.8)">${title||'UNTITLED PROJECT'}</div><div style="margin-top:8px;font-size:13px;color:#94A3B8;font-style:italic">Written by ${wn||'[Writer]'}</div></div>`},
     {ti:'LOGLINE',kw:`${genre} ${tone} story character`,body:`<div class="pitch-body-text" style="font-size:16px;line-height:1.75;color:#E2E8F0;font-style:italic;padding:12px 0;border-left:3px solid #7C3AED;padding-left:16px">"${logline}"</div>`},
-    {ti:'THE STORY',kw:`${genre} ${tone} narrative sequence`,body:`<div class="pitch-body-text"><p style="color:#CBD5E1;font-size:13px;line-height:1.75">[Story summary — 3 paragraphs covering Act 1 setup, Act 2 escalation, and Act 3 resolution. Sync from Coverage to auto-populate with HALION narrative.]</p><div style="margin-top:16px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;text-align:center">${['ACT ONE','ACT TWO','ACT THREE'].map((a,i)=>`<div style="background:#0F1420;border:1px solid #1E293B;border-radius:6px;padding:12px"><div style="font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#7C3AED;font-weight:700">${a}</div><div style="font-size:11px;color:#64748B;margin-top:4px">${['Inciting Incident & World','Rising Stakes & Midpoint Turn','Climax & Resolution'][i]}</div></div>`).join('')}</div></div>`},
+    {ti:'THE STORY',kw:`${genre} ${tone} narrative sequence`,body:`<div class="pitch-body-text"><p style="color:#CBD5E1;font-size:13px;line-height:1.75">[Story summary — 3 paragraphs covering Act 1 setup, Act 2 escalation, and Act 3 resolution. Sync from Coverage to auto-populate with coverage narrative.]</p><div style="margin-top:16px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;text-align:center">${['ACT ONE','ACT TWO','ACT THREE'].map((a,i)=>`<div style="background:#0F1420;border:1px solid #1E293B;border-radius:6px;padding:12px"><div style="font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#7C3AED;font-weight:700">${a}</div><div style="font-size:11px;color:#64748B;margin-top:4px">${['Inciting Incident & World','Rising Stakes & Midpoint Turn','Climax & Resolution'][i]}</div></div>`).join('')}</div></div>`},
     {ti:'PROTAGONIST',kw:`${genre} character portrait face dramatic lighting`,body:`<div class="pitch-body-text"><h4 style="font-size:11px;color:#7C3AED;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">The Central Character</h4><div style="display:grid;grid-template-columns:1fr 1fr;gap:16px"><div><div style="font-size:11px;font-weight:700;color:#94A3B8;margin-bottom:4px">WANT (external goal)</div><div style="font-size:12px;color:#E2E8F0;font-style:italic">[What the character is chasing across the story]</div><div style="font-size:11px;font-weight:700;color:#94A3B8;margin:12px 0 4px">NEED (internal wound)</div><div style="font-size:12px;color:#E2E8F0;font-style:italic">[What they must confront to become whole]</div></div><div><div style="font-size:11px;font-weight:700;color:#94A3B8;margin-bottom:4px">FLAW</div><div style="font-size:12px;color:#E2E8F0;font-style:italic">[The quality that creates all their problems]</div><div style="font-size:11px;font-weight:700;color:#94A3B8;margin:12px 0 4px">TRANSFORMATION</div><div style="font-size:12px;color:#E2E8F0;font-style:italic">[Where they end vs. where they began]</div></div></div></div>`},
     {ti:'WORLD & TONE',kw:`${genre} ${tone} environment landscape atmosphere`,body:`<div class="pitch-body-text"><p style="color:#CBD5E1;font-size:13px;line-height:1.75">[Describe the world of the film: time period, location, atmosphere, visual palette. Reference the tone keywords above. This is where you establish the cinematic language of the project.]</p><div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">${tone.split(',').map(t=>`<span style="background:#1E1B4B;border:1px solid #4338CA;color:#A5B4FC;font-size:10px;padding:3px 10px;border-radius:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em">${t.trim()}</span>`).join('')}</div></div>`},
     {ti:'COMPARABLE FILMS',kw:`${genre} cinema classic film reel`,body:`<div class="pitch-body-text"><h4 style="font-size:11px;color:#7C3AED;text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px">This material sits between:</h4>${(comps?comps.split(',').map(c=>c.trim()).filter(Boolean):['[Comp Title A]','[Comp Title B]']).map(comp=>`<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #1E293B"><i class="fa-solid fa-clapperboard" style="color:#7C3AED;font-size:14px;min-width:20px"></i><div><div style="font-weight:700;color:#E2E8F0;font-size:13px">${comp}</div><div style="font-size:11px;color:#64748B;margin-top:2px;font-style:italic">[Add 1-sentence note on why this comp is relevant]</div></div></div>`).join('')}</div>`},
@@ -6835,6 +6835,7 @@ function hubGo(page, ev){
   var HUB='proHUB', NOTES_KEY='prehub_quick_notes';
   var ITEMS=[
   {label:'filmHUB (front desk)',icon:'fa-solid fa-display',run:function(){hubGo('../filmhub.html');}},
+  {label:'Print / Export',icon:'fa-solid fa-print',run:function(){hubGo('../filmhub.html#print');}},
   {label:'Notes',icon:'fa-solid fa-note-sticky',run:function(){openNotes();}},
   {label:'Add note',icon:'fa-solid fa-pen-to-square',run:function(){openText();}},
   {label:'Writing desk',icon:'fa-solid fa-pen-nib',run:function(){sw('writer');}},
@@ -8175,7 +8176,7 @@ html.pf-on .pf-grid > .pf-hero .mtit{font-size:13px!important;}
   .sl-row a{padding:0 6px;font-size:15px;min-height:50px;}
   .sl-row a b{font-size:11px;border:1px solid rgba(56,189,248,.35);padding:6px 10px;border-radius:5px;}
   .sl-star{flex-basis:46px;font-size:22px;}
-  /* ===== Film Database: phone ===== */
+  /* ===== Film Research: phone ===== */
   #v-filmdb > div{height:100%;}
   .fdb-bar{flex-wrap:wrap!important;gap:8px!important;padding:10px 12px!important;}
   .fdb-bar > i,.fdb-bar > div[style*="width:1px"]{display:none!important;}
@@ -10259,6 +10260,7 @@ var SCRIPT=[
 ];
 var STUDIOS=[
  ['filmHUB (front desk)',function(){hubGo('../filmhub.html');}],
+ ['Print / Export',function(){hubGo('../filmhub.html#print');}],
  ['Hub dashboard',function(){sw('dashboard');}],
  ['Screenwriter',function(){sw('writer');}],
  ['Evaluator studio',function(){sw('coverage');}],
@@ -10308,6 +10310,20 @@ var mb=$('mb-menu');if(mb){var nb=mb.cloneNode(true);mb.parentNode.replaceChild(
  nb.innerHTML='<span style="display:block;width:18px;height:2px;background:#E6ECF5;box-shadow:0 6px #E6ECF5,0 -6px #E6ECF5;border-radius:1px"></span>';}
 })();
 
+</script>
+<style id="one-logo-style">html.in-frame .one-logo,.one-logo[data-dup]{display:none!important}</style>
+<script id="one-logo-js">
+(function(){
+var inF=false;try{inF=window.self!==window.top;}catch(e){inF=true;}
+if(inF)document.documentElement.classList.add('in-frame');
+function vis(e){return !!(e.getClientRects().length);}
+function fix(){
+  var a=[].slice.call(document.querySelectorAll('.one-logo'));a.forEach(function(e){e.removeAttribute('data-dup');});
+  if(inF)return;var seen=false;a.forEach(function(e){if(!vis(e))return;if(seen)e.setAttribute('data-dup','1');else seen=true;});
+}
+window.addEventListener('load',fix);window.addEventListener('resize',fix);setTimeout(fix,300);setTimeout(fix,1500);
+new MutationObserver(function(){clearTimeout(fix._t);fix._t=setTimeout(fix,60);}).observe(document.documentElement,{attributes:true,attributeFilter:['class']});
+})();
 </script>
 </body>
 </html>

@@ -366,10 +366,10 @@ var TILES=[
  {id:'scriptin',c:'#A3E635',i:'fa-file-import',t:'Import Script',s:'File or paste: runs every tile',b:function(){return M.lines.length?'LOADED':'START HERE';},dk:1},
  {id:'script',c:'#00ABA9',i:'fa-file-lines',t:'Script',s:'Full script & daily sides',b:function(){return M.scenes.length+' scenes';}},
  {id:'analysis',c:'#D80073',i:'fa-stethoscope',t:'Script Analysis',s:'Pages, cast, dialogue, D/N',b:function(){return M.pages+' pgs';}},
- {id:'breakdown',c:'#7137C8',i:'fa-highlighter',t:'Breakdown',s:'Scriptation tags by scene',b:function(){return tagCount()+' tags';}},
+ {id:'breakdown',c:'#7137C8',i:'fa-highlighter',t:'Breakdown',s:'Breakdown tags by scene',b:function(){return tagCount()+' tags';}},
  {id:'strip',c:'#FA6800',i:'fa-bars-staggered',t:'Stripboard',s:'One-liner shoot days',b:function(){return M.days.length+' days';}},
  {id:'callsheet',c:'#00ABA9',i:'fa-clipboard-list',t:'Call Sheets',s:'Cast calls, needs, sides',b:function(){return 'Day 1/'+M.days.length;}},
- {id:'cast',c:'#1BA1E2',i:'fa-users',t:'Cast & DOOD',s:'Day-out-of-days matrix',b:function(){return M.cast.length+' cast';},d:0},
+ {id:'cast',c:'#1BA1E2',i:'fa-users',t:'Cast & DOOD',s:'Day out of days matrix',b:function(){return M.cast.length+' cast';},d:0},
  {id:'shots',c:'#F0A30A',i:'fa-list-ol',t:'Shot List',s:'Setups, lenses, status',b:function(){return M.shots.length+' shots';},dk:1},
  {id:'needs',c:'#008A00',i:'fa-box-open',t:'Props & Needs',s:'Per-day department needs',b:function(){return tagCount()+' items';}},
  {id:'locs',c:'#F0A30A',i:'fa-map-location-dot',t:'Locations',s:'Sets, INT/EXT, days',b:function(){return locList().length+' sets';},dk:1},
@@ -456,7 +456,7 @@ H.analysis=function(){
   h+=chars.length?chars.map(function(c){var p=dlTot?Math.round(dl[c]/dlTot*100):0;return '<div style="margin-bottom:8px"><div class="mono" style="font-size:11px;display:flex;justify-content:space-between"><span>'+esc(c)+'</span><span>'+dl[c]+' words · '+p+'%</span></div><div class="bar" style="--c:#D80073"><i style="width:'+p+'%"></i></div></div>';}).join(''):'<div class="empty">No dialogue detected.</div>';
   h+='<div class="sec" style="color:#D80073">Scene length (eighths of a page)</div>';
   h+=live.map(function(s){return '<div style="display:flex;gap:8px;align-items:center;margin-bottom:5px" class="mono"><span style="min-width:26px;color:#E5A93C;font-size:11px">'+s.num+'</span><div class="bar" style="flex:1;--c:'+(s.tod==='NIGHT'?'#6366F1':'#F59E0B')+'"><i style="width:'+(s.eighths/maxS*100)+'%"></i></div><span style="font-size:10px;color:#8794A6;min-width:30px;text-align:right">'+s.eighths+'/8</span></div>';}).join('');
-  h+='<div class="sec" style="color:#D80073">Note</div><div class="mono" style="font-size:11px;color:#8794A6;line-height:1.7">These are counted from the script itself. The full 100-parameter HALION coverage report stays in preHUB\'s Evaluator Studio; it does not save its results, so filmHUB cannot show them.</div>';
+  h+='<div class="sec" style="color:#D80073">Note</div><div class="mono" style="font-size:11px;color:#8794A6;line-height:1.7">These are counted from the script itself. The full 100-parameter script coverage report stays in preHUB\'s Script Coverage; it does not save its results, so filmHUB cannot show them.</div>';
   return {h:'Script Analysis',b:h};
 };
 
@@ -471,7 +471,7 @@ H.breakdown=function(){
   var tot=cats.map(function(k){return [CATS[k][0],M.scenes.reduce(function(a,s){return a+(s.omit?0:(s.tags[k]||[]).length);},0),CATS[k][1]];}).filter(function(x){return x[1];});
   var h='<div class="chips">'+tot.map(function(x){return pill(x[0]+' '+x[1],x[2]);}).join('')+'</div>';
   h+=M.scenes.length?tbl(head,rows):'<div class="empty">No scenes to break down.</div>';
-  h+='<div class="mono" style="font-size:10.5px;color:#8794A6;margin-top:10px;line-height:1.6">'+(M.metaUsed?'Using the tags, notes and omits you set in proHUB Scriptation.':'Auto-tagged from keywords. Open proHUB Scriptation and press Push to All Tiles to add your own tags, notes and omitted scenes.')+'</div>';
+  h+='<div class="mono" style="font-size:10.5px;color:#8794A6;margin-top:10px;line-height:1.6">'+(M.metaUsed?'Using the tags, notes and omits you set in proHUB Breakdown.':'Auto-tagged from keywords. Open proHUB Breakdown and press Push to All Tiles to add your own tags, notes and omitted scenes.')+'</div>';
   return {h:'Scene Breakdown',b:h};
 };
 
@@ -525,14 +525,14 @@ function printCall(n){
 
 /* CAST & DOOD */
 H.cast=function(){
-  if(!M.cast.length)return {h:'Cast & Day-Out-of-Days',b:'<div class="empty">No speaking cast found.</div>'};
+  if(!M.cast.length)return {h:'Cast & Day Out of Days',b:'<div class="empty">No speaking cast found.</div>'};
   var rows=M.cast.map(function(c){var w=M.days.map(function(d){return d.cast.indexOf(c)>=0;}),n=w.filter(Boolean).length;
     var sc=M.scenes.filter(function(s){return !s.omit&&s.cast.indexOf(c)>=0;}).length,dw=M.scenes.reduce(function(a,s){return a+((s.dlg||{})[c]||0);},0);
     var first=w.indexOf(true),last=w.lastIndexOf(true);
     return '<tr><td style="font-weight:700">'+esc(c)+'</td>'+w.map(function(x,i){var st=x?(i===first&&i===last?'SWF':i===first?'SW':i===last?'WF':'W'):(first>=0&&i>first&&i<last?'H':'');return '<td style="text-align:center;color:'+(x?'#4ADE80':'#6B7280')+';font-weight:700">'+st+'</td>';}).join('')+'<td style="text-align:center">'+n+'</td><td style="text-align:center">'+sc+'</td><td style="text-align:center">'+dw+'</td></tr>';});
   var h=cards([['Speaking cast',M.cast.length],['Shoot days',M.days.length]])+tbl(['Cast'].concat(M.days.map(function(d){return 'D'+d.n;}),['Days','Scenes','Words']),rows);
   h+='<div class="mono" style="font-size:10.5px;color:#8794A6;margin-top:10px">SW start-work · W work · H hold · WF work-finish · SWF start-work-finish. Built from speaking characters; crew and non-speaking roles come from the call sheet in proHUB.</div>';
-  return {h:'Cast & Day-Out-of-Days',b:h};
+  return {h:'Cast & Day Out of Days',b:h};
 };
 
 /* SHOTS */
@@ -580,7 +580,7 @@ H.budget=function(){
   var h=cards([['Macro total',money(tot),'from preHUB pre-lim budget'],['Pages',M.pages],['Scheduled days',planned,ppd.toFixed(1)+' pgs/day planned'],['Eighths',M.eighths]]);
   h+='<div class="sec" style="color:#F0A30A">Pre-lim budget (preHUB)</div>'+(bud.length?tbl(['Category','Estimated'],bud.map(function(b){return '<tr><td>'+esc(b.cat)+'</td><td style="text-align:right;color:#34D399;font-weight:700">'+money(b.amt)+'</td></tr>';})):'<div class="empty">No budget saved in preHUB yet.</div>');
   h+='<div class="sec" style="color:#F0A30A">1/8 rule: pages to days to cost</div>'+tbl(['Tier','Pgs/day','Shoot days','Day rate','Est.'],tiers.map(function(t){var dd=Math.ceil(M.pages/t[1]);return '<tr><td style="color:'+t[3]+';font-weight:700">'+t[0]+'</td><td>'+t[1]+'</td><td>'+dd+'</td><td>'+money(t[2])+'</td><td style="font-weight:700">'+money(dd*t[2])+'</td></tr>';}));
-  h+='<div class="mono" style="font-size:10.5px;color:#8794A6;margin-top:10px;line-height:1.6">The Advanced Budget in proHUB (COA 1000–5700) is not saved to storage, so only the preHUB macro budget and the scheduled day count are shown here.</div>';
+  h+='<div class="mono" style="font-size:10.5px;color:#8794A6;margin-top:10px;line-height:1.6">The Budget in proHUB (COA 1000–5700) is not saved to storage, so only the preHUB macro budget and the scheduled day count are shown here.</div>';
   return {h:'Budget',acts:'',b:h};
 };
 
@@ -596,17 +596,17 @@ H.notes=function(){var v=(M.pre&&M.pre.versionHistory)||[];
   var h='<div class="sec" style="color:#1BA1E2">Quick notes (preHUB)</div>'+(M.notes.length?M.notes.map(function(n){return '<div class="note" style="background:#0E1320;color:#E6ECF5;border:1px solid #1F2A42">'+esc(n.text)+'<div style="font-size:10px;color:#7E8FA6;margin-top:4px">'+new Date(n.at).toLocaleString()+'</div></div>';}).join(''):'<div class="empty">No notes yet.</div>');
   h+='<div class="sec" style="color:#1BA1E2">Script snapshots</div>'+(v.length?tbl(['Version','Date','Lines'],v.map(function(x){return '<tr><td style="font-weight:700;color:#E5A93C">'+esc(x.version)+'</td><td>'+esc(x.date||'')+' '+esc(x.time||'')+'</td><td>'+((String(x.html||'').match(/line-editable-box/g)||[]).length)+'</td></tr>';})):'<div class="empty">No snapshots saved.</div>');
   var sn=M.scenes.filter(function(s){return s.notes;});
-  if(sn.length)h+='<div class="sec" style="color:#1BA1E2">Scene notes (Scriptation)</div>'+sn.map(function(s){return '<div class="note">Sc '+s.num+': '+esc(s.notes)+'</div>';}).join('');
+  if(sn.length)h+='<div class="sec" style="color:#1BA1E2">Scene notes (Breakdown)</div>'+sn.map(function(s){return '<div class="note">Sc '+s.num+': '+esc(s.notes)+'</div>';}).join('');
   return {h:'Notes & Drafts',b:h};
 };
 
 /* SYNC */
 H.sync=function(){
-  var rows=[['prehub_master_v1','preHUB → proHUB','Transmitted script (lines)',M.master&&M.master.ts],['prehub_v3','preHUB','Project, script text, budget, snapshots',null],['prohub_meta_v1','proHUB Scriptation','Scenes, tags, notes, shoot days',M.meta&&M.meta.ts],['prohub_scriptation_v1','proHUB Scriptation','Manual tag state',null],['prohub_callsheet_v1','proHUB Call Sheet','Published shoot days',M.call&&M.call.ts],['prehub_shotlist','preHUB Shot List','Shots and thumbnails',null],['prohub_props_tracker_v1','proHUB','Props tracker',null],['ob_letters','preHUB Outreach','Query letter log',null],['prehub_quick_notes','preHUB (phone)','Quick notes',null]];
-  var h=cards([['Linked sources',linkedCount()+' / '+KEYS.length],['Script source',esc(M.source)],['Breakdown',M.metaUsed?'Scriptation':'Auto'],['Scenes',M.scenes.length]]);
+  var rows=[['prehub_master_v1','preHUB → proHUB','Transmitted script (lines)',M.master&&M.master.ts],['prehub_v3','preHUB','Project, script text, budget, snapshots',null],['prohub_meta_v1','proHUB Breakdown','Scenes, tags, notes, shoot days',M.meta&&M.meta.ts],['prohub_scriptation_v1','proHUB Breakdown','Manual tag state',null],['prohub_callsheet_v1','proHUB Call Sheet','Published shoot days',M.call&&M.call.ts],['prehub_shotlist','preHUB Shot List','Shots and thumbnails',null],['prohub_props_tracker_v1','proHUB','Props tracker',null],['ob_letters','preHUB Outreach','Query letter log',null],['prehub_quick_notes','preHUB (phone)','Quick notes',null]];
+  var h=cards([['Linked sources',linkedCount()+' / '+KEYS.length],['Script source',esc(M.source)],['Breakdown',M.metaUsed?'Breakdown':'Auto'],['Scenes',M.scenes.length]]);
   h+=tbl(['Storage key','From','Contents','Status','Updated'],rows.map(function(r){var v=localStorage.getItem(r[0]),ok=v&&v!=='[]'&&v!=='{}'&&v!=='null';
     return '<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td>'+r[2]+'</td><td>'+pill(ok?'LINKED':'EMPTY',ok?'#34D399':'#6B7280')+'</td><td>'+(r[3]?new Date(r[3]).toLocaleString():'—')+'</td></tr>';}));
-  h+='<div class="sec" style="color:#008A00">How it connects</div><div class="mono" style="font-size:11px;color:#8794A6;line-height:1.8">filmHUB reads the same browser storage as preHUB and proHUB, so it must be served from the same site and folder as them. It refreshes itself when either hub saves. If the breakdown looks auto-generated, open proHUB → Scriptation → Push to All Tiles. If nothing shows, use Transmit in preHUB or Import Script in proHUB.</div>';
+  h+='<div class="sec" style="color:#008A00">How it connects</div><div class="mono" style="font-size:11px;color:#8794A6;line-height:1.8">filmHUB reads the same browser storage as preHUB and proHUB, so it must be served from the same site and folder as them. It refreshes itself when either hub saves. If the breakdown looks auto-generated, open proHUB → Breakdown → Push to All Tiles. If nothing shows, use Transmit in preHUB or Import Script in proHUB.</div>';
   return {h:'Hub Link',b:h};
 };
 
@@ -779,6 +779,1090 @@ H.scriptin=function(){
    '<p style="color:#8A99B2;font-size:12px;margin-top:14px">filmHUB reads the scenes, characters and dialogue, then builds the breakdown, shoot days, call sheets, cast matrix, locations and needs. The script is also saved for preHUB and proHUB, so they pick it up too.</p>'};
 };
 })();
+</script>
+<script id="fh-print-js">
+/* PK: small page-layout engine on top of pdf-lib (lib/pdf-lib.min.js).
+   Text, wrapped tables with repeating header rows, rects, images, per-section
+   paper orientation, header/footer/page numbers/watermark applied at the end. */
+var PK=(function(){
+  var SIZES={letter:[612,792],a4:[595.28,841.89],legal:[612,1008]};
+  var WIN=/[–—‘’“”•…€™ -ÿ]/;
+  function clean(s){
+    s=String(s==null?'':s).replace(/[‐‑−]/g,'-').replace(/[′]/g,"'").replace(/[″]/g,'"').replace(/×/g,'x');
+    var o='';for(var i=0;i<s.length;i++){var c=s[i],k=s.charCodeAt(i);
+      if(c==='\n'||c==='\t'||(k>=32&&k<=126)||WIN.test(c))o+=(c==='\t'?'    ':c);
+      else if(k===0x2713||k===0x2714)o+='OK';else if(k>126)o+='?';}
+    return o;
+  }
+  function hex(h){h=String(h||'#000000').replace('#','');if(h.length===3)h=h.replace(/(.)/g,'$1$1');return [parseInt(h.substr(0,2),16)/255,parseInt(h.substr(2,2),16)/255,parseInt(h.substr(4,2),16)/255];}
+
+  function Doc(L,pdf,o){
+    this.L=L;this.pdf=pdf;this.o=o||{};this.paper=SIZES[this.o.paper]||SIZES.letter;
+    var m=this.o.margin==null?36:this.o.margin;this.m={l:m,r:m,t:m,b:m+(this.o.footer===false?0:6)};
+    this.scale=this.o.scale||1;this.pages=[];this.sec='';this.fonts={};this.imgs={};this.y=0;this.pg=null;this.sections=[];
+  }
+  Doc.create=async function(L,o){
+    var pdf=await L.PDFDocument.create(),d=new Doc(L,pdf,o),S=L.StandardFonts;
+    d.fonts={r:await pdf.embedFont(S.Helvetica),b:await pdf.embedFont(S.HelveticaBold),i:await pdf.embedFont(S.HelveticaOblique),
+      m:await pdf.embedFont(S.Courier),mb:await pdf.embedFont(S.CourierBold),mi:await pdf.embedFont(S.CourierOblique),
+      t:await pdf.embedFont(S.TimesRoman),tb:await pdf.embedFont(S.TimesRomanBold)};
+    return d;
+  };
+  var P=Doc.prototype;
+  P.col=function(h,fill){var c=hex(h);if(this.o.bw){var g=0.3*c[0]+0.59*c[1]+0.11*c[2];if(fill)g=0.93+0.07*g;c=[g,g,g];}return this.L.rgb(c[0],c[1],c[2]);};
+  P.W=function(){return this.pg.w-this.m.l-this.m.r;};
+  P.bottom=function(){return this.pg.h-this.m.b;};
+  P.section=function(name,orient){
+    this.sec=name;this.orient=orient||'portrait';this.sections.push({name:name,start:this.pages.length});
+    this.newPage();
+  };
+  P.newPage=function(){
+    var p=this.paper,w=this.orient==='landscape'?p[1]:p[0],h=this.orient==='landscape'?p[0]:p[1];
+    var page=this.pdf.addPage([w,h]);this.pg={page:page,w:w,h:h,sec:this.sec};this.pages.push(this.pg);this.y=this.m.t+(this.o.headerH||0);
+    if(this._onPage)this._onPage();
+  };
+  P.need=function(h){if(this.y+h>this.bottom()){this.newPage();return true;}return false;};
+  P.font=function(k){return this.fonts[k||'r'];};
+  P.wrap=function(str,fk,size,w){
+    var f=this.font(fk),out=[];str=clean(str);
+    String(str).split('\n').forEach(function(par){
+      if(par===''){out.push('');return;}
+      var words=par.split(' '),line='';
+      words.forEach(function(wd){
+        var t=line?line+' '+wd:wd;
+        if(f.widthOfTextAtSize(t,size)<=w){line=t;return;}
+        if(line)out.push(line);
+        if(f.widthOfTextAtSize(wd,size)<=w){line=wd;return;}
+        var cur='';for(var i=0;i<wd.length;i++){if(f.widthOfTextAtSize(cur+wd[i],size)>w){out.push(cur);cur=wd[i];}else cur+=wd[i];}
+        line=cur;
+      });
+      out.push(line);
+    });
+    return out;
+  };
+  P.drawLine=function(txt,x,y,o){ /* y = baseline from top */
+    var f=this.font(o.font),size=o.size||9,w=f.widthOfTextAtSize(txt,size);
+    if(o.align==='right')x=x+o.w-w;else if(o.align==='center')x=x+(o.w-w)/2;
+    this.pg.page.drawText(txt,{x:x,y:this.pg.h-y,size:size,font:f,color:this.col(o.color||'#000000')});
+    if(o.under)this.pg.page.drawLine({start:{x:x,y:this.pg.h-y-1.5},end:{x:x+w,y:this.pg.h-y-1.5},thickness:.6,color:this.col(o.color||'#000000')});
+  };
+  /* flowing paragraph at the cursor */
+  P.text=function(str,o){
+    o=o||{};var size=o.size||9,lh=o.lh||size*1.25,x=o.x==null?this.m.l:o.x,w=o.w||(this.pg.w-this.m.r-x);
+    var lines=this.wrap(str,o.font,size,w),self=this;
+    if(o.keep)this.need(lines.length*lh);
+    lines.forEach(function(ln){
+      self.need(lh);self.drawLine(ln,x,self.y+size,{font:o.font,size:size,color:o.color,align:o.align,w:w,under:o.under});self.y+=lh;});
+    if(o.after)this.y+=o.after;
+    return lines.length*lh;
+  };
+  P.rect=function(x,y,w,h,o){
+    o=o||{};var a={x:x,y:this.pg.h-y-h,width:w,height:h};
+    if(o.fill)a.color=this.col(o.fill,true);
+    if(o.stroke){a.borderColor=this.col(o.stroke);a.borderWidth=o.lw||.6;}
+    this.pg.page.drawRectangle(a);
+  };
+  P.hr=function(o){o=o||{};this.pg.page.drawLine({start:{x:this.m.l,y:this.pg.h-this.y},end:{x:this.pg.w-this.m.r,y:this.pg.h-this.y},thickness:o.lw||.8,color:this.col(o.color||'#000000')});this.y+=(o.after==null?4:o.after);};
+  P.gap=function(n){this.y+=n;};
+  /* Table. cols: array of weights. rows: [{cells:[str|{t,b,c,fill,al,span,size,font}], head, fill, bold, size}] */
+  P.table=function(cols,rows,o){
+    o=o||{};var self=this,size=o.size||8,pad=o.pad==null?3:o.pad,lh=size*1.22,W=o.w||this.W(),x0=o.x==null?this.m.l:o.x;
+    var tot=cols.reduce(function(a,b){return a+b;},0),cw=cols.map(function(c){return c/tot*W;});
+    var heads=rows.filter(function(r){return r.head;});
+    function cellsOf(r){var out=[],i=0;
+      r.cells.forEach(function(c){
+        if(c==null)c='';if(typeof c!=='object')c={t:c};
+        var span=c.span||1,w=0;for(var k=0;k<span;k++)w+=cw[i+k]||0;
+        var fk=c.font||(c.b||r.bold||r.head?'b':'r'),sz=c.size||r.size||size;
+        var lines=self.wrap(c.t,fk,sz,w-pad*2);
+        out.push({c:c,x:i,w:w,lines:lines,fk:fk,sz:sz});i+=span;});
+      return out;}
+    function height(cs,r){var h=0;cs.forEach(function(k){h=Math.max(h,Math.max(1,k.lines.length)*(k.sz*1.22)+pad*2);});return Math.max(h,r.minH||0);}
+    function drawRow(r,cs,h){
+      var xs=[x0];cw.forEach(function(w){xs.push(xs[xs.length-1]+w);});
+      cs.forEach(function(k){
+        var fill=k.c.fill||r.fill||(r.head?(o.headFill||'#E5E7EB'):(o.zebra&&r._z?'#F6F7F9':null));
+        var X=xs[k.x];
+        if(fill)self.rect(X,self.y,k.w,h,{fill:fill});
+        if(o.grid!==false)self.rect(X,self.y,k.w,h,{stroke:o.gridColor||'#9CA3AF',lw:.5});
+        var ty=self.y+pad+k.sz;
+        k.lines.forEach(function(ln){self.drawLine(ln,X+pad,ty,{font:k.fk,size:k.sz,color:k.c.c||r.color,align:k.c.al||r.al,w:k.w-pad*2});ty+=k.sz*1.22;});
+      });
+      self.y+=h;
+    }
+    var z=0;
+    rows.forEach(function(r,ri){
+      if(!r.head)r._z=(z++)%2;
+      var cs=cellsOf(r),h=height(cs,r);
+      if(self.y+h>self.bottom()){
+        self.newPage();
+        if(!r.head&&o.repeatHead!==false)heads.forEach(function(hr){var hc=cellsOf(hr);drawRow(hr,hc,height(hc,hr));});
+      }
+      drawRow(r,cs,h);
+    });
+    this.y+=o.after==null?6:o.after;
+  };
+  P.addImage=async function(dataUrl){
+    if(!dataUrl)return null;if(this.imgs[dataUrl])return this.imgs[dataUrl];
+    var m=/^data:image\/(png|jpe?g)/i.exec(dataUrl);if(!m)return null;
+    var b64=dataUrl.slice(dataUrl.indexOf(',')+1),bin=atob(b64),u=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);
+    var img=/png/i.test(m[1])?await this.pdf.embedPng(u):await this.pdf.embedJpg(u);
+    this.imgs[dataUrl]=img;return img;
+  };
+  P.image=function(img,x,y,w,h){if(img)this.pg.page.drawImage(img,{x:x,y:this.pg.h-y-h,width:w,height:h});};
+  /* header / footer / page numbers / watermark */
+  P.finish=function(d){
+    d=d||{};var n=this.pages.length,self=this;
+    this.pages.forEach(function(pg,i){
+      var p=pg.page,w=pg.w,h=pg.h,m=self.m,F=self.font('r'),Fb=self.font('b');
+      if(d.footer!==false){
+        var left=clean([d.title,pg.sec].filter(Boolean).join('  |  ')),right=(d.pageNums===false?'':'Page '+(i+1)+' of '+n),fy=20;
+        p.drawLine({start:{x:m.l,y:fy+11},end:{x:w-m.r,y:fy+11},thickness:.4,color:self.col('#9CA3AF')});
+        p.drawText(left,{x:m.l,y:fy,size:7,font:F,color:self.col('#4B5563')});
+        if(d.footerText){var ft=clean(d.footerText),fw=F.widthOfTextAtSize(ft,7);p.drawText(ft,{x:(w-fw)/2,y:fy,size:7,font:F,color:self.col('#4B5563')});}
+        if(right){var rw=F.widthOfTextAtSize(right,7);p.drawText(right,{x:w-m.r-rw,y:fy,size:7,font:F,color:self.col('#4B5563')});}
+      }
+      if(d.watermark){
+        var t=clean(d.watermark).toUpperCase(),sz=Math.min(90,(w*0.9)/Math.max(4,t.length)*1.55),tw=Fb.widthOfTextAtSize(t,sz),ang=Math.atan2(h,w)*0.9;
+        p.drawText(t,{x:w/2-Math.cos(ang)*tw/2+Math.sin(ang)*sz*0.35,y:h/2-Math.sin(ang)*tw/2-Math.cos(ang)*sz*0.35,size:sz,font:Fb,color:self.L.rgb(0.6,0.6,0.6),opacity:0.16,rotate:self.L.degrees(ang*180/Math.PI)});
+      }
+    });
+  };
+  P.save=function(){return this.pdf.save();};
+  return {Doc:Doc,clean:clean,SIZES:SIZES};
+})();
+if(typeof module!=='undefined')module.exports=PK;
+
+/* ===== filmHUB production data: info, crew, cast contacts, call-sheet day setup,
+   weather / nearest hospital / vendor lookups (Open-Meteo, OpenStreetMap) ===== */
+var PCK='filmhub_prod_v1',PC={};
+if(KEYS.indexOf(PCK)<0)KEYS.push(PCK);
+function pcLoad(){PC=J(PCK)||{};PC.info=PC.info||{};PC.crew=PC.crew||[];PC.cast=PC.cast||{};PC.days=PC.days||{};PC.vendors=PC.vendors||[];PC.print=PC.print||{};PC.print.presets=PC.print.presets||{};PC.print.o=PC.print.o||{};}
+function pcSave(){try{localStorage.setItem(PCK,JSON.stringify(PC));}catch(e){toast('Storage is full. Remove the logo or some images.');}}
+pcLoad();
+function pcDay(n){return PC.days[n]||(PC.days[n]={});}
+function pp(){return Array.prototype.map.call(arguments,function(s){return encodeURIComponent(s).replace(/'/g,'%27');}).join('|');}
+function pcSet(path,val){
+  var seg=path.split('|').map(decodeURIComponent),o=PC;
+  for(var i=0;i<seg.length-1;i++){if(o[seg[i]]==null)o[seg[i]]={};o=o[seg[i]];}
+  o[seg[seg.length-1]]=val;pcSave();
+  if(seg[0]==='days'&&(seg[2]==='date'||seg[2]==='address'))pcAuto(+seg[1],true);
+}
+function pcIso(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function pcStart(){return PC.info.startDate||((J('prohub_schedule_v1')||{}).start)||'';}
+function pcDate(n){
+  var d0=PC.days[n]&&PC.days[n].date;if(d0)return d0;var s=pcStart();if(!s)return '';
+  var d=new Date(s+'T12:00:00'),k=0;while(d.getDay()===0||d.getDay()===6)d.setDate(d.getDate()+1);
+  while(k<n-1){d.setDate(d.getDate()+1);var g=d.getDay();if(g!==0&&g!==6)k++;}return pcIso(d);
+}
+function pcDateLong(iso,short){if(!iso)return '';var d=new Date(iso+'T12:00:00');return d.toLocaleDateString('en-US',short?{month:'short',day:'numeric',year:'numeric'}:{weekday:'long',month:'long',day:'numeric',year:'numeric'});}
+function t2m(s){var p=String(s||'').split(':');if(p.length<2||isNaN(+p[0]))return null;return (+p[0])*60+(+p[1]||0);}
+function m2t(m,f){m=((Math.round(m)%1440)+1440)%1440;var h=Math.floor(m/60),x=m%60;
+  if(f==='24')return (h<10?'0':'')+h+':'+(x<10?'0':'')+x;var a=h>=12?'PM':'AM';h=h%12||12;return h+':'+(x<10?'0':'')+x+' '+a;}
+function pcT(v,f){var m=typeof v==='number'?v:t2m(v);return m==null?'':m2t(m,f||PC.print.o.timeFmt||'12');}
+function pcTimes(n){
+  var dd=pcDay(n),g=t2m(dd.general||PC.info.generalCall||'07:00'),cr=t2m(dd.crewCall)!=null?t2m(dd.crewCall):g,sh=t2m(dd.shootCall)!=null?t2m(dd.shootCall):g+60;
+  return {general:g,crew:cr,shoot:sh,lunchSet:t2m(dd.lunch)};
+}
+function pcSched(d){
+  var T=pcTimes(d.n),t=T.shoot,out=[],worked=0,ate=false,lunchAt=T.lunchSet;
+  d.nums.map(sceneBy).filter(Boolean).forEach(function(s){
+    if(!ate&&((lunchAt!=null&&t>=lunchAt)||(lunchAt==null&&worked>=360))){out.push({meal:1,a:t,b:t+30});t+=30;ate=true;worked=0;}
+    var dur=Math.max(30,s.eighths*15);out.push({s:s,a:t,b:t+dur});t+=dur;worked+=dur;});
+  return {rows:out,end:t,T:T};
+}
+function pcWrap(d){var dd=pcDay(d.n),e=t2m(dd.wrap);return e!=null?e:pcSched(d).end;}
+function doodRow(c){var w=M.days.map(function(d){return d.cast.indexOf(c)>=0;}),f=w.indexOf(true),l=w.lastIndexOf(true);
+  return w.map(function(x,i){return x?(i===f&&i===l?'SWF':i===f?'SW':i===l?'WF':'W'):(f>=0&&i>f&&i<l?'H':'');});}
+function pcCastRows(d){
+  var sc=pcSched(d),dd=pcDay(d.n),calls=dd.calls||{};
+  return d.cast.map(function(c){
+    var ix=M.days.indexOf(d),code=doodRow(c)[ix]||'W',info=PC.cast[c]||{},ov=calls[c]||{};
+    var first=null;sc.rows.forEach(function(r){if(!r.meal&&first==null&&r.s.cast.indexOf(c)>=0)first=r.a;});
+    var set=t2m(ov.set)!=null?t2m(ov.set):(first!=null?first:sc.T.shoot);
+    var mu=t2m(ov.mu)!=null?t2m(ov.mu):Math.max(sc.T.general,set-60);
+    return {no:M.cast.indexOf(c)+1,role:c,actor:info.actor||'',phone:info.phone||'',status:code,pickup:t2m(ov.pickup),mu:mu,set:set,ward:info.ward||'',notes:ov.notes||info.notes||''};
+  });
+}
+function pcMiles(km){return km*0.621371;}
+function pcDist(a,b,c,d){var R=6371,r=Math.PI/180,x=(c-a)*r,y=(d-b)*r,h=Math.sin(x/2)*Math.sin(x/2)+Math.cos(a*r)*Math.cos(c*r)*Math.sin(y/2)*Math.sin(y/2);return 2*R*Math.asin(Math.sqrt(h));}
+function pcGeoKey(g){return g?(g.lat.toFixed(3)+','+g.lon.toFixed(3)):'';}
+var WMO={0:'Clear',1:'Mostly clear',2:'Partly cloudy',3:'Overcast',45:'Fog',48:'Freezing fog',51:'Light drizzle',53:'Drizzle',55:'Heavy drizzle',56:'Freezing drizzle',57:'Freezing drizzle',61:'Light rain',63:'Rain',65:'Heavy rain',66:'Freezing rain',67:'Freezing rain',71:'Light snow',73:'Snow',75:'Heavy snow',77:'Snow grains',80:'Rain showers',81:'Rain showers',82:'Heavy showers',85:'Snow showers',86:'Snow showers',95:'Thunderstorm',96:'Thunderstorm, hail',99:'Thunderstorm, hail'};
+
+/* ---------- network ---------- */
+function getJ(url,opt){
+  var c=typeof AbortController!=='undefined'?new AbortController():null,t=setTimeout(function(){if(c)c.abort();},(opt&&opt.ms)||22000);
+  var o=opt&&opt.body?{method:'POST',body:opt.body,headers:{'Content-Type':'application/x-www-form-urlencoded'}}:{};if(c)o.signal=c.signal;
+  return fetch(url,o).then(function(r){clearTimeout(t);if(!r.ok)throw new Error('HTTP '+r.status);return r.json();},function(e){clearTimeout(t);throw e;});
+}
+function geocode(q){
+  return getJ('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=6&q='+encodeURIComponent(q)).then(function(a){
+    return (a||[]).map(function(x){return {lat:+x.lat,lon:+x.lon,label:x.display_name};});
+  }).catch(function(){
+    return getJ('https://geocoding-api.open-meteo.com/v1/search?count=6&name='+encodeURIComponent(q.split(',')[0])).then(function(r){
+      return ((r&&r.results)||[]).map(function(x){return {lat:x.latitude,lon:x.longitude,label:[x.name,x.admin1,x.country].filter(Boolean).join(', ')};});});
+  });
+}
+function overpass(q){
+  var eps=['https://overpass-api.de/api/interpreter','https://overpass.kumi.systems/api/interpreter'],i=0;
+  function go(){return getJ(eps[i],{body:'data='+encodeURIComponent(q),ms:28000}).catch(function(e){i++;if(i<eps.length)return go();throw e;});}
+  return go();
+}
+function osmAddr(t){
+  var a=[[t['addr:housenumber'],t['addr:street']].filter(Boolean).join(' '),t['addr:city'],[t['addr:state'],t['addr:postcode']].filter(Boolean).join(' ')].filter(Boolean).join(', ');
+  return a;
+}
+function osmItem(e,lat,lon){
+  var t=e.tags||{},la=e.lat!=null?e.lat:(e.center&&e.center.lat),lo=e.lon!=null?e.lon:(e.center&&e.center.lon);if(la==null||!t.name)return null;
+  return {id:e.type+e.id,name:t.name,address:osmAddr(t),phone:t.phone||t['contact:phone']||'',website:t.website||t['contact:website']||'',hours:t.opening_hours||'',
+    lat:la,lon:lo,mi:+pcMiles(pcDist(lat,lon,la,lo)).toFixed(1),er:t.emergency==='yes',kind:t.amenity||t.shop||t.tourism||t.healthcare||''};
+}
+function fetchWeather(g,date){
+  var today=pcIso(new Date()),far=date&&((new Date(date+'T12:00:00')-new Date(today+'T12:00:00'))/864e5);
+  var inWin=date&&far>=0&&far<=15;
+  var url='https://api.open-meteo.com/v1/forecast?latitude='+g.lat+'&longitude='+g.lon+'&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,wind_speed_10m_max,sunrise,sunset&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto'+(inWin?'&start_date='+date+'&end_date='+date:'&forecast_days=1');
+  return getJ(url).then(function(r){
+    var d=r.daily||{};if(!d.time||!d.time.length)throw new Error('no data');
+    return {forDate:d.time[0],requested:date||'',exact:!!inWin,code:d.weather_code[0],desc:WMO[d.weather_code[0]]||'',hi:Math.round(d.temperature_2m_max[0]),lo:Math.round(d.temperature_2m_min[0]),
+      pop:d.precipitation_probability_max[0],wind:Math.round(d.wind_speed_10m_max[0]),sunrise:String(d.sunrise[0]).slice(11,16),sunset:String(d.sunset[0]).slice(11,16),fetched:Date.now(),geoKey:pcGeoKey(g)};
+  });
+}
+function fetchHospitals(g){
+  var radii=[15000,40000,100000],i=0;
+  function go(){
+    var q='[out:json][timeout:25];(nwr["amenity"="hospital"](around:'+radii[i]+','+g.lat+','+g.lon+'););out center tags 40;';
+    return overpass(q).then(function(r){
+      var a=(r.elements||[]).map(function(e){return osmItem(e,g.lat,g.lon);}).filter(Boolean).sort(function(x,y){return x.mi-y.mi;});
+      if(!a.length&&++i<radii.length)return go();return a;});
+  }
+  return go();
+}
+var VCAT={
+ 'Catering & restaurants':['amenity~"restaurant|fast_food|cafe|food_court"'],
+ 'Grocery & craft services':['shop~"supermarket|convenience|wholesale|greengrocer|bakery|deli"'],
+ 'Hardware & lumber':['shop~"hardware|doityourself|trade|building_materials|electrical"'],
+ 'Camera & electronics':['shop~"camera|electronics|video|computer|mobile_phone"'],
+ 'Equipment, truck & van rental':['shop="rental"','amenity~"car_rental|truck_rental"'],
+ 'Costume, fabric & thrift':['shop~"clothes|fabric|costume|second_hand|tailor|boutique"'],
+ 'Art, craft & paint':['shop~"art|craft|paint|frame|hobby"'],
+ 'Pharmacy':['amenity="pharmacy"'],
+ 'Urgent care & clinics':['amenity~"clinic|doctors"','healthcare="urgent_care"'],
+ 'Fuel':['amenity="fuel"'],
+ 'Lodging':['tourism~"hotel|motel|guest_house|hostel"'],
+ 'Police & fire':['amenity~"police|fire_station"'],
+ 'Printing & office':['shop~"copyshop|stationery|printing"'],
+ 'Anything (search by name)':[]
+};
+function fetchVendors(g,cat,name,km){
+  var f=VCAT[cat]||[],nm=(name||'').trim().replace(/["\\]/g,'');
+  if(!f.length){if(!nm)return Promise.reject(new Error('Type a name to search.'));f=['name'];}
+  var body=f.map(function(x){return 'nwr['+x+']'+(nm?'["name"~"'+nm+'",i]':'')+'(around:'+Math.round(km*1000)+','+g.lat+','+g.lon+');';}).join('');
+  return overpass('[out:json][timeout:25];('+body+');out center tags 80;').then(function(r){
+    var seen={};return (r.elements||[]).map(function(e){return osmItem(e,g.lat,g.lon);}).filter(function(x){if(!x||seen[x.id])return false;seen[x.id]=1;return true;}).sort(function(a,b){return a.mi-b.mi;}).slice(0,40);});
+}
+
+/* ---------- auto-update: weather + hospital follow the set location and date ---------- */
+var AUTO_BUSY={};
+function pcAuto(n,force){
+  var dd=pcDay(n),g=dd.geo;if(!g||!navigator.onLine)return Promise.resolve();
+  var gk=pcGeoKey(g),date=pcDate(n),jobs=[];
+  var w=dd.weather;
+  if(force||!w||w.geoKey!==gk||(w.requested||'')!==(date||'')||Date.now()-w.fetched>3*3600*1000){
+    if(!AUTO_BUSY['w'+n]){AUTO_BUSY['w'+n]=1;pcPaintWx(n,'Looking up forecast…');
+      jobs.push(fetchWeather(g,date).then(function(x){dd.weather=x;pcSave();},function(){dd.weatherErr=1;}).then(function(){AUTO_BUSY['w'+n]=0;pcPaintWx(n);}));}
+  }
+  var h=dd.hospital;
+  if(!(h&&h.manual)&&(force==='hosp'||!h||h.geoKey!==gk)){
+    if(!AUTO_BUSY['h'+n]){AUTO_BUSY['h'+n]=1;pcPaintHosp(n,'Finding the nearest hospital…');
+      jobs.push(fetchHospitals(g).then(function(a){
+        if(!a.length){dd.hospital={name:'',geoKey:gk,none:1};}
+        else{var near=a[0],er=a.filter(function(x){return x.er;})[0];var best=(er&&er.mi<=near.mi*1.6+2)?er:near;
+          dd.hospital={name:best.name,address:best.address,phone:best.phone,lat:best.lat,lon:best.lon,mi:best.mi,er:best.er,geoKey:gk,alts:a.slice(0,6),fetched:Date.now()};}
+        pcSave();},function(){dd.hospital=dd.hospital||{name:'',geoKey:'',err:1};dd.hospital.err=1;}).then(function(){AUTO_BUSY['h'+n]=0;pcPaintHosp(n);}));}
+  }
+  return Promise.all(jobs);
+}
+setInterval(function(){if(UI.cur==='callsheet'&&document.visibilityState==='visible')pcAuto(UI.day);},20*60*1000);
+window.addEventListener('online',function(){if(UI.cur==='callsheet')pcAuto(UI.day);});
+
+/* ---------- small form helpers ---------- */
+function fl(label,inner,wide){return '<label class="fl"'+(wide?' style="grid-column:1/-1"':'')+'><span>'+label+'</span>'+inner+'</label>';}
+function fi(path,val,ph,type){return '<input class="fi"'+(type?' type="'+type+'"':'')+' value="'+esc(val==null?'':val)+'" placeholder="'+esc(ph||'')+'" onchange="pcSet(\''+path+'\',this.value)">';}
+function ft(path,val,ph){return '<textarea class="fi" rows="2" placeholder="'+esc(ph||'')+'" onchange="pcSet(\''+path+'\',this.value)">'+esc(val||'')+'</textarea>';}
+
+/* ---------- PRODUCTION SETUP tile ---------- */
+var DEPT_TPL=[['Producer','Producer',1],['Production','Line Producer',1],['Production','Unit Production Manager',1],['Direction','Director',1],['Direction','1st Assistant Director',1],['Direction','2nd Assistant Director',0],['Camera','Director of Photography',1],['Camera','1st AC',0],['Grip','Key Grip',1],['Electric','Gaffer',1],['Art','Production Designer',1],['Art','Props Master',0],['Wardrobe','Costume Designer',1],['Hair & Makeup','Key Makeup / Hair',1],['Sound','Production Sound Mixer',1],['Script','Script Supervisor',0],['Locations','Location Manager',1],['Transportation','Transportation Coordinator',1],['Catering','Craft Services / Caterer',0],['Safety','Set Medic / Safety',0]];
+function pcAddCrew(tpl){
+  if(tpl){DEPT_TPL.forEach(function(r){if(!PC.crew.some(function(c){return c.role===r[1];}))PC.crew.push({dept:r[0],role:r[1],name:'',phone:'',email:'',call:'',head:!!r[2]});});}
+  else PC.crew.push({dept:'',role:'',name:'',phone:'',email:'',call:'',head:false});
+  pcSave();renderHub();
+}
+function pcDelCrew(i){PC.crew.splice(i,1);pcSave();renderHub();}
+H.prodsetup=function(){
+  var I=PC.info,h='<div class="mono" style="font-size:11px;color:#8794A6;line-height:1.6;margin-bottom:10px">Everything here prints on the call sheet, cast and crew list, and the cover page. Nothing is pre-filled. Leave a field empty and it is left off the page.</div>';
+  h+='<div class="sec" style="color:#00ABA9">Production</div><div class="fg">'+
+    fl('Production company',fi(pp('info','company'),I.company,'Company name'))+fl('Title (override)',fi(pp('info','title'),I.title,M.title))+
+    fl('Writer',fi(pp('info','writer'),I.writer))+fl('Producer',fi(pp('info','producer'),I.producer))+fl('Director',fi(pp('info','director'),I.director))+fl('Line producer / UPM',fi(pp('info','lineProducer'),I.lineProducer))+fl('1st AD',fi(pp('info','firstAD'),I.firstAD))+
+    fl('Production office phone',fi(pp('info','officePhone'),I.officePhone,'','tel'))+fl('Production office email',fi(pp('info','officeEmail'),I.officeEmail,'','email'))+fl('Office address',fi(pp('info','officeAddress'),I.officeAddress))+
+    fl('First shoot day',fi(pp('info','startDate'),I.startDate||pcStart(),'','date'))+fl('Default general call',fi(pp('info','generalCall'),I.generalCall||'07:00','','time'))+fl('Script revision',fi(pp('info','rev'),I.rev,'e.g. Blue 10/23'))+'</div>';
+  h+='<div class="sec" style="color:#00ABA9">Crew & department heads</div><div class="chips" style="margin-bottom:8px"><button class="btn on" style="--c:#00ABA9" onclick="pcAddCrew(1)">+ Add standard departments</button><button class="btn" onclick="pcAddCrew()">+ Add person</button></div>';
+  h+=PC.crew.length?'<div class="tw2"><table><thead><tr><th>Head</th><th>Department</th><th>Position</th><th>Name</th><th>Phone</th><th>Email</th><th>Call</th><th></th></tr></thead><tbody>'+PC.crew.map(function(c,i){
+    return '<tr><td><input type="checkbox" '+(c.head?'checked':'')+' onchange="pcSet(\''+pp('crew',i,'head')+'\',this.checked)"></td><td>'+fi(pp('crew',i,'dept'),c.dept)+'</td><td>'+fi(pp('crew',i,'role'),c.role)+'</td><td>'+fi(pp('crew',i,'name'),c.name)+'</td><td>'+fi(pp('crew',i,'phone'),c.phone,'','tel')+'</td><td>'+fi(pp('crew',i,'email'),c.email,'','email')+'</td><td>'+fi(pp('crew',i,'call'),c.call,'','time')+'</td><td><button class="btn" onclick="pcDelCrew('+i+')">✕</button></td></tr>';}).join('')+'</tbody></table></div>'
+    :'<div class="empty">No crew yet. Add the standard departments, then fill in names.</div>';
+  h+='<div class="sec" style="color:#00ABA9">Cast contacts</div>';
+  h+=M.cast.length?'<div class="tw2"><table><thead><tr><th>#</th><th>Role</th><th>Actor</th><th>Phone</th><th>Wardrobe / makeup notes</th></tr></thead><tbody>'+M.cast.map(function(c,i){var k=PC.cast[c]||{};
+    return '<tr><td>'+(i+1)+'</td><td style="font-weight:700">'+esc(c)+'</td><td>'+fi(pp('cast',c,'actor'),k.actor)+'</td><td>'+fi(pp('cast',c,'phone'),k.phone,'','tel')+'</td><td>'+fi(pp('cast',c,'ward'),k.ward)+'</td></tr>';}).join('')+'</tbody></table></div>'
+    :'<div class="empty">No cast yet. Import a script first.</div>';
+  return {h:'Production Setup',b:h};
+};
+
+/* ---------- CALL SHEET tile (setup + preview) ---------- */
+function pcLoc(n){var d=M.days.filter(function(x){return x.n===n;})[0],dd=pcDay(n);return dd.setName||(d&&d.loc)||'';}
+H.callsheet=function(){
+  var n=UI.day>M.days.length?1:UI.day,d=M.days.filter(function(x){return x.n===n;})[0];
+  var acts=M.days.map(function(x){return chip('Day '+x.n,x.n===n,"setUI('day',"+x.n+")");}).join('')+'<button class="btn red" onclick="pcOpenPrint([\'callsheet\'],'+n+')"><i class="fa-solid fa-file-pdf"></i> Print / PDF</button>';
+  if(!d)return {h:'Call Sheet',b:'<div class="empty">No shoot days to build a call sheet from.</div>'};
+  setTimeout(function(){pcAuto(n);pcPaintVen(n);},0);
+  var dd=pcDay(n),T=pcTimes(n),sc=pcSched(d),date=pcDate(n),h='';
+  h+=cards([['Day',n+' of '+M.days.length,date?pcDateLong(date,1):'Set a date below'],['Crew call',pcT(T.crew)],['Shooting call',pcT(T.shoot)],['Est. wrap',pcT(pcWrap(d))],['Pages',(d.eighths/8).toFixed(1)],['Cast',d.cast.length]]);
+  h+='<div class="sec" style="color:#00ABA9">Day setup</div><div class="fg">'+
+    fl('Date',fi(pp('days',n,'date'),dd.date||date,'','date'))+fl('General crew call',fi(pp('days',n,'general'),dd.general||m2t(T.general,'24'),'','time'))+
+    fl('Shooting call',fi(pp('days',n,'shootCall'),dd.shootCall||m2t(T.shoot,'24'),'','time'))+fl('Lunch',fi(pp('days',n,'lunch'),dd.lunch,'auto after 6 h','time'))+fl('Est. wrap',fi(pp('days',n,'wrap'),dd.wrap,'auto','time'))+
+    fl('Set / location name',fi(pp('days',n,'setName'),dd.setName,d.loc))+fl('Basecamp',fi(pp('days',n,'basecamp'),dd.basecamp,'Address or description'))+fl('Crew parking',fi(pp('days',n,'parking'),dd.parking))+
+    fl('Background / extras',fi(pp('days',n,'bg'),dd.bg,'e.g. 12 extras, call 09:00 holding'))+fl('Special requirements',fi(pp('days',n,'special'),dd.special,'Stunts, minors, animals, SFX…'),0)+fl('Set notes & safety',ft(pp('days',n,'notes'),dd.notes,'Safety notes, parking, meal plan, reminders'),1)+'</div>';
+  h+='<div class="sec" style="color:#00ABA9">Where is the set? Weather and hospital update from this</div>'+
+    '<div class="chips" style="align-items:stretch;gap:6px"><input class="fi" id="pcQ" style="flex:1;min-width:200px" placeholder="Street address, city or ZIP" value="'+esc(dd.geo?(dd.geo.label||''):(dd.address||''))+'" onkeydown="if(event.key===\'Enter\')pcFind('+n+')">'+
+    '<button class="btn on" style="--c:#00ABA9" onclick="pcFind('+n+')">Find</button><button class="btn" onclick="pcGps('+n+')">Use my location</button>'+(n>1?'<button class="btn" onclick="pcCopyLoc('+n+')">Same as Day '+(n-1)+'</button>':'')+'</div><div id="pcGeoRes" class="mono" style="font-size:11px;margin:6px 0"></div>';
+  h+='<div class="fg" style="margin-top:8px"><div class="card" id="pcWx"></div><div class="card" id="pcHosp"></div></div>';
+  h+='<div class="sec" style="color:#00ABA9">Vendors near this set</div><div id="pcVen"></div>';
+  h+='<div class="sec" style="color:#00ABA9">Cast calls</div>'+pcCastCalls(d);
+  h+='<div class="sec" style="color:#00ABA9">Schedule (estimated)</div>'+tbl(['Time','Scene','D/N','Cast','Pgs'],sc.rows.map(function(r){
+    if(r.meal)return '<tr style="background:rgba(240,163,10,.18);font-weight:700"><td>'+pcT(r.a)+'–'+pcT(r.b)+'</td><td colspan="4">COMPANY MEAL</td></tr>';
+    return '<tr><td>'+pcT(r.a)+'–'+pcT(r.b)+'</td><td>'+esc(r.s.num+' '+r.s.heading)+'</td><td>'+r.s.tod+'</td><td>'+esc(r.s.cast.join(', '))+'</td><td>'+(r.s.eighths/8).toFixed(2)+'</td></tr>';}));
+  h+='<div class="sec" style="color:#00ABA9">Department needs</div>'+needsBlock(d);
+  h+='<div class="sec" style="color:#00ABA9">Sides</div>'+scriptHtml(d.nums.map(sceneBy).filter(Boolean));
+  return {h:'Call Sheet',acts:acts,b:h};
+};
+function pcCastCalls(d){
+  var rows=pcCastRows(d);if(!rows.length)return '<div class="empty">No cast on this day.</div>';
+  return '<div class="tw2"><table><thead><tr><th>#</th><th>Role</th><th>Actor</th><th>Status</th><th>Pickup</th><th>Makeup / ward.</th><th>Set call</th></tr></thead><tbody>'+rows.map(function(r){
+    var ov=(pcDay(d.n).calls||{})[r.role]||{};
+    function ti(f,dv){return '<input class="fi" type="time" value="'+esc(ov[f]||'')+'" placeholder="'+(dv==null?'':m2t(dv,'24'))+'" title="Auto: '+(dv==null?'':pcT(dv))+'" onchange="pcSet(\''+pp('days',d.n,'calls',r.role,f)+'\',this.value)">';}
+    return '<tr><td>'+r.no+'</td><td style="font-weight:700">'+esc(r.role)+'</td><td>'+esc(r.actor)+'</td><td style="color:#4ADE80;font-weight:700">'+r.status+'</td><td>'+ti('pickup',r.pickup)+'</td><td>'+ti('mu',r.mu)+'</td><td>'+ti('set',r.set)+'</td></tr>';}).join('')+'</tbody></table></div><div class="mono" style="font-size:10px;color:#8794A6;margin-top:4px">Blank times are estimated from the schedule (shown on hover and in print). Type a time to override.</div>';
+}
+function needsBlock(d){var k=Object.keys(d.needs);if(!k.length)return '<div class="mono" style="font-size:11px;color:#8794A6">Nothing tagged for this day.</div>';
+  return k.map(function(c){return '<div style="margin-bottom:5px"><span class="mono" style="font-size:10px;color:'+CATS[c][1]+';font-weight:700;text-transform:uppercase;margin-right:6px">'+CATS[c][0]+'</span>'+d.needs[c].map(function(w){return pill(w,CATS[c][1]);}).join('')+'</div>';}).join('');}
+
+/* ---------- location finder ---------- */
+function pcSetGeo(n,g,applyAll){
+  var dd=pcDay(n);dd.geo=g;dd.address=g.label;dd.weather=null;dd.hospital=(dd.hospital&&dd.hospital.manual)?dd.hospital:null;
+  if(applyAll){var d=M.days.filter(function(x){return x.n===n;})[0];M.days.forEach(function(x){if(x.n!==n&&d&&x.loc===d.loc&&!pcDay(x.n).geo){var o=pcDay(x.n);o.geo=g;o.address=g.label;}});}
+  pcSave();var q=$('pcQ');if(q)q.value=g.label;var r=$('pcGeoRes');if(r)r.innerHTML='<span style="color:#4ADE80">Set location saved. Updating weather and hospital…</span>';
+  pcAuto(n,true);
+}
+function pcFind(n){
+  var q=($('pcQ').value||'').trim(),r=$('pcGeoRes');if(!q){r.textContent='Type an address, city or ZIP.';return;}
+  r.textContent='Searching…';
+  geocode(q).then(function(a){
+    if(!a.length){r.textContent='Nothing found. Try adding the city and state.';return;}
+    window._geoRes=a;r.innerHTML=a.map(function(g,i){return '<div><button class="btn" style="margin:2px 0;text-align:left;white-space:normal" onclick="pcSetGeo('+n+',_geoRes['+i+'],true)">'+esc(g.label)+'</button></div>';}).join('');
+  }).catch(function(){r.innerHTML='<span style="color:#F87171">Could not reach the map service. Check your connection, or type the weather and hospital by hand below.</span>';});
+}
+function pcGps(n){
+  if(!navigator.geolocation){toast('Location is not available on this device.');return;}
+  navigator.geolocation.getCurrentPosition(function(p){pcSetGeo(n,{lat:p.coords.latitude,lon:p.coords.longitude,label:'Current location ('+p.coords.latitude.toFixed(4)+', '+p.coords.longitude.toFixed(4)+')'},false);},function(){toast('Location was blocked. Type the address instead.');},{timeout:12000});
+}
+function pcCopyLoc(n){var p=pcDay(n-1);if(!p.geo){toast('Day '+(n-1)+' has no location yet.');return;}pcSetGeo(n,p.geo,false);}
+
+/* ---------- weather / hospital cards ---------- */
+function pcPaintWx(n,msg){
+  var el=$('pcWx');if(!el||UI.day!==n)return;var dd=pcDay(n),w=dd.weather,h='<div class="l">Weather</div>';
+  if(msg)h+='<div class="s">'+esc(msg)+'</div>';
+  else if(w){h+='<div class="v" style="font-size:15px">'+esc(w.desc)+' · '+w.hi+'° / '+w.lo+'°F</div><div class="s">Rain '+w.pop+'% · Wind '+w.wind+' mph · Sunrise '+pcT(w.sunrise)+' · Sunset '+pcT(w.sunset)+'</div>'+
+    (w.exact?'':'<div class="s" style="color:#FBBF24">The forecast only reaches 16 days out, so this shows today for the set location. It updates by itself once the date is within 16 days.</div>')+
+    '<div class="s">Updated '+new Date(w.fetched).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})+' · <a href="#" onclick="pcAuto('+n+',true);return false" style="color:#60A5FA">Refresh</a></div>';}
+  else if(!dd.geo)h+='<div class="s">Set the location above and the forecast fills in by itself.</div>';
+  else h+='<div class="s" style="color:#F87171">'+(dd.weatherErr?'Could not load the forecast. ':'')+'<a href="#" onclick="pcAuto('+n+',true);return false" style="color:#60A5FA">Try again</a></div>';
+  h+='<div style="margin-top:6px">'+fi(pp('days',n,'wxNote'),dd.wxNote,'Weather note (optional, prints on the call sheet)')+'</div>';
+  el.innerHTML=h;
+}
+function pcPaintHosp(n,msg){
+  var el=$('pcHosp');if(!el||UI.day!==n)return;var dd=pcDay(n),x=dd.hospital||{},h='<div class="l">Nearest hospital</div>';
+  if(msg)h+='<div class="s">'+esc(msg)+'</div>';
+  else{
+    if(x.name)h+='<div class="v" style="font-size:15px">'+esc(x.name)+'</div><div class="s">'+(x.mi!=null?x.mi+' mi from set'+(x.er?' · emergency dept.':''):'Entered by hand')+'</div>';
+    else if(!dd.geo)h+='<div class="s">Set the location above and the nearest hospital fills in by itself.</div>';
+    else h+='<div class="s" style="color:#F87171">'+(x.err?'Could not reach the map service.':(x.none?'None found within 60 miles.':''))+' <a href="#" onclick="pcAuto('+n+',\'hosp\');return false" style="color:#60A5FA">Search again</a> or enter one below.</div>';
+    h+='<div style="display:grid;gap:5px;margin-top:6px">'+
+      '<input class="fi" value="'+esc(x.name||'')+'" placeholder="Hospital name" onchange="pcHosp('+n+',\'name\',this.value)">'+
+      '<input class="fi" value="'+esc(x.address||'')+'" placeholder="Address" onchange="pcHosp('+n+',\'address\',this.value)">'+
+      '<input class="fi" type="tel" value="'+esc(x.phone||'')+'" placeholder="Phone" onchange="pcHosp('+n+',\'phone\',this.value)"></div>';
+    if(x.alts&&x.alts.length>1)h+='<div class="s" style="margin-top:6px">Other nearby: '+x.alts.slice(0,6).map(function(a,i){return a.name===x.name?'':'<a href="#" onclick="pcPickHosp('+n+','+i+');return false" style="color:#60A5FA">'+esc(a.name)+' ('+a.mi+' mi)</a>';}).filter(Boolean).join(' · ')+'</div>';
+    if(x.manual)h+='<div class="s"><a href="#" onclick="pcAuto('+n+',\'hosp\');pcDay('+n+').hospital=null;pcDay('+n+').hospital={manual:0};pcSave();pcAuto('+n+',\'hosp\');return false" style="color:#60A5FA">Go back to automatic</a></div>';
+  }
+  el.innerHTML=h;
+}
+function pcHosp(n,k,v){var dd=pcDay(n);dd.hospital=dd.hospital||{};dd.hospital[k]=v;dd.hospital.manual=true;pcSave();}
+function pcPickHosp(n,i){var dd=pcDay(n),a=dd.hospital.alts[i];dd.hospital=Object.assign({},dd.hospital,{name:a.name,address:a.address,phone:a.phone,mi:a.mi,er:a.er,lat:a.lat,lon:a.lon});pcSave();pcPaintHosp(n);}
+
+/* ---------- vendors ---------- */
+var VS={cat:'Catering & restaurants',q:'',km:16,res:null,busy:false,err:''};
+function pcPaintVen(n){
+  var el=$('pcVen');if(!el||UI.day!==n)return;var dd=pcDay(n),g=dd.geo,h='';
+  var sel=(dd.vendors||[]).map(function(id){return PC.vendors.filter(function(v){return v.id===id;})[0];}).filter(Boolean);
+  h+='<div class="chips" style="gap:6px;align-items:stretch"><select class="fi" style="width:auto;flex:1;min-width:170px" onchange="VS.cat=this.value">'+Object.keys(VCAT).map(function(k){return '<option'+(k===VS.cat?' selected':'')+'>'+k+'</option>';}).join('')+'</select>'+
+    '<input class="fi" style="flex:1;min-width:140px" placeholder="Name contains (optional)" value="'+esc(VS.q)+'" onchange="VS.q=this.value" onkeydown="if(event.key===\'Enter\'){VS.q=this.value;pcVenSearch('+n+')}">'+
+    '<select class="fi" style="width:auto" onchange="VS.km=+this.value"><option value="8"'+(VS.km===8?' selected':'')+'>5 mi</option><option value="16"'+(VS.km===16?' selected':'')+'>10 mi</option><option value="40"'+(VS.km===40?' selected':'')+'>25 mi</option><option value="80"'+(VS.km===80?' selected':'')+'>50 mi</option></select>'+
+    '<button class="btn on" style="--c:#00ABA9" onclick="pcVenSearch('+n+')"'+(g?'':' disabled')+'>'+(VS.busy?'Searching…':'Search near set')+'</button></div>';
+  if(!g)h+='<div class="s mono" style="font-size:11px;color:#8794A6;margin:6px 0">Set the location above to search near it.</div>';
+  if(VS.err)h+='<div class="mono" style="font-size:11px;color:#F87171;margin:6px 0">'+esc(VS.err)+'</div>';
+  if(VS.res)h+='<div style="margin:8px 0;max-height:240px;overflow:auto;border:1px solid rgba(255,255,255,.1);border-radius:6px">'+(VS.res.length?VS.res.map(function(v,i){
+    var on=(dd.vendors||[]).indexOf(v.id)>=0;
+    return '<div style="display:flex;gap:8px;align-items:center;padding:6px 9px;border-bottom:1px solid rgba(255,255,255,.07)"><div style="flex:1;min-width:0"><b style="font-size:12px">'+esc(v.name)+'</b> <span class="mono" style="font-size:10px;color:#8794A6">'+v.mi+' mi'+(v.kind?' · '+esc(v.kind.replace(/_/g,' ')):'')+'</span><div class="mono" style="font-size:10.5px;color:#8794A6">'+esc(v.address||'')+(v.phone?' · '+esc(v.phone):'')+'</div></div><button class="btn'+(on?' on':'')+'" style="--c:#4ADE80" onclick="pcVenAdd('+n+','+i+')">'+(on?'Added':'+ Add')+'</button></div>';}).join(''):'<div class="empty" style="padding:12px">Nothing found. Try a larger radius or another category.</div>')+'</div>';
+  h+='<div class="sec" style="color:#4ADE80;margin-top:10px">On the call sheet for Day '+n+' ('+sel.length+')</div>';
+  h+=sel.length?sel.map(function(v){
+    var q=encodeURIComponent((v.name+' '+(v.address||'')).trim());
+    return '<div class="card" style="margin-bottom:6px"><div style="display:flex;gap:8px;align-items:flex-start"><div style="flex:1;min-width:0"><b>'+esc(v.name)+'</b> '+(v.verified?'<span class="pill" style="color:#4ADE80">VERIFIED '+esc((v.verifiedAt||'').slice(0,10))+(v.verifiedBy?' · '+esc(v.verifiedBy):'')+'</span>':'<span class="pill" style="color:#FBBF24">NOT VERIFIED</span>')+
+      '<div class="mono" style="font-size:10.5px;color:#8794A6;margin-top:2px">'+esc(v.address||'No address on file')+(v.mi!=null?' · '+v.mi+' mi':'')+(v.hours?' · Hours: '+esc(v.hours):'')+'</div>'+
+      '<div class="chips" style="margin-top:6px">'+(v.phone?'<a class="btn" href="tel:'+esc(v.phone.replace(/[^\d+]/g,''))+'">Call '+esc(v.phone)+'</a>':'')+'<a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query='+q+'">Map</a>'+(v.website?'<a class="btn" target="_blank" rel="noopener" href="'+esc(/^https?:/.test(v.website)?v.website:'https://'+v.website)+'">Website</a>':'')+'</div>'+
+      '<div class="fg" style="margin-top:6px;grid-template-columns:repeat(auto-fit,minmax(130px,1fr))">'+
+        '<input class="fi" value="'+esc(v.phone||'')+'" placeholder="Phone" onchange="pcVen(\''+v.id+'\',\'phone\',this.value)">'+
+        '<input class="fi" value="'+esc(v.verifiedBy||'')+'" placeholder="Confirmed with (name)" onchange="pcVen(\''+v.id+'\',\'verifiedBy\',this.value)">'+
+        '<input class="fi" value="'+esc(v.vnote||'')+'" placeholder="Note (hours, rate, contact)" onchange="pcVen(\''+v.id+'\',\'vnote\',this.value)"></div>'+
+      '<label class="mono" style="font-size:11px;display:inline-flex;gap:6px;align-items:center;margin-top:6px"><input type="checkbox" '+(v.verified?'checked':'')+' onchange="pcVerify(\''+v.id+'\','+n+',this.checked)"> I called or checked this vendor and the details are correct</label></div>'+
+      '<button class="btn" onclick="pcVenDel('+n+',\''+v.id+'\')">Remove</button></div></div>';}).join(''):'<div class="mono" style="font-size:11px;color:#8794A6">No vendors selected for this day.</div>';
+  h+='<details style="margin-top:6px"><summary class="mono" style="font-size:11px;color:#60A5FA;cursor:pointer">Add a vendor by hand</summary><div class="fg" style="margin-top:6px"><input class="fi" id="mvN" placeholder="Name"><input class="fi" id="mvA" placeholder="Address"><input class="fi" id="mvP" type="tel" placeholder="Phone"><button class="btn on" style="--c:#4ADE80" onclick="pcVenManual('+n+')">Add</button></div></details>';
+  el.innerHTML=h;
+}
+function pcVenSearch(n){
+  var g=pcDay(n).geo;if(!g||VS.busy)return;VS.busy=true;VS.err='';pcPaintVen(n);
+  fetchVendors(g,VS.cat,VS.q,VS.km).then(function(a){VS.res=a;},function(e){VS.res=null;VS.err=(e&&e.message&&/Type a name/.test(e.message))?e.message:'Could not reach the map service. Check your connection and try again, or add a vendor by hand.';}).then(function(){VS.busy=false;pcPaintVen(n);});
+}
+function pcVenAdd(n,i){
+  var v=VS.res[i],dd=pcDay(n);dd.vendors=dd.vendors||[];
+  if(!PC.vendors.some(function(x){return x.id===v.id;}))PC.vendors.push(Object.assign({cat:VS.cat},v));
+  if(dd.vendors.indexOf(v.id)<0)dd.vendors.push(v.id);else dd.vendors.splice(dd.vendors.indexOf(v.id),1);
+  pcSave();pcPaintVen(n);
+}
+function pcVenManual(n){
+  var nm=($('mvN').value||'').trim();if(!nm){toast('Enter a name.');return;}
+  var v={id:'m'+Date.now().toString(36),name:nm,address:($('mvA').value||'').trim(),phone:($('mvP').value||'').trim(),cat:'Added by hand',mi:null};
+  PC.vendors.push(v);var dd=pcDay(n);dd.vendors=(dd.vendors||[]).concat(v.id);pcSave();pcPaintVen(n);
+}
+function pcVen(id,k,val){var v=PC.vendors.filter(function(x){return x.id===id;})[0];if(v){v[k]=val;pcSave();}}
+function pcVerify(id,n,on){var v=PC.vendors.filter(function(x){return x.id===id;})[0];if(!v)return;v.verified=!!on;v.verifiedAt=on?new Date().toISOString():'';pcSave();pcPaintVen(n);}
+function pcVenDel(n,id){var dd=pcDay(n);dd.vendors=(dd.vendors||[]).filter(function(x){return x!==id;});pcSave();pcPaintVen(n);}
+function pcVendorsFor(n){return ((pcDay(n).vendors)||[]).map(function(id){return PC.vendors.filter(function(v){return v.id===id;})[0];}).filter(Boolean);}
+function printCall(n){pcOpenPrint(['callsheet'],n);}
+
+/* ===== STRIPBOARD (industry layout) and CASTING / DOOD tiles ===== */
+var STRIPC={DI:['#F8FAFC','#111827','Day INT'],DE:['#FDE68A','#111827','Day EXT'],NI:['#93C5FD','#111827','Night INT'],NE:['#86EFAC','#111827','Night EXT']};
+function stripKind(s){var night=/NIGHT|EVE|DUSK|LATE/i.test(s.tod||''),ext=/^EXT/i.test(s.ie||'');return (night?'N':'D')+(ext?'E':'I');}
+function p8(e){e=Math.round(e);var w=Math.floor(e/8),r=e%8;return (w?w:'')+(w&&r?' ':'')+(r?r+'/8':(w?'':'0'));}
+function castNos(s){return (s.cast||[]).map(function(c){return M.cast.indexOf(c)+1;}).filter(Boolean).sort(function(a,b){return a-b;}).join(', ');}
+var CASTAT=['Not cast','Auditioning','Callback','Offered','Confirmed','Contracted'];
+var CASTC={'Not cast':'#94A3B8',Auditioning:'#FBBF24',Callback:'#FB923C',Offered:'#60A5FA',Confirmed:'#4ADE80',Contracted:'#34D399'};
+function boardDays(){ /* days with banner data */
+  var run=0;return M.days.map(function(d){
+    var sc=d.nums.map(sceneBy).filter(Boolean),e=sc.reduce(function(a,s){return a+(s.omit?0:s.eighths);},0);run+=e;
+    return {d:d,sc:sc,e:e,run:run,date:pcDate(d.n),t:pcSched(d)};});
+}
+function stripRow(s,mini){
+  var k=STRIPC[stripKind(s)];
+  return '<div class="strip" style="background:'+k[0]+';color:'+k[1]+'"><b class="sn">'+esc(s.num)+'</b><span class="sc1">'+esc(s.ie)+'</span><span class="sh1">'+esc(s.heading.replace(/^(INT|EXT|INT\/EXT|EXT\/INT)[.\s]+/i,''))+(s.notes?' <i>— '+esc(s.notes)+'</i>':'')+'</span><span class="sc1">'+esc(s.tod)+'</span><span class="sp">'+p8(s.eighths)+'</span><span class="sk">'+castNos(s)+'</span></div>';
+}
+UI.bview=UI.bview||'board';UI.bfilter=UI.bfilter||'all';
+H.strip=function(){
+  var bd=boardDays(),tot=M.eighths;
+  var acts=['board','calendar'].map(function(v){return chip(v==='board'?'Stripboard':'Calendar',UI.bview===v,"setUI('bview','"+v+"')",'#FA6800');}).join('')+
+    '<button class="btn red" onclick="pcOpenPrint([\'stripboard\'])"><i class="fa-solid fa-file-pdf"></i> Print / PDF</button>';
+  var h=cards([['Shoot days',M.days.length],['Total pages',p8(tot),M.scenes.filter(function(s){return !s.omit;}).length+' scenes'],['Avg pgs/day',M.days.length?(tot/8/M.days.length).toFixed(1):'—'],['Sets',locList().length],['Cast',M.cast.length]]);
+  if(!M.days.length)return {h:'Stripboard',acts:acts,b:'<div class="empty">No shoot days yet. Import a script and the board builds itself.</div>'};
+  /* legend + filters */
+  h+='<div class="chips" style="margin:2px 0 10px;align-items:center">'+Object.keys(STRIPC).map(function(k){return '<span class="pill" style="background:'+STRIPC[k][0]+';color:#111;border-color:#0004">'+STRIPC[k][2]+'</span>';}).join('')+
+    '<span style="flex:1"></span>'+['all','INT','EXT','DAY','NIGHT'].map(function(f){return chip(f==='all'?'All':f,UI.bfilter===f,"setUI('bfilter','"+f+"')",'#FA6800');}).join('')+'</div>';
+  function pass(s){var f=UI.bfilter;return f==='all'||(f==='INT'&&/^INT/i.test(s.ie))||(f==='EXT'&&/^EXT/i.test(s.ie))||(f==='DAY'&&stripKind(s)[0]==='D')||(f==='NIGHT'&&stripKind(s)[0]==='N');}
+  if(UI.bview==='calendar')return {h:'Shooting Calendar',acts:acts,b:h+pcCalendar(bd)};
+  h+='<div class="mono" style="font-size:10px;color:#8794A6;margin-bottom:6px">Columns: Scene · I/E · Set / description · D/N · Pages · Cast numbers (see Casting).</div>';
+  h+=bd.map(function(b){
+    var d=b.d;
+    return '<div class="daybox"><div class="dayh" style="background:#1F2937"><span>DAY '+d.n+(b.date?' — '+esc(pcDateLong(b.date,1)):'')+' — '+esc(pcLoc(d.n))+'</span><span>Call '+pcT(b.t.T.crew)+' · Wrap '+pcT(pcWrap(d))+'</span></div>'+
+      (b.sc.filter(pass).map(function(s){return stripRow(s);}).join('')||'<div class="empty" style="padding:8px">No strips match the filter.</div>')+
+      '<div class="dayh" style="background:#111827;color:#E5A93C"><span>END OF DAY '+d.n+' — '+b.sc.filter(function(s){return !s.omit;}).length+' scenes</span><span>'+p8(b.e)+' pgs · running '+p8(b.run)+' of '+p8(tot)+'</span></div></div>';}).join('');
+  var om=M.scenes.filter(function(s){return s.omit;});
+  if(om.length)h+='<div class="sec" style="color:#FA6800">Omitted scenes</div>'+om.map(function(s){return '<div class="strip" style="background:#374151;color:#9CA3AF;text-decoration:line-through"><b class="sn">'+esc(s.num)+'</b><span class="sh1">'+esc(s.heading)+'</span></div>';}).join('');
+  h+='<div class="mono" style="font-size:10.5px;color:#8794A6;margin-top:10px;line-height:1.6">To move strips between days, reorder them in proHUB Stripboard and publish. This board updates by itself.</div>';
+  return {h:'Stripboard',acts:acts,b:h};
+};
+function pcCalendar(bd){
+  var dated=bd.filter(function(b){return b.date;});
+  if(!dated.length)return '<div class="empty">Set the first shoot day in Production Setup (or in a day\'s Call Sheet setup) and the calendar fills in.</div>';
+  var first=new Date(dated[0].date+'T12:00:00'),last=new Date(dated[dated.length-1].date+'T12:00:00'),by={};dated.forEach(function(b){by[b.date]=b;});
+  var out='',m=new Date(first.getFullYear(),first.getMonth(),1);
+  while(m<=last){
+    var y=m.getFullYear(),mo=m.getMonth(),start=m.getDay(),dim=new Date(y,mo+1,0).getDate();
+    out+='<div class="sec" style="color:#FA6800">'+m.toLocaleDateString('en-US',{month:'long',year:'numeric'})+'</div><div class="cal">'+['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(function(x){return '<div class="ch">'+x+'</div>';}).join('');
+    for(var i=0;i<start;i++)out+='<div class="cc off"></div>';
+    for(var dnum=1;dnum<=dim;dnum++){var iso=y+'-'+String(mo+1).padStart(2,'0')+'-'+String(dnum).padStart(2,'0'),b=by[iso];
+      out+='<div class="cc'+(b?' on':'')+'"><span class="cn">'+dnum+'</span>'+(b?'<b>DAY '+b.d.n+'</b><small>'+esc(pcLoc(b.d.n))+'</small><small>'+p8(b.e)+' pgs</small>':'')+'</div>';}
+    out+='</div>';m=new Date(y,mo+1,1);
+  }
+  return out;
+}
+
+/* ---------- CASTING + DOOD ---------- */
+function castConflicts(c){
+  var k=PC.cast[c]||{},un=String(k.unavail||'').split(/[,\s;]+/).filter(Boolean),out=[];
+  if(!un.length)return out;
+  M.days.forEach(function(d){if(d.cast.indexOf(c)<0)return;var dt=pcDate(d.n);if(dt&&un.indexOf(dt)>=0)out.push('Day '+d.n+' ('+dt+')');});
+  return out;
+}
+function castSel(c){var k=(PC.cast[c]||{}).status||'Not cast';
+  return '<select class="fi" style="min-width:118px;color:'+CASTC[k]+';font-weight:700" onchange="pcSet(\''+pp('cast',c,'status')+'\',this.value);renderHub()">'+CASTAT.map(function(s){return '<option'+(s===k?' selected':'')+'>'+s+'</option>';}).join('')+'</select>';}
+H.cast=function(){
+  if(!M.cast.length)return {h:'Casting & Day Out of Days',b:'<div class="empty">No cast found yet. Import a script and the cast list builds itself.</div>'};
+  var acts='<button class="btn red" onclick="pcOpenPrint([\'cast\',\'dood\'])"><i class="fa-solid fa-file-pdf"></i> Print / PDF</button>';
+  var cnt={};CASTAT.forEach(function(s){cnt[s]=0;});M.cast.forEach(function(c){cnt[(PC.cast[c]||{}).status||'Not cast']++;});
+  var h=cards([['Roles',M.cast.length],['Cast',(cnt.Confirmed+cnt.Contracted)+' / '+M.cast.length,'confirmed or contracted'],['In negotiation',cnt.Offered+cnt.Callback+cnt.Auditioning],['Not cast',cnt['Not cast']]]);
+  h+='<div class="sec" style="color:#1BA1E2">Casting board</div><div class="tw2"><table><thead><tr><th>#</th><th>Role</th><th>Status</th><th>Actor</th><th>Agent / contact</th><th>Phone / email</th><th>Rate</th><th>Unavailable dates</th><th>Days</th></tr></thead><tbody>'+
+    M.cast.map(function(c,i){var k=PC.cast[c]||{},cf=castConflicts(c),n=M.days.filter(function(d){return d.cast.indexOf(c)>=0;}).length;
+      return '<tr><td style="font-weight:800;color:#1BA1E2">'+(i+1)+'</td><td style="font-weight:700">'+esc(c)+'</td><td>'+castSel(c)+'</td><td>'+fi(pp('cast',c,'actor'),k.actor)+'</td><td>'+fi(pp('cast',c,'agent'),k.agent)+'</td><td>'+fi(pp('cast',c,'phone'),k.phone,'phone / email')+'</td><td>'+fi(pp('cast',c,'rate'),k.rate,'$/day')+'</td>'+
+      '<td>'+fi(pp('cast',c,'unavail'),k.unavail,'YYYY-MM-DD, …')+(cf.length?'<div style="color:#F87171;font-size:10px;font-weight:700">CONFLICT: '+esc(cf.join(', '))+'</div>':'')+'</td><td style="text-align:center">'+n+'</td></tr>';}).join('')+'</tbody></table></div>';
+  /* DOOD */
+  var dates=M.days.map(function(d){return pcDate(d.n);});
+  var rows=M.cast.map(function(c,i){var code=doodRow(c),w=code.filter(function(x){return x&&x!=='H';}).length,hd=code.filter(function(x){return x==='H';}).length;
+    var f=code.findIndex(function(x){return x;}),l=code.length-1-code.slice().reverse().findIndex(function(x){return x;});
+    return '<tr><td style="font-weight:800;color:#1BA1E2">'+(i+1)+'</td><td style="font-weight:700">'+esc(c)+'</td>'+code.map(function(x){var bg=x==='H'?'rgba(251,191,36,.25)':(x?'rgba(74,222,128,.22)':'');return '<td style="text-align:center;font-weight:700;background:'+bg+';color:'+(x==='H'?'#FBBF24':'#4ADE80')+'">'+x+'</td>';}).join('')+'<td style="text-align:center">'+w+'</td><td style="text-align:center">'+hd+'</td><td style="text-align:center;font-weight:700">'+(w+hd)+'</td><td>'+(f>=0&&dates[f]?dates[f].slice(5):(f>=0?'D'+(f+1):''))+'</td><td>'+(f>=0&&dates[l]?dates[l].slice(5):(f>=0?'D'+(l+1):''))+'</td></tr>';}).join('');
+  h+='<div class="sec" style="color:#1BA1E2">Day Out of Days</div>'+tbl(['#','Cast'].concat(M.days.map(function(d,i){return 'D'+d.n+(dates[i]?'<br><small>'+dates[i].slice(5)+'</small>':'');}),['Work','Hold','Total','Start','Finish']),[rows]);
+  h+='<div class="mono" style="font-size:10.5px;color:#8794A6;margin-top:10px;line-height:1.6">SW start work · W work · WF work finish · SWF start-work-finish · H hold. Cast numbers match the Cast IDs column on the stripboard and the call sheet. Unavailable dates (YYYY-MM-DD) are checked against the shoot dates.</div>';
+  return {h:'Casting & Day Out of Days',acts:acts,b:h};
+};
+
+/* ===== PRINT CENTER: document builders (on PK / pdf-lib) ===== */
+PC.print.d=PC.print.d||{};PC.print.sel=PC.print.sel||{};
+var BLD={};
+function dOpt(id,k,def){var o=PC.print.d[id];return o&&o[k]!=null?o[k]:def;}
+function pcDaysSel(){var s=PC.print.days;var all=M.days.map(function(d){return d.n;});if(!s||s==='all')return all;return s.filter(function(n){return all.indexOf(n)>=0;});}
+function dayOf(n){return M.days.filter(function(x){return x.n===n;})[0];}
+function pcTitle(){return (PC.info.title||M.title||'').toUpperCase();}
+function roleNos(a){return (a||[]).map(function(c){return M.cast.indexOf(c)+1;}).filter(Boolean).sort(function(x,y){return x-y;}).join(', ');}
+function banner(D,txt,sub){D.table([1],[{cells:[{t:txt,size:11,b:1,c:'#FFFFFF'}],fill:'#1F2937'}].concat(sub?[{cells:[{t:sub,size:8}],fill:'#F3F4F6'}]:[]),{after:5});}
+function pageHead(D,title,sub){
+  D.text(pcTitle(),{font:'b',size:15,after:1});D.text(title+(sub?'   |   '+sub:''),{font:'b',size:10,color:'#374151',after:3});D.hr({after:6});
+}
+function K(c,label,val,o){o=o||{};return {t:(label?label+'\n':'')+(val==null?'':val),size:o.size,b:o.b};}
+function lblv(label,val){return {t:label+'\n'+val};}
+
+/* ---- Cover ---- */
+BLD.cover=async function(D,c){
+  D.section('Cover','portrait');var I=PC.info,img=await D.addImage(PC.print.logo);
+  D.gap(110);if(img){var h=70,w=Math.min(220,img.width*h/img.height);D.image(img,(D.pg.w-w)/2,D.y,w,h);D.gap(h+24);}
+  D.text(pcTitle(),{font:'b',size:30,align:'center',after:10});
+  D.text(c.pkgName||'Production Package',{size:14,align:'center',color:'#4B5563',after:26});
+  [['Production company',I.company],['Producer',I.producer],['Director',I.director],['Line producer / UPM',I.lineProducer],['1st AD',I.firstAD],['Script revision',I.rev],['Printed',pcDateLong(pcIso(new Date()),1)]].filter(function(x){return x[1];}).forEach(function(x){D.text(x[0].toUpperCase()+':  '+x[1],{size:10,align:'center',after:3});});
+  D.gap(24);D.text('CONTENTS',{font:'b',size:10,align:'center',after:6});
+  c.list.forEach(function(n){D.text(n,{size:10,align:'center',after:2});});
+  if(I.officePhone||I.officeEmail||I.officeAddress){D.y=D.pg.h-D.m.b-60;D.text([I.officeAddress,[I.officePhone,I.officeEmail].filter(Boolean).join('   ')].filter(Boolean).join('\n'),{size:9,align:'center',color:'#4B5563'});}
+};
+
+/* ---- Call Sheet ---- */
+BLD.callsheet=async function(D,c){
+  var fs=c.fs,I=PC.info;
+  for(var di=0;di<c.days.length;di++){
+    var n=c.days[di],d=dayOf(n),dd=pcDay(n),T=pcTimes(n),S=pcSched(d),date=pcDate(n),w=dd.weather;
+    D.section('Call Sheet - Day '+n,'portrait');
+    var img=await D.addImage(PC.print.logo);if(img){var lh=34,lw=Math.min(150,img.width*lh/img.height);D.image(img,D.m.l,D.y,lw,lh);D.gap(lh+4);}
+    D.table([3.2,1.6,2],[{cells:[{t:pcTitle()+(I.company?'\n'+I.company:''),size:13,b:1},{t:'CALL SHEET',size:15,b:1,al:'center'},{t:'DAY '+n+' OF '+M.days.length+(date?'\n'+pcDateLong(date):''),size:9,b:1,al:'right'}],minH:38}],{after:0});
+    var ppl=[['Producer',I.producer],['Director',I.director],['Line Producer / UPM',I.lineProducer],['1st AD',I.firstAD]].filter(function(x){return x[1];});
+    if(ppl.length)D.table(ppl.map(function(){return 1;}),[{cells:ppl.map(function(x){return {t:x[0]+'\n'+x[1],size:fs};})}],{after:0});
+    var lunch=null;S.rows.forEach(function(r){if(r.meal&&lunch==null)lunch=r.a;});if(S.T.lunchSet!=null)lunch=S.T.lunchSet;
+    var cells=[['CREW CALL',pcT(T.crew)],['SHOOTING CALL',pcT(T.shoot)],['LUNCH',lunch!=null?pcT(lunch):'-'],['EST. WRAP',pcT(pcWrap(d))]];
+    if(dOpt('callsheet','weather',1)&&w){cells.push(['SUNRISE',pcT(w.sunrise)]);cells.push(['SUNSET',pcT(w.sunset)]);}
+    D.table(cells.map(function(){return 1;}),[{head:1,cells:cells.map(function(x){return {t:x[0],size:7,al:'center'};})},{cells:cells.map(function(x){return {t:x[1],size:14,b:1,al:'center'};})}],{after:0,headFill:'#E5E7EB'});
+    if(dOpt('callsheet','weather',1)&&(w||dd.wxNote)){
+      D.table([1],[{cells:[{t:'WEATHER   '+(w?w.desc+', high '+w.hi+'F / low '+w.lo+'F, rain '+w.pop+'%, wind '+w.wind+' mph':'')+(dd.wxNote?(w?'   |   ':'')+dd.wxNote:'')+(w&&!w.exact?'   (forecast for today at this location; will update)':''),size:fs+0.5,b:1}]}],{after:0});}
+    var setN=pcLoc(n);
+    D.table([1,1,1],[{head:1,cells:[{t:'SET LOCATION',size:7},{t:'BASECAMP',size:7},{t:'CREW PARKING',size:7}]},{cells:[{t:setN+(dd.address?'\n'+dd.address:''),size:fs+.5,b:1},{t:dd.basecamp||'-',size:fs+.5},{t:dd.parking||'-',size:fs+.5}]}],{after:0});
+    var hp=dd.hospital;
+    if(dOpt('callsheet','hospital',1)&&hp&&hp.name){D.table([1],[{cells:[{t:'NEAREST HOSPITAL   '+hp.name+(hp.address?'   |   '+hp.address:'')+(hp.phone?'   |   '+hp.phone:'')+(hp.mi!=null?'   |   '+hp.mi+' mi from set':''),size:fs+.5,b:1,c:'#B91C1C'}],fill:'#FEF2F2'}],{after:0});}
+    D.gap(8);
+    /* scenes */
+    var sr=[{head:1,cells:['Sc','I/E','Set / description','D/N','Cast','Pgs','Est. time']}];
+    S.rows.forEach(function(r){
+      if(r.meal){sr.push({cells:[{t:'COMPANY MEAL   '+pcT(r.a)+' - '+pcT(r.b),span:7,b:1,al:'center'}],fill:'#FDE68A'});return;}
+      var s=r.s,k=STRIPC[stripKind(s)];
+      sr.push({cells:[{t:s.num,b:1},s.ie,{t:s.heading.replace(/^(INT|EXT|INT\/EXT|EXT\/INT)[.\s]+/i,'')+(s.notes?'\n'+s.notes:'')},s.tod,roleNos(s.cast),{t:p8(s.eighths),al:'right'},pcT(r.a)+'-'+pcT(r.b)],fill:dOpt('callsheet','colors',1)?k[0]:null});});
+    sr.push({cells:[{t:'TOTAL PAGES',span:5,b:1,al:'right'},{t:p8(d.eighths),b:1,al:'right'},''],fill:'#F3F4F6'});
+    D.table([.7,.7,4.4,1.5,1.4,.8,1.9],sr,{size:fs});
+    /* cast */
+    var cr=pcCastRows(d);
+    if(cr.length){
+      D.table([.5,2,2,.8,1,1.1,1,2],[{head:1,cells:['#','Role','Cast','Status','Pickup','Makeup / Ward.','Set call','Notes']}].concat(cr.map(function(r){
+        return {cells:[r.no,{t:r.role,b:1},r.actor,{t:r.status,b:1,al:'center'},r.pickup!=null?pcT(r.pickup):'',pcT(r.mu),{t:pcT(r.set),b:1},r.notes]};})),{size:fs});}
+    /* background, special, needs, notes */
+    var info=[];
+    if(dOpt('callsheet','bg',1)&&dd.bg)info.push({cells:[{t:'BACKGROUND',b:1,size:7},{t:dd.bg}]});
+    if(dOpt('callsheet','bg',1)&&dd.special)info.push({cells:[{t:'SPECIAL REQUIREMENTS',b:1,size:7},{t:dd.special}]});
+    if(dOpt('callsheet','needs',1))Object.keys(d.needs).forEach(function(k){info.push({cells:[{t:CATS[k][0].toUpperCase(),b:1,size:7},{t:d.needs[k].join(', ')}]});});
+    if(dd.notes)info.push({cells:[{t:'NOTES / SAFETY',b:1,size:7,c:'#B91C1C'},{t:dd.notes,b:1}],fill:'#FEF2F2'});
+    if(info.length)D.table([1.4,8],info,{size:fs});
+    /* crew */
+    var crew=PC.crew.filter(function(x){return x.name;});
+    if(dOpt('callsheet','crew',1)&&crew.length){
+      D.text('CREW',{font:'b',size:9,after:2});
+      D.table([2,2.5,3,2,1.2],[{head:1,cells:['Department','Position','Name','Phone','Call']}].concat(crew.map(function(x){return {cells:[x.dept,x.role,{t:x.name,b:1},x.phone,x.call?pcT(x.call):pcT(T.crew)]};})),{size:fs});}
+    /* vendors */
+    var vs=pcVendorsFor(n);
+    if(dOpt('callsheet','vendors',1)&&vs.length){
+      D.text('VENDORS & SERVICES',{font:'b',size:9,after:2});
+      D.table([3,2,3.5,2,2],[{head:1,cells:['Vendor','Type','Address','Phone','Status']}].concat(vs.map(function(v){return {cells:[{t:v.name,b:1},v.cat||'',v.address||'',v.phone||'',{t:v.verified?'VERIFIED '+(v.verifiedAt||'').slice(0,10)+(v.verifiedBy?'\n'+v.verifiedBy:''):'NOT VERIFIED',b:1,c:v.verified?'#166534':'#92400E'}]};})),{size:fs});}
+    /* advance */
+    var nx=dayOf(n+1);
+    if(dOpt('callsheet','advance',1)&&nx){
+      var nd=pcDate(n+1),ns=pcSched(nx);
+      D.text('ADVANCE SCHEDULE',{font:'b',size:9,after:2});
+      D.table([1.5,2,4,2],[{head:1,cells:['Day '+(n+1),'Call','Scenes','Cast']},{cells:[(nd?pcDateLong(nd,1):'')+'\n'+pcLoc(n+1),pcT(pcTimes(n+1).crew),nx.nums.join(', '),roleNos(nx.cast)]}],{size:fs});}
+  }
+};
+
+/* ---- screenplay pages (shooting script + sides) ---- */
+function scriptPages(D,scenes,o){
+  var X=(D.pg.w-612)/2+108,W=432,sz=+o.size||12,lh=sz*1.0+0.5,om={t:D.m.t,b:D.m.b};
+  D.m.t=62;D.m.b=64;var pgNo=0,revLbl=o.revLabel||'';
+  function chrome(){pgNo++;
+    if(o.hdr!==false)D.drawLine(pgNo+'.',D.pg.w-72-40,40,{font:'m',size:12,align:'right',w:40});
+    if(revLbl)D.drawLine(revLbl,72,40,{font:'m',size:9});}
+  D._onPage=function(){chrome();D.y=62;};
+  if(o.reuse){chrome();if(!o.keepY)D.y=62;}else D.newPage();
+  scenes.forEach(function(s,si){
+    D.need(lh*5);
+    if(si>0)D.gap(lh);
+    if(o.nums){D.drawLine(String(s.num),X-44,D.y+sz,{font:'m',size:sz});D.drawLine(String(s.num),X+W+8,D.y+sz,{font:'m',size:sz});}
+    D.text(s.omit?s.num+'  OMITTED':s.heading.toUpperCase(),{x:X,w:W,font:'mb',size:sz,lh:lh,after:lh});
+    if(s.omit)return;
+    s.lines.forEach(function(l,li){
+      var t=l.type,txt=String(l.text||''),nx=s.lines[li+1];
+      if(t==='character'){D.need(lh*4);D.text(txt.toUpperCase(),{x:X+144,w:W-144,font:'m',size:sz,lh:lh});}
+      else if(t==='dialogue'){D.text(txt,{x:X+72,w:252,font:'m',size:sz,lh:lh,after:(nx&&(nx.type==='dialogue'||nx.type==='parenthetical'))?0:lh});}
+      else if(t==='parenthetical'){D.text(txt,{x:X+108,w:180,font:'m',size:sz,lh:lh});}
+      else if(t==='transition'){D.text(txt.toUpperCase(),{x:X,w:W,align:'right',font:'m',size:sz,lh:lh,after:lh});}
+      else{D.text(txt,{x:X,w:W,font:'m',size:sz,lh:lh,after:lh});}
+    });
+  });
+  D._onPage=null;D.m.t=om.t;D.m.b=om.b;
+}
+BLD.script=async function(D,c){
+  var I=PC.info,pg=D.paper,rev=I.rev||'';
+  D.section('Shooting Script','portrait');
+  if(dOpt('script','titlePage',1)){
+    D.y=pg[1]*0.34;D.text(pcTitle(),{font:'mb',size:20,align:'center',after:20});
+    if(I.writer){D.text('Written by',{font:'m',size:12,align:'center',after:8});D.text(I.writer,{font:'m',size:14,align:'center'});}
+    var low=[I.company,I.officeAddress,[I.officePhone,I.officeEmail].filter(Boolean).join('  '),rev?'Revision: '+rev:''].filter(Boolean).join('\n');
+    if(low){D.y=D.pg.h-150;D.text(low,{x:72,w:260,font:'m',size:10});}
+    D.newPage();
+  }
+  var scenes=M.scenes.filter(function(s){return dOpt('script','omit',0)||!s.omit;});
+  scriptPages(D,scenes,{reuse:true,nums:dOpt('script','sceneNums',1),revLabel:dOpt('script','revLabel',1)&&rev?String(rev).toUpperCase():''});
+};
+BLD.sides=async function(D,c){
+  for(var i=0;i<c.days.length;i++){
+    var n=c.days[i],d=dayOf(n),date=pcDate(n),T=pcTimes(n);
+    D.section('Sides - Day '+n,'portrait');
+    var sc=d.nums.map(sceneBy).filter(Boolean);
+    D.text(pcTitle()+'  -  SIDES',{font:'b',size:12,after:1});
+    D.text('Day '+n+' of '+M.days.length+(date?'  |  '+pcDateLong(date):'')+'  |  '+pcLoc(n)+'  |  Scenes '+d.nums.join(', ')+'  |  '+p8(d.eighths)+' pgs',{size:8.5,color:'#374151',after:2});
+    D.text('Crew call '+pcT(T.crew)+'   Shooting call '+pcT(T.shoot),{size:8.5,color:'#374151',after:2});D.hr({after:6});
+    scriptPages(D,sc,{reuse:true,keepY:true,nums:dOpt('sides','sceneNums',1),size:dOpt('sides','size',11),hdr:dOpt('sides','pageNums',1)});
+  }
+};
+
+/* ---- Stripboard ---- */
+BLD.stripboard=async function(D,c){
+  var fs=c.fs,showCast=dOpt('stripboard','cast',1),colors=dOpt('stripboard','colors',1),notes=dOpt('stripboard','notes',1),tot=M.eighths,run=0;
+  D.section('Stripboard','landscape');pageHead(D,'PRODUCTION STRIPBOARD',M.days.length+' shoot days  |  '+p8(tot)+' pages');
+  D.text('Day INT = white   Day EXT = yellow   Night INT = blue   Night EXT = green',{size:7.5,color:'#4B5563',after:5});
+  var head={head:1,cells:['Sc','I/E','Set / description','D/N','Pgs'].concat(showCast?['Cast']:[]).concat(['Location'])};
+  var rows=[head];
+  M.days.forEach(function(d){
+    var b=d.nums.map(sceneBy).filter(Boolean),e=b.reduce(function(a,s){return a+(s.omit?0:s.eighths);},0);run+=e;
+    if(c.days.indexOf(d.n)<0)return;
+    var date=pcDate(d.n),ncol=head.cells.length;
+    rows.push({cells:[{t:'DAY '+d.n+(date?'  -  '+pcDateLong(date,1):'')+'  -  '+pcLoc(d.n)+'   |   Call '+pcT(pcTimes(d.n).crew)+'   Wrap '+pcT(pcWrap(d))+'   |   '+b.filter(function(s){return !s.omit;}).length+' scenes',span:ncol,b:1,c:'#FFFFFF'}],fill:'#1F2937',size:fs+.5});
+    b.forEach(function(s){
+      var k=STRIPC[stripKind(s)],hd=s.heading.replace(/^(INT|EXT|INT\/EXT|EXT\/INT)[.\s]+/i,'');
+      rows.push({cells:[{t:s.num,b:1},s.ie,{t:(s.omit?'OMITTED  ':'')+hd+(notes&&s.notes?'  -  '+s.notes:'')},s.tod,{t:p8(s.eighths),al:'right'}].concat(showCast?[roleNos(s.cast)]:[]).concat([s.loc||'']),fill:s.omit?'#D1D5DB':(colors?k[0]:null),color:s.omit?'#6B7280':null});});
+    rows.push({cells:[{t:'END OF DAY '+d.n,span:4,b:1},{t:p8(e),b:1,al:'right'},{t:'Running total '+p8(run)+' of '+p8(tot),span:head.cells.length-5,al:'right'}],fill:'#E5E7EB'});
+  });
+  D.table(showCast?[.6,.6,5,1.4,.7,2,2.6]:[.6,.6,5.6,1.4,.7,3],rows,{size:fs});
+};
+
+/* ---- Shooting schedule (day by day with times) ---- */
+BLD.schedule=async function(D,c){
+  var fs=c.fs,names=dOpt('schedule','names',0);
+  D.section('Shooting Schedule','portrait');pageHead(D,'SHOOTING SCHEDULE',M.days.length+' days  |  '+p8(M.eighths)+' pages');
+  c.days.forEach(function(n){
+    var d=dayOf(n),S=pcSched(d),date=pcDate(n);
+    var rows=[{cells:[{t:'DAY '+n+(date?'  -  '+pcDateLong(date):'')+'   |   '+pcLoc(n)+'   |   Call '+pcT(S.T.crew)+'   |   '+p8(d.eighths)+' pgs',span:6,b:1,c:'#FFFFFF'}],fill:'#1F2937',size:fs+.5},{head:1,cells:['Time','Sc','Set / description','D/N','Cast','Pgs']}];
+    S.rows.forEach(function(r){
+      if(r.meal){rows.push({cells:[pcT(r.a)+'-'+pcT(r.b),{t:'COMPANY MEAL',span:5,b:1}],fill:'#FDE68A'});return;}
+      var s=r.s;rows.push({cells:[pcT(r.a)+'-'+pcT(r.b),{t:s.num,b:1},s.heading+(s.notes?'\n'+s.notes:''),s.tod,names?s.cast.join(', '):roleNos(s.cast),{t:p8(s.eighths),al:'right'}],fill:dOpt('schedule','colors',1)?STRIPC[stripKind(s)][0]:null});});
+    rows.push({cells:[{t:'Est. wrap '+pcT(pcWrap(d)),span:5,b:1,al:'right'},{t:p8(d.eighths),b:1,al:'right'}],fill:'#E5E7EB'});
+    D.need(70);D.table([1.7,.6,4.6,1.4,1.6,.7],rows,{size:fs});
+  });
+};
+
+/* ---- Day Out of Days ---- */
+BLD.dood=async function(D,c){
+  D.section('Day Out of Days','landscape');pageHead(D,'DAY OUT OF DAYS',M.cast.length+' cast  |  '+M.days.length+' shoot days');
+  var nd=M.days.length,fs=nd>28?5.5:(nd>18?6.5:c.fs),dates=M.days.map(function(d){return pcDate(d.n);});
+  var head={head:1,cells:['#','Cast'].concat(M.days.map(function(d,i){return {t:'D'+d.n+(dates[i]?'\n'+dates[i].slice(5):''),al:'center'};}),['Work','Hold','Total','Start','Finish'].map(function(x){return {t:x,al:'center'};}))};
+  var rows=[head];
+  M.cast.forEach(function(cst,i){
+    var code=doodRow(cst),w=code.filter(function(x){return x&&x!=='H';}).length,hd=code.filter(function(x){return x==='H';}).length,f=code.findIndex(function(x){return x;}),l=code.length-1-code.slice().reverse().findIndex(function(x){return x;});
+    rows.push({cells:[{t:i+1,b:1},{t:cst+((PC.cast[cst]||{}).actor?'\n'+PC.cast[cst].actor:''),b:1}].concat(code.map(function(x){return {t:x,al:'center',b:1,fill:x==='H'?'#E5E7EB':(x?'#BBF7D0':null)};}),[{t:w,al:'center'},{t:hd,al:'center'},{t:w+hd,al:'center',b:1},{t:f>=0?(dates[f]?dates[f].slice(5):'D'+(f+1)):'',al:'center'},{t:f>=0?(dates[l]?dates[l].slice(5):'D'+(l+1)):'',al:'center'}])});});
+  var wts=[.5,2.4].concat(M.days.map(function(){return 1;}),[.8,.8,.8,1.1,1.1]);
+  D.table(wts,rows,{size:fs,pad:2.2});
+  D.text('SW start work   W work   WF work finish   SWF start-work-finish   H hold',{size:7.5,color:'#4B5563'});
+};
+
+/* ---- Cast list ---- */
+BLD.cast=async function(D,c){
+  var fs=c.fs;D.section('Cast List','portrait');pageHead(D,'CAST LIST',M.cast.length+' roles');
+  var o=function(k,df){return dOpt('cast',k,df);};
+  var head=['#','Role','Actor'].concat(o('status',1)?['Status']:[],o('contact',1)?['Agent / phone']:[],o('rate',0)?['Rate']:[],['Days','Work dates']);
+  var rows=[{head:1,cells:head}];
+  M.cast.forEach(function(cst,i){var k=PC.cast[cst]||{},code=doodRow(cst),dts=M.days.map(function(d){return pcDate(d.n);}),f=code.findIndex(function(x){return x;}),l=code.length-1-code.slice().reverse().findIndex(function(x){return x;}),n=code.filter(Boolean).length;
+    rows.push({cells:[{t:i+1,b:1},{t:cst,b:1},k.actor||''].concat(o('status',1)?[k.status||'Not cast']:[],o('contact',1)?[[k.agent,k.phone].filter(Boolean).join('\n')]:[],o('rate',0)?[k.rate||'']:[],[{t:n,al:'center'},f>=0?(dts[f]&&dts[l]?dts[f].slice(5)+' to '+dts[l].slice(5):'Day '+(f+1)+' to '+(l+1)):'']) });});
+  D.table(head.map(function(h){return h==='Role'||h==='Actor'||h==='Agent / phone'?2.4:(h==='Work dates'?2:1);}),rows,{size:fs+.5});
+};
+
+/* ---- Crew list and in-times ---- */
+function crewSorted(heads){
+  var order=[];PC.crew.forEach(function(x){if(order.indexOf(x.dept)<0)order.push(x.dept);});
+  return PC.crew.filter(function(x){return x.name&&(!heads||x.head);}).sort(function(a,b){return order.indexOf(a.dept)-order.indexOf(b.dept);});
+}
+BLD.crew=async function(D,c){
+  var fs=c.fs,heads=dOpt('crew','heads',0),em=dOpt('crew','email',1),cl=dOpt('crew','call',0);
+  D.section('Crew List','portrait');pageHead(D,heads?'DEPARTMENT HEADS':'CREW LIST');
+  var crew=crewSorted(heads);
+  if(!crew.length){D.text('No crew names entered yet. Add people in Production Setup.',{size:10});return;}
+  var cols=['Department','Position','Name','Phone'].concat(em?['Email']:[],cl?['Call']:[]);
+  D.table(cols.map(function(x){return x==='Call'?1:(x==='Email'?3:2);}),[{head:1,cells:cols}].concat(crew.map(function(x){return {cells:[x.dept,x.role,{t:x.name,b:1},x.phone].concat(em?[x.email||'']:[],cl?[x.call?pcT(x.call):'']:[])};})),{size:fs+.5});
+};
+BLD.intimes=async function(D,c){
+  var fs=c.fs;
+  for(var i=0;i<c.days.length;i++){
+    var n=c.days[i],d=dayOf(n),T=pcTimes(n),date=pcDate(n);
+    D.section('In Times - Day '+n,'portrait');pageHead(D,'CAST & CREW IN TIMES','Day '+n+(date?'  |  '+pcDateLong(date):'')+'  |  '+pcLoc(n));
+    var cr=pcCastRows(d);
+    D.text('CAST',{font:'b',size:9,after:2});
+    D.table([.5,2.2,2.2,.8,1,1.2,1],[{head:1,cells:['#','Role','Actor','Status','Pickup','Makeup / Ward.','Set call']}].concat(cr.map(function(r){return {cells:[r.no,{t:r.role,b:1},r.actor,r.status,r.pickup!=null?pcT(r.pickup):'',pcT(r.mu),{t:pcT(r.set),b:1}]};})),{size:fs+.5});
+    var crew=crewSorted(dOpt('intimes','heads',0));
+    D.text(dOpt('intimes','heads',0)?'DEPARTMENT HEADS':'CREW',{font:'b',size:9,after:2});
+    D.table([2,2.4,3,2,1.2],[{head:1,cells:['Department','Position','Name','Phone','In time']}].concat(crew.map(function(x){return {cells:[x.dept,x.role,{t:x.name,b:1},x.phone,{t:x.call?pcT(x.call):pcT(T.crew),b:1}]};})),{size:fs+.5});
+    if(!crew.length)D.text('No crew entered. Add people in Production Setup.',{size:9,color:'#6B7280'});
+  }
+};
+
+/* ---- Breakdown ---- */
+BLD.breakdown=async function(D,c){
+  var fs=c.fs,cats=Object.keys(CATS),mode=dOpt('breakdown','group','scene');
+  D.section('Script Breakdown','landscape');pageHead(D,'SCRIPT BREAKDOWN',mode==='scene'?'by scene':'by element category');
+  if(mode==='scene'){
+    var rows=[{head:1,cells:['Sc','Set / description','I/E','D/N','Pgs','Cast','Elements','Day']}],dayOfS={};M.days.forEach(function(d){d.nums.forEach(function(x){dayOfS[x]=d.n;});});
+    M.scenes.forEach(function(s){
+      var el=cats.map(function(k){return (s.tags[k]||[]).length?CATS[k][0]+': '+s.tags[k].join(', '):null;}).filter(Boolean).join('\n');
+      rows.push({cells:[{t:s.num,b:1},s.heading+(s.notes?'\n'+s.notes:''),s.ie,s.tod,{t:p8(s.eighths),al:'right'},roleNos(s.cast),el,s.omit?'-':(dayOfS[s.num]||'')],fill:s.omit?'#E5E7EB':STRIPC[stripKind(s)][0],color:s.omit?'#6B7280':null});});
+    D.table([.6,3,.6,.9,.7,1.3,5.5,.6],rows,{size:fs});
+  }else cats.forEach(function(k){
+    var by={};M.scenes.forEach(function(s){if(s.omit)return;(s.tags[k]||[]).forEach(function(w){(by[w]=by[w]||[]).push(s.num);});});
+    var names=Object.keys(by).sort();if(!names.length)return;
+    D.need(60);D.table([1],[{cells:[{t:CATS[k][0].toUpperCase()+'  ('+names.length+')',b:1,c:'#FFFFFF'}],fill:'#1F2937'}],{after:0});
+    D.table([3,5,1.5],[{head:1,cells:['Element','Scenes','Days']}].concat(names.map(function(w){var days=[];M.days.forEach(function(d){if(d.nums.some(function(x){return by[w].indexOf(x)>=0;}))days.push(d.n);});return {cells:[{t:w,b:1},by[w].join(', '),days.join(', ')]};})),{size:fs});
+  });
+};
+
+/* ---- Shot list + storyboards ---- */
+BLD.shotlist=async function(D,c){
+  var fs=c.fs,only=dOpt('shotlist','status','all');D.section('Shot List','landscape');pageHead(D,'SHOT LIST',M.shots.length+' setups');
+  var list=M.shots.filter(function(s){return only==='all'||s.status===only;});
+  if(!list.length){D.text('No shots yet. Add them in the Shot List or Storyboards.',{size:10});return;}
+  var sorted=list.slice().sort(function(a,b){var x=parseFloat(a.scene),y=parseFloat(b.scene);return (isNaN(x)||isNaN(y))?String(a.scene).localeCompare(String(b.scene)):x-y||String(a.shotnum).localeCompare(String(b.shotnum));});
+  var rows=[{head:1,cells:['Sc','Shot','Size','Angle / move','Lens','Description','Status']}],last=null;
+  sorted.forEach(function(s){
+    if(dOpt('shotlist','group',1)&&s.scene!==last){var sc=sceneBy(s.scene);rows.push({cells:[{t:'SCENE '+s.scene+(sc?'  -  '+sc.heading:''),span:7,b:1}],fill:'#E5E7EB'});last=s.scene;}
+    rows.push({cells:[s.scene,{t:s.shotnum,b:1},s.type||'',s.move||'',s.lens||'',s.desc||'',(s.status||'todo').toUpperCase()]});});
+  D.table([.6,.7,.9,1.6,.9,5,1],rows,{size:fs});
+};
+function pcRaster(u){
+  return new Promise(function(res){
+    if(!u)return res(null);if(/^data:image\/(png|jpe?g)/i.test(u))return res(u);
+    var im=new Image();im.onload=function(){try{var c=document.createElement('canvas');c.width=im.naturalWidth||640;c.height=im.naturalHeight||360;c.getContext('2d').drawImage(im,0,0,c.width,c.height);res(c.toDataURL('image/png'));}catch(e){res(null);}};im.onerror=function(){res(null);};im.src=u;});
+}
+BLD.storyboard=async function(D,c){
+  var B0=J('prohub_boards_v1')||{},fr=B0.frames||{},ratio=(B0.ui&&B0.ui.ratio)||'16/9',rp=ratio.split('/'),ar=(+rp[0]||16)/(+rp[1]||9);
+  var per=+dOpt('storyboard','per',6),cols=per===4?2:(per===9?3:3),rws=per/cols;
+  D.section('Storyboards','landscape');
+  var cells=[];
+  M.scenes.forEach(function(s){if(s.omit)return;(fr[s.num]||[]).forEach(function(f,i){cells.push({s:s,f:f,l:s.num+String.fromCharCode(65+i)});});});
+  if(!cells.length){pageHead(D,'STORYBOARDS');D.text('No storyboard frames yet. Create them in Storyboards (proHUB).',{size:10});return;}
+  var gap=10,W=D.W(),cw=(W-gap*(cols-1))/cols,imH=cw/ar,capH=dOpt('storyboard','captions',1)?42:12,ch=imH+capH,perPageRows=Math.max(1,Math.floor((D.bottom()-D.m.t-30-0)/(ch+gap)));
+  perPageRows=Math.min(perPageRows,rws);
+  var perPage=perPageRows*cols,first=true;
+  for(var i=0;i<cells.length;i+=perPage){
+    if(!first)D.newPage();first=false;
+    D.text(pcTitle()+'  -  STORYBOARDS',{font:'b',size:10,after:3});
+    var y0=D.y+4;
+    for(var j=0;j<perPage&&i+j<cells.length;j++){
+      var cc=cells[i+j],col=j%cols,rw=Math.floor(j/cols),x=D.m.l+col*(cw+gap),y=y0+rw*(ch+gap);
+      D.rect(x,y,cw,imH,{fill:'#374151',stroke:'#111827',lw:.8});
+      var u=await pcRaster(cc.f.sketch||cc.f.img),img=u?await D.addImage(u):null;
+      if(img)D.image(img,x,y,cw,imH);else D.drawLine('Frame '+cc.l,x+6,y+imH/2,{font:'b',size:9,color:'#9CA3AF'});
+      D.rect(x,y,22,13,{fill:'#111827'});D.drawLine(cc.l,x+3,y+10,{font:'b',size:8,color:'#FFFFFF'});
+      if(dOpt('storyboard','captions',1)){
+        var cap=[cc.f.size,cc.f.angle,cc.f.move,cc.f.lens].filter(Boolean).join(' / ');
+        D.drawLine(cap.toUpperCase(),x,y+imH+9,{font:'b',size:6.5});
+        var ls=D.wrap((cc.f.desc||'')+(cc.f.dlg?'  "'+cc.f.dlg+'"':''),'r',7,cw);ls.slice(0,3).forEach(function(l,k){D.drawLine(l,x,y+imH+19+k*8,{font:'r',size:7});});
+      }
+    }
+  }
+};
+
+/* ---- Locations, vendors, budget ---- */
+BLD.locations=async function(D,c){
+  var fs=c.fs;D.section('Location Report','portrait');pageHead(D,'LOCATION REPORT',locList().length+' sets');
+  var rows=[{head:1,cells:['Set','I/E','Scenes','Day(s)','Pgs','Address','Nearest hospital']}];
+  locList().forEach(function(l){var dayn=l.days[0],dd=dayn?pcDay(dayn):{},hp=dd.hospital||{};
+    rows.push({cells:[{t:l.loc,b:1},Object.keys(l.ie).join('/'),l.nums.join(', '),l.days.join(', '),{t:p8(l.eighths),al:'right'},dd.address||'',hp.name?hp.name+(hp.phone?'\n'+hp.phone:''):'']});});
+  D.table([2.6,.7,1.6,1,.7,3,2.4],rows,{size:fs});
+};
+BLD.vendors=async function(D,c){
+  var fs=c.fs;D.section('Vendor List','portrait');pageHead(D,'VENDORS & SERVICES');
+  var seen={},list=[];c.days.forEach(function(n){pcVendorsFor(n).forEach(function(v){if(!seen[v.id]){seen[v.id]=1;list.push({v:v,days:[n]});}else list.filter(function(x){return x.v.id===v.id;})[0].days.push(n);});});
+  if(!list.length){D.text('No vendors selected. Search and add vendors in the Call Sheet tile.',{size:10});return;}
+  D.table([3,2,3.5,2,2,1.2],[{head:1,cells:['Vendor','Type','Address','Phone','Verification','Day(s)']}].concat(list.map(function(x){var v=x.v;return {cells:[{t:v.name+(v.vnote?'\n'+v.vnote:''),b:1},v.cat||'',v.address||'',v.phone||'',{t:v.verified?'VERIFIED '+(v.verifiedAt||'').slice(0,10)+(v.verifiedBy?'\n'+v.verifiedBy:''):'NOT VERIFIED',b:1,c:v.verified?'#166534':'#92400E'},x.days.join(', ')]};})),{size:fs+.5});
+};
+BLD.budget=async function(D,c){
+  var fs=c.fs,bud=(M.pre&&M.pre.budget)||[],sm=J('prohub_budget_summary_v1');
+  D.section('Budget','portrait');pageHead(D,'BUDGET TOP SHEET',sm&&sm.tier?sm.tier:'');
+  if(sm&&sm.groups&&sm.groups.length){
+    D.table([1],[{cells:[{t:'DETAILED BUDGET ('+(sm.title||'proHUB')+')  -  '+sm.sd+' shoot days',b:1,c:'#FFFFFF'}],fill:'#1F2937'}],{after:0});
+    D.table([6,2],[{head:1,cells:['Account group',{t:'Total',al:'right'}]}].concat(sm.groups.map(function(g){return {cells:[g.n,{t:money(g.t),al:'right'}]};})).concat([{cells:[{t:'GRAND TOTAL',b:1},{t:money(sm.total),al:'right',b:1}],fill:'#E5E7EB'}]),{size:fs+1});
+  }
+  if(bud.length){
+    D.table([1],[{cells:[{t:'PRE-LIMINARY BUDGET',b:1,c:'#FFFFFF'}],fill:'#1F2937'}],{after:0});
+    var tot=bud.reduce(function(a,b){return a+(+b.amt||0);},0);
+    D.table([6,2],[{head:1,cells:['Category',{t:'Estimated',al:'right'}]}].concat(bud.map(function(b){return {cells:[b.cat,{t:money(+b.amt||0),al:'right'}]};})).concat([{cells:[{t:'TOTAL',b:1},{t:money(tot),al:'right',b:1}],fill:'#E5E7EB'}]),{size:fs+1});
+  }
+  if(!bud.length&&!(sm&&sm.groups))D.text('No budget saved yet. Build one in the Budget tool and it appears here.',{size:10});
+  D.text('Confidential. For authorized recipients only.',{size:8,color:'#6B7280'});
+};
+
+/* ===== PRINT CENTER: picker, presets, page setup, generation ===== */
+var DOCS=[
+ {id:'cover',n:'Cover page',g:'Front matter',d:'Title, key people and a contents list.'},
+ {id:'callsheet',n:'Call Sheet',g:'Daily paperwork',days:1,d:'One per selected day: times, weather, set, hospital, scenes, cast, crew, vendors, advance.',o:[['weather','Weather','c',1],['hospital','Nearest hospital','c',1],['crew','Crew list','c',1],['vendors','Vendors & services','c',1],['advance','Advance schedule','c',1],['bg','Background & special requirements','c',1],['needs','Department needs','c',1],['colors','Color-coded scene rows','c',1]]},
+ {id:'sides',n:'Sides',g:'Daily paperwork',days:1,d:'The day\'s scenes in screenplay format.',o:[['sceneNums','Scene numbers','c',1],['pageNums','Page numbers','c',1],['size','Type size','s',11,[[10,'10 pt'],[11,'11 pt'],[12,'12 pt']]]]},
+ {id:'intimes',n:'Cast & Crew In Times',g:'Daily paperwork',days:1,d:'Who is called when, one page per day.',o:[['heads','Department heads only','c',0]]},
+ {id:'script',n:'Shooting Script',g:'Script',d:'Full script, Courier 12, scene numbers in both margins.',o:[['titlePage','Title page','c',1],['sceneNums','Scene numbers (both margins)','c',1],['revLabel','Revision label on each page','c',1],['omit','Show omitted scenes','c',0]]},
+ {id:'stripboard',n:'Stripboard',g:'Scheduling',days:1,d:'Color-coded strips with day banners, totals and cast numbers.',o:[['colors','Color-coded strips','c',1],['cast','Cast numbers','c',1],['notes','Scene notes','c',1]]},
+ {id:'schedule',n:'Shooting Schedule',g:'Scheduling',days:1,d:'Day by day with estimated times and a meal break.',o:[['names','Cast names instead of numbers','c',0],['colors','Color-coded rows','c',1]]},
+ {id:'dood',n:'Day Out of Days',g:'Scheduling',d:'SW / W / WF / SWF / H for every cast member.'},
+ {id:'cast',n:'Cast List',g:'People',d:'Numbered roles, actors, status and work dates.',o:[['status','Casting status','c',1],['contact','Agent / phone','c',1],['rate','Rate (confidential)','c',0]]},
+ {id:'crew',n:'Crew List',g:'People',d:'By department, with contacts.',o:[['heads','Department heads only','c',0],['email','Email','c',1],['call','Call times','c',0]]},
+ {id:'breakdown',n:'Script Breakdown',g:'Breakdown',d:'Every scene with its elements, or element reports by category.',o:[['group','Group by','s','scene',[['scene','Scene'],['category','Element category']]]]},
+ {id:'shotlist',n:'Shot List',g:'Camera',d:'Setups grouped by scene.',o:[['group','Group by scene','c',1],['status','Show','s','all',[['all','All shots'],['todo','To do'],['rolling','Rolling'],['done','Done'],['hold','On hold']]]]},
+ {id:'storyboard',n:'Storyboards',g:'Camera',d:'Frames with shot captions and numbering.',o:[['per','Frames per page','s',6,[[4,'4'],[6,'6'],[9,'9']]],['captions','Captions','c',1]]},
+ {id:'locations',n:'Location Report',g:'Production',d:'Sets, scenes, days, addresses and hospitals.'},
+ {id:'vendors',n:'Vendor List',g:'Production',days:1,d:'Selected vendors with verification status.'},
+ {id:'budget',n:'Budget Top Sheet',g:'Production',d:'Confidential. Totals from the budget tool.'}
+];
+var DOCNAME={};DOCS.forEach(function(x){DOCNAME[x.id]=x.n;});
+var ALLIDS=DOCS.map(function(x){return x.id;});
+var PRESETS=[
+ {id:'ad',n:'AD (1st / 2nd)',sel:['callsheet','sides','stripboard','crew','intimes','dood'],d:{crew:{heads:1,call:1}},t:'Call sheet, sides, stripboard, department heads, cast & crew in times, day out of days'},
+ {id:'director',n:'Director',sel:['script','storyboard','shotlist','schedule','cast','locations'],t:'Shooting script, storyboards, shot list, schedule, cast, locations'},
+ {id:'producer',n:'Producer / UPM',sel:['schedule','stripboard','dood','cast','crew','budget','locations','vendors'],t:'Schedule, stripboard, day out of days, cast, crew, budget, locations, vendors'},
+ {id:'office',n:'Production office',sel:['callsheet','intimes','crew','cast','vendors','locations'],t:'Call sheet, in times, crew, cast, vendors, locations'},
+ {id:'dept',n:'Department heads',sel:['callsheet','sides','schedule','breakdown'],t:'Call sheet, sides, schedule, breakdown'},
+ {id:'camera',n:'Camera / DP',sel:['shotlist','storyboard','sides','callsheet','schedule'],t:'Shot list, storyboards, sides, call sheet, schedule'},
+ {id:'talent',n:'Talent packet',sel:['callsheet','sides'],t:'Call sheet and sides'},
+ {id:'full',n:'Full package',sel:ALLIDS.slice(),t:'Everything'}
+];
+function pcSelIds(){return ALLIDS.filter(function(i){return PC.print.sel[i];});}
+function pcOpenPrint(ids,day){
+  if(ids){PC.print.sel={};ids.forEach(function(i){PC.print.sel[i]=1;});PC.print.preset='';}
+  if(day)PC.print.days=[day];
+  pcSave();openHub('print');
+}
+function pcPreset(id){
+  var p=PRESETS.filter(function(x){return x.id===id;})[0]||PC.print.presets[id];if(!p)return;
+  PC.print.sel={};p.sel.forEach(function(i){PC.print.sel[i]=1;});
+  if(p.d){Object.keys(p.d).forEach(function(k){PC.print.d[k]=Object.assign(PC.print.d[k]||{},p.d[k]);});}
+  if(p.days!==undefined)PC.print.days=p.days;
+  if(p.o)PC.print.o=Object.assign(PC.print.o,p.o);
+  PC.print.preset=id;pcSave();renderHub();
+}
+function pcSavePreset(){
+  var nm=prompt('Name this preset (for example: Gaffer packet)');if(!nm)return;nm=nm.trim().slice(0,40);if(!nm)return;
+  var d={};Object.keys(PC.print.d).forEach(function(k){d[k]=Object.assign({},PC.print.d[k]);});
+  PC.print.presets[nm]={id:nm,n:nm,sel:pcSelIds(),d:d,days:PC.print.days,o:Object.assign({},PC.print.o),t:'Saved preset',custom:1};
+  PC.print.preset=nm;pcSave();renderHub();toast('Preset saved.');
+}
+function pcPresetK(i){pcPreset(Object.keys(PC.print.presets)[i]);}
+function pcDelPresetK(i){pcDelPreset(Object.keys(PC.print.presets)[i]);}
+function pcDelPreset(nm){delete PC.print.presets[nm];if(PC.print.preset===nm)PC.print.preset='';pcSave();renderHub();}
+function pcTog(id){PC.print.sel[id]=PC.print.sel[id]?0:1;PC.print.preset='';pcSave();renderHub();}
+function pcDayTog(n){
+  var s=PC.print.days;var all=M.days.map(function(d){return d.n;});
+  if(n==='all'){PC.print.days='all';}
+  else{var cur=(!s||s==='all')?[]:s.slice();var i=cur.indexOf(n);if(i>=0)cur.splice(i,1);else cur.push(n);cur.sort(function(a,b){return a-b;});PC.print.days=cur.length?cur:'all';if(cur.length===all.length)PC.print.days='all';}
+  pcSave();renderHub();
+}
+function pcPo(k,v){PC.print.o[k]=v;pcSave();}
+function pcDo(id,k,v){PC.print.d[id]=PC.print.d[id]||{};PC.print.d[id][k]=v;pcSave();}
+function pcLogo(inp){
+  var f=inp.files&&inp.files[0];if(!f)return;var r=new FileReader();
+  r.onload=function(){var im=new Image();im.onload=function(){var s=Math.min(1,500/im.width),c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);c.getContext('2d').drawImage(im,0,0,c.width,c.height);PC.print.logo=c.toDataURL(/jpe?g/i.test(f.type)?'image/jpeg':'image/png',0.9);pcSave();renderHub();};im.src=r.result;};r.readAsDataURL(f);
+}
+function pcWarn(){
+  var ids=pcSelIds(),w=[],days=pcDaysSel(),I=PC.info;
+  function has(){for(var i=0;i<arguments.length;i++)if(ids.indexOf(arguments[i])>=0)return true;return false;}
+  if(!M.lines.length)w.push(['There is no script yet, so most documents will be empty. Import one first.','scriptin','Import script']);
+  if(has('callsheet','crew','intimes')&&!PC.crew.some(function(x){return x.name;}))w.push(['No crew names entered yet. The crew sections will be empty.','prodsetup','Production Setup']);
+  if(has('callsheet','cover','script')&&!(I.company||I.director||I.producer))w.push(['Production company, director and producer are blank. They are left off the page.','prodsetup','Production Setup']);
+  if(has('callsheet','stripboard','schedule','dood','intimes','sides')&&!days.some(function(n){return pcDate(n);}))w.push(['No shoot dates are set, so pages print without dates. Set the first shoot day in Production Setup.','prodsetup','Production Setup']);
+  if(has('callsheet')){var nl=days.filter(function(n){return !pcDay(n).geo;});if(nl.length)w.push(['Day '+nl.join(', ')+' '+(nl.length>1?'have':'has')+' no set location, so weather and hospital are blank. Set it in the Call Sheet tile.','callsheet','Open Call Sheet']);}
+  if(has('callsheet','vendors')){var uv=0;days.forEach(function(n){pcVendorsFor(n).forEach(function(v){if(!v.verified)uv++;});});if(uv)w.push([uv+' selected vendor'+(uv>1?'s are':' is')+' not verified. They print marked NOT VERIFIED.','callsheet','Verify vendors']);}
+  var cc=days.filter(function(n){var d=dayOf(n);return d&&d.cast.some(function(c){return castConflicts(c).length;});});
+  if(has('callsheet','intimes','dood','cast')&&cc.length)w.push(['Cast availability conflicts on Day '+cc.join(', ')+'. See Casting.','cast','Open Casting']);
+  return w;
+}
+var PBUSY=false,PLAST=null;
+H.print=function(){
+  var ids=pcSelIds(),o=PC.print.o,h='';
+  var acts='';
+  h+='<div class="mono" style="font-size:11px;color:#8794A6;line-height:1.6;margin-bottom:8px">Pick a preset or tick the documents you need. Every document is built from your script, stripboard, cast and the details you typed in. The PDF is made on this device and nothing is uploaded.</div>';
+  /* presets */
+  h+='<div class="sec" style="color:#E51400">Presets</div><div class="chips" style="gap:6px">'+PRESETS.map(function(p){return '<button class="btn'+(PC.print.preset===p.id?' on':'')+'" style="--c:#E51400" title="'+esc(p.t)+'" onclick="pcPreset(\''+p.id+'\')">'+esc(p.n)+'</button>';}).join('')+
+    Object.keys(PC.print.presets).map(function(k,i){return '<span style="display:inline-flex"><button class="btn'+(PC.print.preset===k?' on':'')+'" style="--c:#E51400;border-radius:5px 0 0 5px" onclick="pcPresetK('+i+')">'+esc(k)+'</button><button class="btn" style="border-radius:0 5px 5px 0" title="Delete preset" onclick="pcDelPresetK('+i+')">✕</button></span>';}).join('')+
+    '<button class="btn" onclick="pcSavePreset()">+ Save current as preset</button></div>';
+  var cur=PRESETS.filter(function(p){return p.id===PC.print.preset;})[0];if(cur)h+='<div class="mono" style="font-size:10.5px;color:#8794A6;margin-top:4px">'+esc(cur.t)+'</div>';
+  /* days */
+  var ds=PC.print.days,all=!ds||ds==='all';
+  h+='<div class="sec" style="color:#E51400">Days (for call sheet, sides, in times, stripboard, schedule, vendors)</div><div class="chips">'+chip('All days',all,"pcDayTog('all')",'#E51400')+M.days.map(function(d){var dt=pcDate(d.n);return chip('Day '+d.n+(dt?' · '+dt.slice(5):''),!all&&ds.indexOf(d.n)>=0,'pcDayTog('+d.n+')','#E51400');}).join('')+'</div>';
+  /* documents */
+  h+='<div class="sec" style="color:#E51400">Documents ('+ids.length+' selected)</div>';
+  var groups=[];DOCS.forEach(function(x){if(groups.indexOf(x.g)<0)groups.push(x.g);});
+  groups.forEach(function(g){
+    h+='<div class="mono" style="font-size:10px;font-weight:700;color:#8794A6;text-transform:uppercase;letter-spacing:.1em;margin:10px 0 4px">'+g+'</div>';
+    DOCS.filter(function(x){return x.g===g;}).forEach(function(x){
+      var on=!!PC.print.sel[x.id];
+      h+='<div class="card" style="margin-bottom:6px;padding:8px 10px'+(on?';border-color:#E51400':'')+'"><label style="display:flex;gap:9px;align-items:flex-start;cursor:pointer"><input type="checkbox" '+(on?'checked':'')+' onchange="pcTog(\''+x.id+'\')" style="margin-top:3px"><span style="flex:1"><b style="font-size:13px">'+x.n+'</b>'+(x.days?' <span class="pill" style="color:#8794A6">by day</span>':'')+'<br><span class="mono" style="font-size:10.5px;color:#8794A6">'+esc(x.d||'')+'</span></span></label>';
+      if(on&&x.o&&x.o.length){
+        h+='<details style="margin:6px 0 0 24px"><summary class="mono" style="font-size:11px;color:#60A5FA;cursor:pointer">Options</summary><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:6px 14px;margin-top:6px">'+x.o.map(function(op){
+          var v=dOpt(x.id,op[0],op[3]);
+          if(op[2]==='c')return '<label class="mono" style="font-size:11px;display:flex;gap:6px;align-items:center"><input type="checkbox" '+(v?'checked':'')+' onchange="pcDo(\''+x.id+'\',\''+op[0]+'\',this.checked?1:0)"> '+op[1]+'</label>';
+          return '<label class="mono" style="font-size:11px;display:flex;gap:6px;align-items:center">'+op[1]+' <select class="fi" style="width:auto" onchange="pcDo(\''+x.id+'\',\''+op[0]+'\',this.value)">'+op[4].map(function(c){return '<option value="'+c[0]+'"'+(String(c[0])===String(v)?' selected':'')+'>'+c[1]+'</option>';}).join('')+'</select></label>';}).join('')+'</div></details>';}
+      h+='</div>';});});
+  /* page setup */
+  function sel(k,def,opts){return '<select class="fi" onchange="pcPo(\''+k+'\',this.value)">'+opts.map(function(c){return '<option value="'+c[0]+'"'+(String(o[k]==null?def:o[k])===String(c[0])?' selected':'')+'>'+c[1]+'</option>';}).join('')+'</select>';}
+  h+='<div class="sec" style="color:#E51400">Page setup</div><div class="fg">'+
+    fl('Paper',sel('paper','letter',[['letter','Letter 8.5 x 11 in'],['a4','A4'],['legal','Legal 8.5 x 14 in']]))+
+    fl('Margins',sel('margin','36',[['28','Narrow'],['36','Normal'],['50','Wide']]))+
+    fl('Table text size',sel('fontSize','normal',[['small','Small'],['normal','Normal'],['large','Large']]))+
+    fl('Time format',sel('timeFmt','12',[['12','12-hour (7:00 AM)'],['24','24-hour (07:00)']]))+
+    fl('Color',sel('bw','0',[['0','Color'],['1','Black & white']]))+
+    fl('Page numbers',sel('pageNums','1',[['1','Show'],['0','Hide']]))+
+    fl('Footer text',fi(pp('print','o','footer'),o.footer,'Defaults to the production office phone'))+
+    fl('Watermark',fi(pp('print','o','watermark'),o.watermark,'e.g. DRAFT or CONFIDENTIAL'))+
+    fl('Cover page',sel('cover','0',[['0','No cover page'],['1','Add a cover page']]))+
+    fl('Output',sel('combine','1',[['1','One combined PDF'],['0','Separate PDF per document']]))+
+    fl('Logo (call sheet and cover)','<div style="display:flex;gap:6px;align-items:center"><input type="file" accept="image/png,image/jpeg" onchange="pcLogo(this)" style="font-size:11px;flex:1;min-width:0">'+(PC.print.logo?'<img src="'+PC.print.logo+'" style="height:28px;background:#fff;border-radius:3px"><button class="btn" onclick="PC.print.logo=\'\';pcSave();renderHub()">Remove</button>':'')+'</div>')+'</div>';
+  /* warnings */
+  var wr=pcWarn();
+  if(wr.length)h+='<div class="sec" style="color:#FBBF24">Check before printing</div>'+wr.map(function(x){return '<div class="banner" style="margin-bottom:6px">'+esc(x[0])+' <button class="btn" style="margin-left:6px" onclick="openHub(\''+x[1]+'\')">'+esc(x[2])+'</button></div>';}).join('');
+  h+='<div style="position:sticky;bottom:-22px;background:#0B111E;padding:10px 0 4px;margin-top:14px;border-top:1px solid rgba(255,255,255,.12)"><div class="chips" style="gap:8px;align-items:center">'+
+    '<button class="btn red" id="pcGo" style="padding:10px 16px;font-size:13px" onclick="pcGenerate(\'open\')"'+(ids.length?'':' disabled')+'><i class="fa-solid fa-file-pdf"></i> Create PDF</button>'+
+    '<button class="btn" style="padding:10px 14px;font-size:12px" onclick="pcGenerate(\'download\')"'+(ids.length?'':' disabled')+'>Download</button>'+
+    (navigator.canShare?'<button class="btn" style="padding:10px 14px;font-size:12px" onclick="pcGenerate(\'share\')"'+(ids.length?'':' disabled')+'>Share / Save to Files</button>':'')+
+    '<span class="mono" id="pcStat" style="font-size:11px;color:#8794A6">'+(ids.length?ids.length+' document'+(ids.length>1?'s':'')+' · '+(all?'all days':'Day '+ds.join(', ')):'Choose at least one document.')+'</span></div></div>';
+  return {h:'Print / Export',acts:acts,b:h};
+};
+function pcLib(){
+  if(window.PDFLib)return Promise.resolve(window.PDFLib);
+  return new Promise(function(res,rej){var s=document.createElement('script');s.src='lib/pdf-lib.min.js';s.onload=function(){window.PDFLib?res(window.PDFLib):rej(new Error('PDF engine did not start'));};s.onerror=function(){rej(new Error('The PDF engine file (lib/pdf-lib.min.js) is missing from the site.'));};document.head.appendChild(s);});
+}
+function pcStat(t,bad){var e=$('pcStat');if(e){e.textContent=t;e.style.color=bad?'#F87171':'#8794A6';}}
+function pcBuildOne(L,ids,ctx){
+  var o=PC.print.o,ft=o.footer||[PC.info.officePhone?'Production office '+PC.info.officePhone:'',PC.info.rev?'Script rev. '+PC.info.rev:''].filter(Boolean).join('   |   ');
+  return PK.Doc.create(L,{paper:o.paper||'letter',margin:+(o.margin||36),bw:o.bw==='1'||o.bw===1}).then(async function(D){
+    var c=Object.assign({},ctx,{list:ids.filter(function(i){return i!=='cover';}).map(function(i){return DOCNAME[i];})});
+    if(o.cover==='1'&&ids.indexOf('cover')<0)ids=['cover'].concat(ids);
+    for(var i=0;i<ids.length;i++){await BLD[ids[i]](D,c);}
+    D.finish({title:pcTitle(),footerText:ft,watermark:o.watermark,pageNums:!(o.pageNums==='0')});
+    return {bytes:await D.save(),pages:D.pages.length};
+  });
+}
+async function pcGenerate(mode){
+  if(PBUSY)return;var ids=pcSelIds();if(!ids.length)return;
+  var o=PC.print.o,days=pcDaysSel(),fsz={small:7,normal:8,large:9}[o.fontSize||'normal'];
+  if(!days.length&&ids.some(function(i){var d=DOCS.filter(function(x){return x.id===i;})[0];return d&&d.days;})){toast('There are no shoot days yet.');return;}
+  PBUSY=true;var win=null;
+  if(mode==='open'){try{win=window.open('','_blank');if(win)win.document.write('<title>Creating PDF…</title><body style="font:16px sans-serif;padding:24px">Creating your PDF…</body>');}catch(e){win=null;}}
+  try{
+    pcStat('Updating weather and hospitals…');
+    if(ids.indexOf('callsheet')>=0)await Promise.race([Promise.all(days.map(function(n){return pcAuto(n);})),new Promise(function(r){setTimeout(r,12000);})]);
+    pcStat('Building PDF…');
+    var L=await pcLib(),ctx={fs:fsz,days:days,pkgName:(PRESETS.filter(function(p){return p.id===PC.print.preset;})[0]||{n:PC.print.preset||''}).n||'Production Package'};
+    var jobs=o.combine==='0'?ids.filter(function(i){return i!=='cover';}).map(function(i){return [i];}):[ids];
+    var files=[];
+    for(var j=0;j<jobs.length;j++){var r=await pcBuildOne(L,jobs[j],ctx);files.push({bytes:r.bytes,pages:r.pages,name:(M.title||'Project').replace(/[^\w]+/g,'_')+'_'+(jobs[j].length===1?jobs[j][0]:'Package')+'_'+pcIso(new Date())+'.pdf'});}
+    PLAST=files;
+    var pg=files.reduce(function(a,f){return a+f.pages;},0),kb=Math.round(files.reduce(function(a,f){return a+f.bytes.length;},0)/1024);
+    if(mode==='share'&&navigator.canShare){
+      var fl2=files.map(function(f){return new File([f.bytes],f.name,{type:'application/pdf'});});
+      if(navigator.canShare({files:fl2})){await navigator.share({files:fl2,title:M.title});}else mode='download';
+    }
+    if(mode==='download'||(mode==='open'&&!win)){
+      files.forEach(function(f,i){setTimeout(function(){var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([f.bytes],{type:'application/pdf'}));a.download=f.name;document.body.appendChild(a);a.click();a.remove();},i*400);});
+    }else if(mode==='open'){
+      var u=URL.createObjectURL(new Blob([files[0].bytes],{type:'application/pdf'}));win.location.href=u;
+      if(files.length>1)files.slice(1).forEach(function(f,i){setTimeout(function(){window.open(URL.createObjectURL(new Blob([f.bytes],{type:'application/pdf'})),'_blank');},400*(i+1));});
+    }
+    pcStat('Done: '+pg+' page'+(pg>1?'s':'')+', '+kb+' KB'+(files.length>1?' in '+files.length+' files':''));
+  }catch(e){
+    if(win)try{win.close();}catch(x){}
+    pcStat('Could not create the PDF: '+(e&&e.message||e),true);console.error(e);
+  }
+  PBUSY=false;
+}
+/* ---------- tiles ---------- */
+(function(){
+  var i=TILES.map(function(t){return t.id;}).indexOf('scriptin')+1;
+  TILES.splice(i,0,
+    {id:'print',c:'#E51400',i:'fa-print',t:'Print / Export',s:'Call sheet, script, stripboard… to PDF',b:function(){return pcSelIds().length+' picked';}},
+    {id:'prodsetup',c:'#1BA1E2',i:'fa-id-card',t:'Production Setup',s:'People, crew, cast contacts, dates',b:function(){return PC.crew.filter(function(x){return x.name;}).length+' crew';}});
+  var ren={script:['Script & Sides','Full script, daily sides'],breakdown:['Script Breakdown','Elements by scene'],strip:['Stripboard','Color-coded strips, calendar'],callsheet:['Call Sheet','Times, weather, hospital, vendors'],cast:['Casting & DOOD','Casting board, day out of days'],needs:['Department Needs','Props, wardrobe, vehicles by day'],sync:['Data Link','What each hub is sending'],pkg:['Backup (JSON)','Export everything']};
+  TILES.forEach(function(t){if(ren[t.id]){t.t=ren[t.id][0];t.s=ren[t.id][1];}});
+  var st=document.createElement('style');st.id='fh-pc-style';st.textContent=
+   '.fg{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px}.fl{display:flex;flex-direction:column;gap:3px}.fl>span{font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8794A6}'+
+   '.fi{width:100%;background:#0C1220;border:1px solid #26344E;border-radius:5px;color:#E9EDF5;padding:6px 8px;font:12px/1.3 inherit;min-height:32px}.fi:focus{border-color:#88C13F;outline:none}textarea.fi{resize:vertical}'+
+   '.strip{display:grid;grid-template-columns:44px 38px 1fr 56px 56px 84px;gap:6px;align-items:center;padding:6px 10px;border-bottom:1px solid rgba(0,0,0,.25);font-size:12px;font-weight:600}.strip .sn{font-size:13px}.strip .sp{text-align:right}.strip .sk{font-size:11px;opacity:.75}.strip i{font-weight:400;opacity:.75}'+
+   '@media(max-width:640px){.strip{grid-template-columns:34px 30px 1fr 44px;font-size:11px}.strip .sc1:nth-of-type(4),.strip .sk{display:none}}'+
+   '.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}.cal .ch{font-size:9px;font-weight:700;color:#8794A6;text-align:center;text-transform:uppercase}.cal .cc{min-height:62px;border:1px solid rgba(255,255,255,.08);border-radius:5px;padding:3px 4px;font-size:10px;display:flex;flex-direction:column;gap:1px}.cal .cc.on{background:rgba(250,104,0,.22);border-color:#FA6800}.cal .cc.off{border:0}.cal .cn{font-size:9px;color:#8794A6}.cal small{font-size:9px;opacity:.85;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}'+
+   '.card input[type=checkbox]{accent-color:#E51400}';
+  document.head.appendChild(st);
+})();
+(function(){
+  var tr=document.querySelector('.tr'),im=$('fhImportBtn');
+  if(tr&&!$('fhPrintBtn')){var b=document.createElement('button');b.id='fhPrintBtn';b.type='button';b.className='tb g';b.title='Pick documents and make a PDF';b.innerHTML='<i class="fa-solid fa-print"></i> <span>Print / Export</span>';b.onclick=function(){openHub('print');};
+    if(im&&im.nextSibling)tr.insertBefore(b,im.nextSibling);else tr.insertBefore(b,tr.firstChild);}
+})();
+reload();
+if(location.hash==='#print')setTimeout(function(){openHub('print');},50);
+window.addEventListener('hashchange',function(){if(location.hash==='#print')openHub('print');});
+
 </script>
 </body>
 </html>
