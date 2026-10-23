@@ -88,3 +88,6 @@ It builds PDFs on the device with `lib/pdf-lib.min.js` (keep this file next to `
 - **Call Sheet** tile: day setup, set address lookup (OpenStreetMap), weather (Open-Meteo) and nearest hospital that update by themselves, vendor search near the set with a verify checkbox that prints on the call sheet.
 - All of it is stored in the browser under `filmhub_prod_v1` (included in the JSON backup).
 - Online lookups need a connection; everything else works offline.
+
+### Shooting script standards
+Screenwriter shooting mode and the Shooting Script PDF follow production convention: scene numbers on headings only, in both margins; locked scripts insert 12A / A1; cut scenes stay as `N OMITTED`; revised lines get an asterisk in the right margin; `(CONTINUED)` at the foot and `CONTINUED:` with the scene number at the top of a continued scene; revision color and date on every page header; "Shooting Draft" and revision on the title page. Press Transmit in Screenwriter to carry numbers, omits, revision flags and color to filmHUB.

@@ -281,7 +281,8 @@ function derive(lines){
     if(l.type==='scene-heading'){
       var h=t.replace(/^\d+[A-Z]?\s+/,'').replace(/\s+\d+[A-Z]?$/,'').toUpperCase();
       var m=h.match(/^(INT\.\/EXT\.|INT\/EXT\.|I\/E\.|INT\.|EXT\.|EST\.)\s*(.*?)(?:\s+[-–—]\s+([A-Z][A-Z .\/]*))?$/)||[];
-      cur={num:String(scenes.length+1),heading:h,ie:(m[1]||'INT.').replace(/\./g,''),loc:(m[2]||h).trim(),tod:((m[3]||'DAY').trim().split(/\s+/)[0]),cast:[],words:0,lines:[],tags:{},notes:'',omit:false,dlg:{}};
+      var sn=l.sn&&!scenes.some(function(z){return z.num===l.sn;})?l.sn:null;
+      cur={num:sn||String(scenes.length+1),sn:sn?1:0,heading:h,ie:(m[1]||'INT.').replace(/\./g,''),loc:(m[2]||h).trim(),tod:((m[3]||'DAY').trim().split(/\s+/)[0]),cast:[],words:0,lines:[],tags:{},notes:'',omit:!!l.om,hrv:l.rv?1:0,dlg:{}};
       Object.keys(CATS).forEach(function(k){cur.tags[k]=[];});
       scenes.push(cur);speaker=null;return;
     }
@@ -300,7 +301,7 @@ function derive(lines){
 }
 function cluster(scenes){
   var live=scenes.filter(function(s){return !s.omit;}).slice().sort(function(a,b){
-    return a.loc.localeCompare(b.loc)||((a.tod==='NIGHT')-(b.tod==='NIGHT'))||(+a.num)-(+b.num);});
+    return a.loc.localeCompare(b.loc)||((a.tod==='NIGHT')-(b.tod==='NIGHT'))||(parseInt(a.num,10)||0)-(parseInt(b.num,10)||0)||String(a.num).localeCompare(String(b.num));});
   var days=[],cur=null;
   live.forEach(function(x){
     if(!cur||cur.eighths+x.eighths>40||(cur.loc!==x.loc&&cur.eighths>=24)){cur={n:days.length+1,loc:x.loc,eighths:0,nums:[],cast:[],needs:{}};days.push(cur);}
@@ -324,28 +325,28 @@ function finishDays(days,scenes){
 function build(){
   var master=J('prehub_master_v1'),pre=J('prehub_v3')||{},meta=J('prohub_meta_v1'),call=J('prohub_callsheet_v1');
   var lines=[],source='none';
-  if(master&&master.lines&&master.lines.length){lines=master.lines.map(function(l){return {type:normType(l.type),text:String(l.text||'')};});source='preHUB transmit';}
+  if(master&&master.lines&&master.lines.length){lines=master.lines.map(function(l){var x={type:normType(l.type),text:String(l.text||'')};if(l.sn)x.sn=String(l.sn);if(l.om)x.om=1;if(l.rv)x.rv=1;return x;});source='preHUB transmit';}
   else if(pre.scriptText){lines=parseText(pre.scriptText);source='imported script';}
   if(!lines.length&&UI.demo){lines=parseText(SAMPLE);source='demo script';}
   var title=(master&&master.projectName)||pre.projectName||(UI.demo?'STELLAR NURSERY':'UNTITLED PROJECT');
   var ds=derive(lines),scenes=ds,metaUsed=false;
   if(meta&&meta.scenes&&ds.length&&meta.scenes.length===ds.length){
-    var dm={};ds.forEach(function(s){dm[s.num]=s;});
-    scenes=meta.scenes.map(function(m){var d=dm[m.num]||{};
-      return {num:m.num,heading:m.heading,ie:m.ie,loc:m.loc,tod:m.tod,cast:m.cast||[],words:m.words,eighths:m.eighths,pg:m.pg,tags:m.tags||{},notes:m.notes||'',omit:!!m.omit,lines:d.lines||[],dlg:d.dlg||{}};});
+    var dm={},nm={};ds.forEach(function(s,i){dm[s.num]=s;});
+    scenes=meta.scenes.map(function(m,i){var d=ds[i]||dm[m.num]||{};nm[m.num]=d.num||m.num;
+      return {num:d.num||m.num,heading:m.heading,ie:m.ie,loc:m.loc,tod:m.tod,cast:m.cast||[],words:m.words,eighths:m.eighths,pg:m.pg,tags:m.tags||{},notes:m.notes||'',omit:!!m.omit||!!d.omit,lines:d.lines||[],dlg:d.dlg||{}};});
     Object.keys(CATS).forEach(function(k){scenes.forEach(function(s){s.tags[k]=s.tags[k]||[];});});
     metaUsed=true;
   }
   var days;
   var srcDays=(call&&call.days)||(metaUsed&&meta.days)||null;
-  if(srcDays&&metaUsed){days=srcDays.map(function(d){return {n:d.n,loc:d.loc,eighths:d.eighths,nums:(d.scenes||[]).map(function(x){return typeof x==='object'?x.num:x;}),cast:[],needs:{}};});}
+  if(srcDays&&metaUsed){days=srcDays.map(function(d){return {n:d.n,loc:d.loc,eighths:d.eighths,nums:(d.scenes||[]).map(function(x){x=typeof x==='object'?x.num:x;return (typeof nm!=='undefined'&&nm[x])||x;}),cast:[],needs:{}};});}
   else days=cluster(scenes);
   days=finishDays(days,scenes);
   var cast=[];scenes.forEach(function(s){s.cast.forEach(function(c){if(cast.indexOf(c)<0)cast.push(c);});});
   var eighths=scenes.reduce(function(a,s){return a+(s.omit?0:s.eighths);},0);
   var words=lines.reduce(function(a,l){return a+String(l.text).split(/\s+/).filter(Boolean).length;},0);
   return {title:title,lines:lines,scenes:scenes,days:days,cast:cast,eighths:eighths,pages:Math.max(lines.length?1:0,Math.round(eighths/8*10)/10),words:words,
-    source:source,metaUsed:metaUsed,meta:meta,call:call,pre:pre,master:master,
+    source:source,rev:(master&&master.shoot)||null,metaUsed:metaUsed,meta:meta,call:call,pre:pre,master:master,
     shots:(function(){var a=J('prehub_shotlist')||[],b=J('prohub_shots_v1')||[],seen={};return a.concat(b).filter(function(x){if(!x||seen[x.id])return false;seen[x.id]=1;return true;});})(),outreach:J('ob_letters')||[],notes:J('prehub_quick_notes')||[],props:J('prohub_props_tracker_v1')||[],ann:J('prohub_scriptation_v1')};
 }
 function sigNow(){return KEYS.map(function(k){var v=localStorage.getItem(k);return v?v.length:0;}).join('.')+(UI.demo?'d':'');}
@@ -1438,44 +1439,53 @@ BLD.callsheet=async function(D,c){
 };
 
 /* ---- screenplay pages (shooting script + sides) ---- */
+function cap(s){s=String(s||'').toLowerCase();return s.charAt(0).toUpperCase()+s.slice(1);}
 function scriptPages(D,scenes,o){
-  var X=(D.pg.w-612)/2+108,W=432,sz=+o.size||12,lh=sz,om={t:D.m.t,b:D.m.b,nf:D.noFooter},TOP=72;
+  var X=(D.pg.w-612)/2+108,W=432,sz=+o.size||12,lh=sz,om={t:D.m.t,b:D.m.b,nf:D.noFooter},TOP=72,curNum=null,tY=TOP;
   D.m.t=TOP;D.m.b=60;D.noFooter=true;var pgNo=0,revLbl=o.revLabel||'';
   function chrome(){pgNo++;
     if(o.hdr!==false&&pgNo>1)D.drawLine(pgNo+'.',D.pg.w-72-40,42,{font:'m',size:12,align:'right',w:40});   /* page 1 is unnumbered */
     if(revLbl)D.drawLine(revLbl,72,42,{font:'m',size:9});}
-  D._onPage=function(){chrome();D.y=TOP;};
-  if(o.reuse){chrome();if(!o.keepY)D.y=TOP;}else D.newPage();
+  /* a scene that runs onto another page gets (CONTINUED) at the foot and CONTINUED: with the scene number at the top */
+  function brk(){
+    if(o.cont&&curNum!==null)D.drawLine('(CONTINUED)',X+W-150,D.pg.h-44,{font:'m',size:sz,align:'right',w:150});
+    D.newPage();}
+  D._onPage=function(){chrome();D.y=TOP;
+    if(o.cont&&curNum!==null){
+      if(o.nums){D.drawLine(String(curNum),X-44,D.y+sz,{font:'m',size:sz});D.drawLine(String(curNum),X+W+8,D.y+sz,{font:'m',size:sz});}
+      D.drawLine('CONTINUED:',X,D.y+sz,{font:'m',size:sz});D.y+=lh*2;}
+    tY=D.y;};
+  if(o.reuse){chrome();if(!o.keepY)D.y=TOP;tY=D.y;}else D.newPage();
   function avail(){return Math.floor((D.bottom()-D.y+0.5)/lh);}
-  function atTop(){return D.y<=TOP+0.5;}
-  function ensure(n){if(avail()<n)D.newPage();}
+  function atTop(){return D.y<=tY+0.5;}
+  function ensure(n){if(avail()<n)brk();}
   function blank(n){if(!atTop())D.y+=lh*n;}
-  function put(l){D.drawLine(l.t,X+(l.x||0),D.y+sz,{font:l.f||'m',size:sz,align:l.al,w:l.w||W});D.y+=lh;}
-  function wr(txt,x,w,f){return D.wrap(txt,f||'m',sz,w).map(function(t){return {t:t,x:x,w:w,f:f||'m'};});}
+  function put(l){D.drawLine(l.t,X+(l.x||0),D.y+sz,{font:l.f||'m',size:sz,align:l.al,w:l.w||W});if(o.stars&&l.rv)D.drawLine('*',X+W+36,D.y+sz,{font:'m',size:sz});D.y+=lh;}
+  function wr(txt,x,w,f,rv){return D.wrap(txt,f||'m',sz,w).map(function(t){return {t:t,x:x,w:w,f:f||'m',rv:rv};});}
   scenes.forEach(function(s,si){
-    var hl=wr(s.omit?s.num+'  OMITTED':s.heading.toUpperCase(),0,W,'mb');
+    var hl=wr(s.omit?'OMITTED':s.heading.toUpperCase(),0,W,'mb',s.hrv);curNum=null;
     var blocks=[];
     if(!s.omit){
       var i=0,L=s.lines;
       while(i<L.length){
         var l=L[i],t=l.type,txt=String(l.text||'');
         if(t==='character'){
-          var cue=txt.toUpperCase(),items=[{t:cue,x:144,w:W-144,f:'m',cue:1}],j=i+1;
+          var cue=txt.toUpperCase(),items=[{t:cue,x:144,w:W-144,f:'m',cue:1,rv:l.rv}],j=i+1;
           while(j<L.length&&(L[j].type==='dialogue'||L[j].type==='parenthetical')){
             var par=L[j].type==='parenthetical';
-            wr(String(L[j].text||''),par?108:72,par?180:252).forEach(function(x){x.d=!par;items.push(x);});j++;}
+            wr(String(L[j].text||''),par?108:72,par?180:252,null,L[j].rv).forEach(function(x){x.d=!par;items.push(x);});j++;}
           blocks.push({k:'dlg',items:items,name:cue});i=j;
-        }else if(t==='transition'){blocks.push({k:'tr',items:wr(txt.toUpperCase(),0,W).map(function(x){x.al='right';return x;})});i++;}
-        else if(t==='dialogue'||t==='parenthetical'){blocks.push({k:'act',items:wr(txt,t==='dialogue'?72:108,t==='dialogue'?252:180)});i++;}
-        else{blocks.push({k:'act',items:wr(txt,0,W)});i++;}
+        }else if(t==='transition'){blocks.push({k:'tr',items:wr(txt.toUpperCase(),0,W,null,l.rv).map(function(x){x.al='right';return x;})});i++;}
+        else if(t==='dialogue'||t==='parenthetical'){blocks.push({k:'act',items:wr(txt,t==='dialogue'?72:108,t==='dialogue'?252:180,null,l.rv)});i++;}
+        else{blocks.push({k:'act',items:wr(txt,0,W,null,l.rv)});i++;}
       }
     }
     /* heading: 2 blank lines above, kept with the first two lines that follow it */
     var first=blocks[0]?Math.min(2,blocks[0].items.length):0;
-    if(si>0&&!atTop()){ if(avail()<hl.length+2+first+1)D.newPage();else D.y+=lh*2; }
-    else if(avail()<hl.length+1+first)D.newPage();
+    if(si>0&&!atTop()){ if(avail()<hl.length+2+first+1)brk();else D.y+=lh*2; }
+    else if(avail()<hl.length+1+first)brk();
     if(o.nums){D.drawLine(String(s.num),X-44,D.y+sz,{font:'m',size:sz});D.drawLine(String(s.num),X+W+8,D.y+sz,{font:'m',size:sz});}
-    hl.forEach(put);
+    hl.forEach(put);curNum=s.omit?null:s.num;
     blocks.forEach(function(bk){
       var it=bk.items,n=it.length;
       blank(1);
@@ -1486,15 +1496,15 @@ function scriptPages(D,scenes,o){
         if(p>0){
           it.slice(0,p).forEach(put);
           put({t:'(MORE)',x:144,w:W-144});
-          D.newPage();
+          brk();
           var cue2=Object.assign({},it[0],{t:(/CONT'D/.test(bk.name)?bk.name:bk.name+" (CONT'D)")});
           put(cue2);it.slice(p).forEach(put);return;
         }
-        D.newPage();it.forEach(put);return;
+        brk();it.forEach(put);return;
       }
       if(n>avail()){
-        if(n<=3||avail()<2)D.newPage();
-        else{var br=(n-avail()<2)?n-2:avail();if(br<2){D.newPage();}else{it.slice(0,br).forEach(put);D.newPage();it.slice(br).forEach(put);return;}}
+        if(n<=3||avail()<2)brk();
+        else{var br=(n-avail()<2)?n-2:avail();if(br<2){brk();}else{it.slice(0,br).forEach(put);brk();it.slice(br).forEach(put);return;}}
       }
       it.forEach(put);
     });
@@ -1509,12 +1519,15 @@ BLD.script=async function(D,c){
     D.y=pg[1]*0.30;
     D.text(pcTitle(),{x:72+cx,w:468,font:'mb',size:24,lh:30,align:'center',after:36});
     if(I.writer){D.text('Written by',{x:72+cx,w:468,font:'m',size:12,align:'center',after:12});D.text(I.writer,{x:72+cx,w:468,font:'m',size:14,align:'center',after:0});}
-    var low=[I.company,I.officeAddress,[I.officePhone,I.officeEmail].filter(Boolean).join('   '),rev?'Revision: '+rev:'',pcDateLong(pcIso(new Date()),1)].filter(Boolean).join('\n');
+    var R=M.rev,revTxt=R&&R.color&&R.color!=='WHITE'?cap(R.color)+' Revisions, '+pcDateLong(R.date,1):(rev?'Revision: '+rev:'');
+    D.y+=30;D.text('SHOOTING DRAFT',{x:72+cx,w:468,font:'mb',size:12,align:'center',after:0});
+    var low=[I.company,I.officeAddress,[I.officePhone,I.officeEmail].filter(Boolean).join('   '),revTxt,pcDateLong(pcIso(new Date()),1)].filter(Boolean).join('\n');
     D.y=D.pg.h-72-60;D.text(low,{x:72+cx,w:260,font:'m',size:10,lh:12.5,keep:1});
     D.newPage();
   }
-  var scenes=M.scenes.filter(function(s){return dOpt('script','omit',0)||!s.omit;});
-  scriptPages(D,scenes,{reuse:true,nums:dOpt('script','sceneNums',1),revLabel:dOpt('script','revLabel',1)&&rev?String(rev).toUpperCase():''});
+  var scenes=M.scenes.filter(function(s){return dOpt('script','omit',1)||!s.omit;});
+  var RV=M.rev,rl=RV&&RV.color&&RV.color!=='WHITE'?RV.color+' REVISION  '+pcDateLong(RV.date,1):(rev?String(rev).toUpperCase():'');
+  scriptPages(D,scenes,{reuse:true,nums:dOpt('script','sceneNums',1),cont:dOpt('script','continued',1),stars:dOpt('script','stars',1),revLabel:dOpt('script','revLabel',1)?rl:''});
   D.noFooter=nf;
 };
 BLD.sides=async function(D,c){
@@ -1721,7 +1734,7 @@ var DOCS=[
  {id:'callsheet',n:'Call Sheet',g:'Daily paperwork',days:1,d:'One per selected day: times, weather, set, hospital, scenes, cast, crew, vendors, advance.',o:[['weather','Weather','c',1],['hospital','Nearest hospital','c',1],['crew','Crew list','c',1],['vendors','Vendors & services','c',1],['advance','Advance schedule','c',1],['bg','Background & special requirements','c',1],['needs','Department needs','c',1],['colors','Color-coded scene rows','c',1]]},
  {id:'sides',n:'Sides',g:'Daily paperwork',days:1,d:'The day\'s scenes in screenplay format.',o:[['sceneNums','Scene numbers','c',1],['pageNums','Page numbers','c',1],['size','Type size','s',11,[[10,'10 pt'],[11,'11 pt'],[12,'12 pt']]]]},
  {id:'intimes',n:'Cast & Crew In Times',g:'Daily paperwork',days:1,d:'Who is called when, one page per day.',o:[['heads','Department heads only','c',0]]},
- {id:'script',n:'Shooting Script',g:'Script',d:'Full script, Courier 12, scene numbers in both margins.',o:[['titlePage','Title page','c',1],['sceneNums','Scene numbers (both margins)','c',1],['revLabel','Revision label on each page','c',1],['omit','Show omitted scenes','c',0]]},
+ {id:'script',n:'Shooting Script',g:'Script',d:'Full script, Courier 12, scene numbers in both margins.',o:[['titlePage','Title page','c',1],['sceneNums','Scene numbers (both margins)','c',1],['revLabel','Revision color and date on each page','c',1],['continued','CONTINUED at page breaks','c',1],['stars','Revision asterisks in the margin','c',1],['omit','Keep OMITTED placeholders (scene number stays)','c',1]]},
  {id:'stripboard',n:'Stripboard',g:'Scheduling',days:1,d:'Color-coded strips with day banners, totals and cast numbers.',o:[['colors','Color-coded strips','c',1],['cast','Cast numbers','c',1],['notes','Scene notes','c',1]]},
  {id:'schedule',n:'Shooting Schedule',g:'Scheduling',days:1,d:'Day by day with estimated times and a meal break.',o:[['names','Cast names instead of numbers','c',0],['colors','Color-coded rows','c',1]]},
  {id:'dood',n:'Day Out of Days',g:'Scheduling',d:'SW / W / WF / SWF / H for every cast member.'},
