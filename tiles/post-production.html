@@ -192,6 +192,8 @@ textarea:focus, input:focus, select:focus { outline: 1px solid var(--amber); }
 .toast.on { opacity: 1; }
 
 .pd-textedit{display:none;}
+#pdCanvas{position:sticky!important;top:0;z-index:30;box-shadow:0 8px 0 var(--ink,#06090F);}
+
 /* ===== Phone layout (<=768px) ===== */
 @media (max-width:768px){
   html,body{height:100dvh;}
@@ -218,10 +220,11 @@ textarea:focus, input:focus, select:focus { outline: 1px solid var(--amber); }
   .pd-left,.pd-right{display:contents!important;}
   #pdCanvas{order:1;position:sticky!important;top:-10px;z-index:30;width:800px!important;max-width:none!important;zoom:var(--pdz,.45);
     box-shadow:0 0 0 10px var(--ink);}
-  .pd-textedit{order:2;display:flex;flex-direction:column;gap:6px;}
+  .pd-textedit{display:flex;flex-direction:column;gap:6px;}
   .pd-textedit textarea{width:100%;min-height:92px;padding:12px;line-height:1.45;resize:vertical;}
-  .pd-rail[data-rail="slide"]{order:3;} .pd-rail[data-rail="layout"]{order:4;} .pd-rail[data-rail="graphic"]{order:5;}
-  .pd-split{order:6;} .pd-actions{order:7;} .pd-rail[data-rail="genre"]{order:8;} .pd-type{order:9;}
+    .pd-rail[data-rail="tpl"]{order:2;} .pd-textedit{order:3;} .pd-rail[data-rail="slide"]{order:4;} .pd-rail[data-rail="layout"]{order:5;} .pd-rail[data-rail="graphic"]{order:6;}
+  .pd-split{order:7;} .pd-actions{order:8;} .pd-style{order:9;} .pd-rail[data-rail="genre"]{order:10;} .pd-type{order:11;}
+  .pd-rail[data-rail="tpl"] .pd-rail-btns button{display:flex;align-items:center;gap:8px;}
   .pd-rail-lbl{margin:0 0 6px!important;font-size:10px!important;}
   .pd-rail-btns{display:flex!important;gap:8px!important;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
   .pd-rail-btns::-webkit-scrollbar{display:none;}
@@ -674,7 +677,7 @@ function pdBind2(box){
     e.oninput=function(){ PD[p[1]]=e.value; PD.tpl=''; var c=$('#pdCanvas'); if(c){ c.style.background=PD.bgc; c.style.color=PD.tx; c.innerHTML=pdCanvasHTML(); pdFit(c); pdBind(box);} };
     e.onchange=function(){ pdPub(); pdDraw(box); }; });
   var sw=$('#pdSwap'); if(sw) sw.onclick=function(){ var t=PD.bgc; PD.bgc=PD.tx; PD.tx=t; PD.tpl=''; pdPub(); pdDraw(box); };
-  box.querySelectorAll('[data-tpl]').forEach(function(b){ b.style.borderColor = b.getAttribute('data-tpl')===PD.tpl ? PD.accent : 'var(--line)';
+  box.querySelectorAll('[data-tpl]').forEach(function(b){ var tt=PD_TEMPLATES[b.getAttribute('data-tpl')]; if(tt){ b.style.background=tt.bgc; b.style.color=tt.tx; b.style.boxShadow='inset 4px 0 0 '+tt.accent; b.style.borderWidth='2px'; } b.style.borderColor = b.getAttribute('data-tpl')===PD.tpl ? PD.accent : 'var(--line)';
     b.onclick=function(){ pdApplyTpl(b.getAttribute('data-tpl')); pdPub(); var f=$('#pdFace'); if(f) f.value=PD.display; var bd=$('#pdBody'); if(bd) bd.value=PD.body; pdDraw(box); }; });
 }
 
@@ -693,7 +696,8 @@ function renderPitchDeck(box) {
 
   box.innerHTML = '<div class="pd-wrap" style="display:grid;grid-template-columns:230px 1fr;gap:14px;height:100%">' +
     '<div class="pd-left" style="border-right:1px solid var(--line);padding-right:12px;overflow-y:auto">' +
-      rail('Style', PD_GENRES, 'genre') +
+      rail('Style', Object.keys(PD_TEMPLATES).map(function(k){ return [k, PD_TEMPLATES[k].n]; }), 'tpl') +
+      rail('Genre', PD_GENRES, 'genre') +
       rail('Slide type', PD_SLIDES, 'slide') +
       rail('Layout', [['split','Split'],['full','Full image'],['text','Text only'],['stack','Stacked']], 'layout') +
       rail('Graphic Style', [['line','Split line'], ['circle','Circle frame'], ['none','Clean']], 'graphic') +
@@ -724,14 +728,7 @@ function renderPitchDeck(box) {
       '</div>' +
 
       '<div class="pd-style" style="margin-top:10px;padding:10px 12px;border:1px solid var(--line);border-radius:6px;background:#0B101D;">' +
-        '<div class="note" style="font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:6px">Templates</div>' +
-        '<div id="pdTpls" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:6px">' +
-          Object.keys(PD_TEMPLATES).map(function(k){ var t = PD_TEMPLATES[k];
-            return '<button data-tpl="' + k + '" title="' + HUB.esc(t.d) + '" style="padding:0;border-radius:6px;overflow:hidden;border:1px solid var(--line);background:none;text-align:left;cursor:pointer">' +
-              '<div style="background:' + t.bgc + ';color:' + t.tx + ';padding:10px 8px 8px;font-family:' + PD_FACES[t.display][1] + ';font-weight:' + t.wt + ';font-size:15px;' + (t.caps?'text-transform:uppercase;letter-spacing:.06em;':'') + 'line-height:1">Aa<div style="height:3px;width:34px;background:' + t.accent + ';margin-top:7px"></div></div>' +
-              '<div style="font-size:10px;color:#C6D1DC;padding:5px 8px;background:#0D1420">' + HUB.esc(t.n) + '</div></button>';
-          }).join('') +
-        '</div>' +
+        '<details class="pd-fine" open><summary class="note" style="font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;min-height:32px">Fine-tune type and colour</summary>' +
         '<div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-top:10px">' +
           '<div style="display:flex;align-items:center;gap:8px;flex:1 1 260px"><span class="note" style="white-space:nowrap">Font size</span>' +
             '<input type="range" id="pdFs" min="40" max="240" step="1" style="flex:1;accent-color:var(--amber)"><span id="pdFsVal" class="note" style="width:40px;text-align:right"></span></div>' +
@@ -746,6 +743,7 @@ function renderPitchDeck(box) {
           '<label class="note" style="display:flex;align-items:center;gap:6px">Accent <input type="color" id="pdAccent2" style="width:34px;height:24px;padding:0;border:0;cursor:pointer"></label>' +
           '<button id="pdSwap" style="font-size:11px">Swap light/dark</button>' +
         '</div>' +
+        '</details>' +
       '</div>' +
 
       '<div class="pd-type" style="margin-top:12px;border-top:1px solid var(--line);padding-top:10px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px">' +
