@@ -2128,6 +2128,13 @@ window.addEventListener('load',fix);window.addEventListener('resize',fix);setTim
 new MutationObserver(function(){clearTimeout(fix._t);fix._t=setTimeout(fix,60);}).observe(document.documentElement,{attributes:true,attributeFilter:['class']});
 })();
 </script>
+<style id="std-menu-prod">
+.mob-menu-btn{display:inline-flex!important;align-items:center;justify-content:center;width:40px;height:40px;background:transparent;border:0;color:#C9D3E0;font-size:20px;cursor:pointer;flex:none}
+.mob-menu-btn:hover{color:#fff;background:#131B2C;border-radius:8px}
+.psb{position:fixed!important;top:52px!important;bottom:0!important;left:0!important;width:272px!important;max-width:84vw;z-index:200!important;transform:translateX(-100%);transition:transform .2s;box-shadow:12px 0 35px rgba(0,0,0,.85)}
+.psb.mo{transform:none!important}
+#psb-scrim{top:52px!important;background:rgba(0,0,0,.45)!important}
+</style>
 <style id="std-layout-style">
 /* One standard shell for the three tile pages: 52px top bar, logo left, actions right, close at the top-right corner */
 #sn-close{position:fixed!important;top:8px!important;right:10px!important;left:auto!important;bottom:auto!important;width:36px!important;height:36px!important;font-size:15px!important;z-index:2147483000!important;box-shadow:none!important}
@@ -2148,13 +2155,8 @@ new MutationObserver(function(){clearTimeout(fix._t);fix._t=setTimeout(fix,60);}
   .topbar .app-tabs .tab-btn{flex:0 0 auto;white-space:nowrap}
 }
 @media (max-width:768px){body.m-inside #sn-close{display:none!important}}
-</style>
-<style id="std-menu-prod">
-.mob-menu-btn{display:inline-flex!important;align-items:center;justify-content:center;width:40px;height:40px;background:transparent;border:0;color:#C9D3E0;font-size:20px;cursor:pointer;flex:none}
-.mob-menu-btn:hover{color:#fff;background:#131B2C;border-radius:8px}
-.psb{position:fixed!important;top:52px!important;bottom:0!important;left:0!important;width:272px!important;max-width:84vw;z-index:200!important;transform:translateX(-100%);transition:transform .2s;box-shadow:12px 0 35px rgba(0,0,0,.85)}
-.psb.mo{transform:none!important}
-#psb-scrim{top:52px!important;background:rgba(0,0,0,.45)!important}
+/* inside the dashboard the layer bar already shows the logo and the close button: never repeat them */
+html.in-frame #m-bar #mb-x,html.in-frame #mb-x,html.in-frame body #hdr-x,html.in-frame #hdr-x,html.in-frame #sn-close,html.in-frame #m-bar .mb-title,html.in-frame .tmb .logo,html.in-frame .topbar .brand,html.in-frame .hdr-bar .hdr-logo{display:none!important}
 </style>
 </body>
 </html>

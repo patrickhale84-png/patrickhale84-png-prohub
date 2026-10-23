@@ -414,7 +414,7 @@ $('ov').addEventListener('click',function(e){if(e.target===$('ov'))closeHub();})
 document.addEventListener('keydown',function(e){if(e.key==='Escape')closeHub();});
 function renderHub(){
   var t=T(UI.cur);if(!t)return;var r=H[UI.cur]();
-  $('bh').innerHTML='<div><div class="k" style="color:'+t.c+'">'+esc(M.title)+' · '+t.t+'</div><h2>'+esc(r.h)+'</h2></div><div class="acts">'+(r.acts||'')+'<button class="btn" onclick="closeHub()">✕</button></div>';
+  $('bh').innerHTML='<div><div class="k" style="color:'+t.c+'">'+esc(M.title)+' · '+t.t+'</div><h2>'+esc(r.h)+'</h2></div><div class="acts">'+(r.acts||'')+(EDIT[UI.cur]?'<button class="btn on" style="--c:'+t.c+'" title="Open the tile where this is edited" onclick="editTile(\''+UI.cur+'\')">✎ Edit in '+EDIT[UI.cur][2]+'</button>':'')+'<button class="btn" onclick="closeHub()">✕</button></div>';
   $('bb').innerHTML=(M.lines.length||UI.cur==='sync'||UI.cur==='notes'||UI.cur==='outreach'?'':noData())+r.b;
 }
 function noData(){return '<div class="banner">No script yet. Import one here (file or paste) and every tile fills in, or import it in proHUB / preHUB. <button class="btn on" style="margin-left:6px;--c:#A3E635" onclick="openHub(\'scriptin\')">Import script</button> <button class="btn" style="margin-left:6px" onclick="demo()">Load demo</button></div>';}
@@ -427,6 +427,28 @@ function dayNums(n){var d=M.days.filter(function(x){return x.n===n;})[0];return 
 function sceneBy(n){return M.scenes.filter(function(s){return s.num===n;})[0];}
 function tagPills(s){var o='';Object.keys(CATS).forEach(function(k){(s.tags[k]||[]).forEach(function(w){o+=pill(w,CATS[k][1]);});});return o;}
 
+/* every tile links back to the tile where its data is edited */
+var EDIT={
+  scriptin:['pre-production.html','writer','Screenwriter'],
+  script:['pre-production.html','writer','Screenwriter'],
+  analysis:['pre-production.html','coverage','Script Coverage'],
+  breakdown:['production.html','scriptation','Breakdown'],
+  strip:['production.html','oneliner','Stripboard'],
+  callsheet:['production.html','callsheet','Call Sheet'],
+  cast:['production.html','callsheet','Call Sheet'],
+  shots:['production.html','shotlist','Shot List'],
+  needs:['production.html','gearlist','Equipment Checklist'],
+  locs:['production.html','scriptation','Breakdown'],
+  budget:['pre-production.html','budget','Budget'],
+  outreach:['pre-production.html','outreach','Outreach'],
+  notes:['pre-production.html','writer','Screenwriter'],
+  sync:['index.html','','Home dashboard']
+};
+function editTile(id){
+  var e=EDIT[id];if(!e)return;
+  try{if(window.parent&&window.parent!==window){window.parent.postMessage({k:'hub-open',file:e[0],a:e[1]},'*');return;}}catch(x){}
+  location.href=(e[0]==='index.html'?'index.html':'tiles/'+e[0]+(e[1]?'#'+e[1]:''));
+}
 var H={};
 
 /* SCRIPT */
