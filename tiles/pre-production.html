@@ -4500,24 +4500,45 @@ let isTitlePageVisible = false;
       },
 
       assignSceneNumbers() {
+        // Industry convention: only scene headings are numbered, same number in both margins.
+        // Unlocked = sequential 1..N. Locked = existing numbers frozen; a new scene takes a letter
+        // after the scene before it (12A, 12B), or A1 if it comes before scene 1. Omitted scenes keep their number.
         this.clearSceneNumbers();
-        let sceneNum = 1;
-        Array.from(this.rowsContainer.children).forEach(row => {
-          const box = row.querySelector('.line-editable-box');
-          if (!box || box.getAttribute('data-element-type') !== 'SCENE_HEADING') return;
-          const omitted = row.classList.contains('scene-omitted');
-          const existing = row.getAttribute('data-scene-num') || '';
-          const suffix = (this.scriptLockedState && /[A-Z]$/.test(existing)) ? existing.match(/[A-Z]+$/)[0] : '';
-          const numStr = omitted ? `${sceneNum}-OMIT` : `${sceneNum}${suffix}`;
-          row.setAttribute('data-scene-num', numStr);
+        const locked = this.scriptLockedState;
+        const heads = Array.from(this.rowsContainer.children).filter(r => {
+          const bx = r.querySelector('.line-editable-box');
+          return bx && bx.getAttribute('data-element-type') === 'SCENE_HEADING';
+        });
+        const clean = v => (v || '').replace(/-OMIT$/, '');
+        const used = new Set();
+        if (locked) heads.forEach(r => { const v = clean(r.getAttribute('data-scene-num')); if (v) used.add(v); });
+        const letters = i => { let s = ''; i++; while (i > 0) { const m = (i - 1) % 26; s = String.fromCharCode(65 + m) + s; i = Math.floor((i - 1) / 26); } return s; };
+        const digits = v => { const m = (v || '').match(/\d+/); return m ? m[0] : '1'; };
+        const firstNum = (heads.map(r => clean(r.getAttribute('data-scene-num'))).find(Boolean)) || '1';
+        let n = 0, lastBase = null;
+        heads.forEach(row => {
+          let num;
+          if (!locked) { n++; num = String(n); }
+          else {
+            num = clean(row.getAttribute('data-scene-num'));
+            if (!num) {
+              const base = lastBase === null ? digits(firstNum) : lastBase;
+              for (let i = 0; i < 700; i++) {
+                const cand = lastBase === null ? letters(i) + base : base + letters(i);
+                if (!used.has(cand)) { num = cand; break; }
+              }
+              used.add(num);
+            }
+          }
+          lastBase = digits(num);
+          row.setAttribute('data-scene-num', num);
           const mkSpan = (cls) => {
             const s = document.createElement('span');
-            s.className = cls; s.textContent = numStr; s.contentEditable = 'false'; return s;
+            s.className = cls; s.textContent = num; s.contentEditable = 'false'; return s;
           };
           row.appendChild(mkSpan('sn-left'));
           row.appendChild(mkSpan('sn-right'));
           this._bindShootContextMenu(row);
-          sceneNum++;
         });
       },
 
@@ -4538,7 +4559,7 @@ let isTitlePageVisible = false;
         if (icon) icon.className = 'fa-solid fa-lock text-green-400 text-[10px]';
         if (label) label.textContent = 'Locked — Click to Unlock';
         if (btn) btn.classList.add('locked');
-        this.showSystemToast("Script LOCKED — scene numbers frozen. New scenes insert as 1A, 1B…");
+        this.showSystemToast("Script LOCKED — scene numbers frozen. New scenes insert as 12A, 12B…");
       },
 
       unlockScript() {
@@ -4550,23 +4571,14 @@ let isTitlePageVisible = false;
         if (icon) icon.className = 'fa-solid fa-lock-open text-amber-400 text-[10px]';
         if (label) label.textContent = 'Lock Script';
         if (btn) btn.classList.remove('locked');
-        this.showSystemToast("Script UNLOCKED — scene numbers unfrozen.");
+        if (this.shootingModeActive) this.assignSceneNumbers();
+        this.showSystemToast("Script UNLOCKED — scenes renumbered 1 to N.");
       },
 
       insertSceneAfterLocked(sceneRowEl) {
         if (!this.scriptLockedState) { this.showSystemToast("Lock the script first to insert A/B scenes."); return; }
-        const numStr = sceneRowEl.getAttribute('data-scene-num') || '1';
-        const baseNum = numStr.replace(/[A-Z-].*$/,'');
-        const taken = [];
-        this.rowsContainer.querySelectorAll('[data-scene-num]').forEach(r => {
-          const n = r.getAttribute('data-scene-num') || '';
-          if (n.startsWith(baseNum) && /[A-Z]$/.test(n)) taken.push(n.slice(-1));
-        });
-        const nextLetter = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').find(l => !taken.includes(l)) || 'Z';
-        const newNum = `${baseNum}${nextLetter}`;
         const newRow = document.createElement('div');
         newRow.className = 'script-line-row group animate-fade-in';
-        newRow.setAttribute('data-scene-num', newNum);
         const newBox = document.createElement('div');
         newBox.className = 'line-editable-box element-scene-heading';
         newBox.contentEditable = 'true';
@@ -4574,16 +4586,16 @@ let isTitlePageVisible = false;
         newBox.setAttribute('data-placeholder','INT./EXT. LOCATION — TIME');
         newBox.textContent = 'INT. NEW SCENE — DAY';
         newRow.appendChild(newBox);
-        sceneRowEl.after(newRow);
-        const mkSpan = (cls) => { const s=document.createElement('span'); s.className=cls; s.textContent=newNum; s.contentEditable='false'; return s; };
-        newRow.appendChild(mkSpan('sn-left'));
-        newRow.appendChild(mkSpan('sn-right'));
+        // place after the end of the current scene (before the next heading), as a production insert would be
+        let anchor = sceneRowEl, nx = sceneRowEl.nextElementSibling;
+        while (nx) { const bx = nx.querySelector('.line-editable-box'); if (bx && bx.getAttribute('data-element-type') === 'SCENE_HEADING') break; anchor = nx; nx = nx.nextElementSibling; }
+        anchor.after(newRow);
         newBox.addEventListener('keydown', (e) => this.handleKeyboardRoutingRules(e));
         let _sceneT = null; newBox.addEventListener('input', () => { clearTimeout(_sceneT); _sceneT = setTimeout(() => { this.recalculatePageHUDCounters(); this.runRealTimeLinguisticLintingSweep(false); }, 600); });
-        this._bindShootContextMenu(newRow);
+        this.assignSceneNumbers();
         newBox.focus();
         this.recalculatePageHUDCounters();
-        this.showSystemToast(`Scene ${newNum} inserted (A/B locked-script insertion).`);
+        this.showSystemToast(`Scene ${newRow.getAttribute('data-scene-num')} inserted (locked-script insertion).`);
       },
 
       omitScene(sceneRowEl) {
@@ -4619,6 +4631,7 @@ let isTitlePageVisible = false;
       },
 
       _bindShootContextMenu(rowEl) {
+        if (rowEl._shootBound) return; rowEl._shootBound = true;
         rowEl.addEventListener('contextmenu', (e) => {
           if (!this.shootingModeActive) return;
           const box = rowEl.querySelector('.line-editable-box');
@@ -10047,7 +10060,6 @@ if(document.readyState!=='loading')setTimeout(init,0);else document.addEventList
   #screenplay-paper-sheet::before,#screenplay-paper-sheet::after{display:none!important;}
   body.m-inside #sn-close{bottom:150px!important;}
   #sp-pgnum-layer{display:none!important;}
-  .sn-left,.sn-right{display:none!important;}
 }
 
 @media (max-width:768px){#mob-scribe-panel:not(.open){box-shadow:none!important;}#psb:not(.mo){box-shadow:none!important;}}
@@ -10244,12 +10256,22 @@ window.spTextSize=fsCycle;
 function sheet(on){var s=$('m-sheet'),c=$('m-scrim');if(s)s.classList.toggle('on',on);if(c)c.classList.toggle('on',on);}
 function key(k,o){document.dispatchEvent(new KeyboardEvent('keydown',Object.assign({key:k,bubbles:true},o||{})));}
 function act(n){var a=window.spScriptActions;return function(){if(a&&a[n])a[n]();else if(typeof toast==='function')toast('Not ready yet');};}
+function core(){return (typeof ScreenplayEditorCore!=='undefined'?ScreenplayEditorCore:window.ScreenplayEditorCore);}
+function isShoot(){var c=core();return !!(c&&c.shootingModeActive);}
+function curScene(){var r=window._spRow;while(r&&!(r.querySelector&&r.querySelector('.line-editable-box[data-element-type="SCENE_HEADING"]')))r=r.previousElementSibling;return r||null;}
+function toast(m){var c=core();if(c&&c.showSystemToast)c.showSystemToast(m);}
+document.addEventListener('focusin',function(e){var r=e.target&&e.target.closest&&e.target.closest('.script-line-row');if(r)window._spRow=r;},true);
 var SCRIPT=[
  ['Import script','pick a file: PDF, FDX, Fountain, TXT',act('pick')],
  ['Paste script','paste text into the writer',act('paste')],
  ['Open project script','the script imported in the dashboard',act('project')],
  ['New blank script','start from an empty page',act('blank')],
  ['Title page','show or hide the title page',function(){document.body.classList.toggle('show-title');}],
+ ['Scene numbers',function(){return isShoot()?'On. Each scene heading is numbered in both margins. Tap to turn off':'Off. Tap to number every scene heading';},function(){var c=core();if(c)c.toggleShootingMode();}],
+ ['Lock scene numbers',function(){var c=core();return c&&c.scriptLockedState?'Locked: inserted scenes become 12A, 12B. Tap to unlock':'Freeze the numbers so new scenes insert as 12A, 12B';},function(){var c=core();if(!c)return;if(!c.shootingModeActive)c.toggleShootingMode();if(c.scriptLockedState)c.unlockScript();else c.lockScript();}],
+ ['Insert scene after this one','becomes 12A, 12B (locks the numbers first)',function(){var c=core(),r=curScene();if(!c||!r){toast('Tap inside a scene first.');return;}if(!c.shootingModeActive)c.toggleShootingMode();if(!c.scriptLockedState)c.lockScript();c.insertSceneAfterLocked(r);}],
+ ['Omit or restore this scene','shows OMITTED and keeps the number',function(){var c=core(),r=curScene();if(!c||!r){toast('Tap inside a scene first.');return;}if(!c.shootingModeActive)c.toggleShootingMode();c.omitScene(r);}],
+ ['Flag line as revised (*)','marks the line you are on',function(){var c=core(),r=window._spRow;if(!c||!r){toast('Tap a line first.');return;}if(!c.shootingModeActive)c.toggleShootingMode();c.markLineRevised(r);}],
  ['Select all','select the whole script',function(){if(window.spSelectAll)window.spSelectAll();}],
  ['Undo','',function(){var e=(typeof ScreenplayEditorCore!=='undefined'?ScreenplayEditorCore:window.ScreenplayEditorCore);if(e&&e.executeUndoCommandStep)e.executeUndoCommandStep();}],
  ['Redo','',function(){var e=(typeof ScreenplayEditorCore!=='undefined'?ScreenplayEditorCore:window.ScreenplayEditorCore);if(e&&e.executeRedoCommandStep)e.executeRedoCommandStep();}],
@@ -10280,7 +10302,7 @@ function openMenu(){
  var wr=document.querySelector('#v-writer.ac');
  var h='<div class="ms-grip"></div><button class="ms-item" data-g="x" data-i="0" style="border-color:#7F1D1D"><span style="display:block;text-align:left"><b style="font-weight:600;color:#FCA5A5">&#10005; Close</b><small style="display:block;color:#7E8FA6;font-size:11px;margin-top:2px">back to the home screen, nothing is deleted</small></span></button>';
  if(wr) h+='<div class="ms-title">Script</div>';
- (wr?SCRIPT:[]).forEach(function(it,i){h+='<button class="ms-item" data-g="s" data-i="'+i+'"><span style="display:block;text-align:left"><b style="font-weight:600">'+it[0]+'</b>'+(it[1]?'<small style="display:block;color:#7E8FA6;font-size:11px;margin-top:2px">'+it[1]+'</small>':'')+'</span></button>';});
+ (wr?SCRIPT:[]).forEach(function(it,i){h+='<button class="ms-item" data-g="s" data-i="'+i+'"><span style="display:block;text-align:left"><b style="font-weight:600">'+it[0]+'</b>'+((typeof it[1]==='function'?it[1]():it[1])?'<small style="display:block;color:#7E8FA6;font-size:11px;margin-top:2px">'+(typeof it[1]==='function'?it[1]():it[1])+'</small>':'')+'</span></button>';});
  h+='<div class="ms-title" style="margin-top:14px">Studios</div>';
  STUDIOS.forEach(function(it,i){h+='<button class="ms-item" data-g="t" data-i="'+i+'"><span>'+it[0].replace('&','&amp;')+'</span></button>';});
  h+='<button class="ms-save" id="spm-close">Close menu</button>';
@@ -10338,6 +10360,16 @@ new MutationObserver(function(){clearTimeout(fix._t);fix._t=setTimeout(fix,60);}
   #v-filmdb .fdb-bar>button.fdb-keytog{flex:0 0 auto;order:3}
   #v-filmdb #fdb-key-input.fdb-keyx{order:4;flex:1 1 100%;width:100%!important;font-size:13px!important;padding:8px!important}
   #v-filmdb .fdb-bar>a.fdb-keyx{order:5;flex:1 1 100%}
+}
+</style>
+<style id="sp-numbers-style">
+/* Scene numbers: heading rows only, both margins, Courier like the page */
+.shooting-mode .sn-left,.shooting-mode .sn-right{font-family:'Courier Prime',Courier,monospace;font-weight:400}
+.shooting-mode .script-line-row.scene-omitted .line-editable-box::after{content:'  OMITTED';display:inline-block;text-decoration:none;font-weight:700;opacity:1;color:#94a3b8}
+@media (max-width:768px){
+  html.pf-on .shooting-mode .script-line-row{position:relative;padding-left:30px!important;padding-right:30px!important}
+  html.pf-on .sn-left,html.pf-on .sn-right{font-size:11px!important;top:.2em!important;color:#475569}
+  html.pf-on .sn-left{left:2px!important}html.pf-on .sn-right{right:2px!important}
 }
 </style>
 </body>
