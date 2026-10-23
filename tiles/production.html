@@ -312,6 +312,23 @@ body{background:var(--bg);color:var(--tx);font-family:var(--fui);margin:0;displa
   .sbd-item.day{flex-wrap:nowrap;}
 }
 
+
+.sbm-card.ex-card,.sbm-card.au-card{width:min(860px,100%);}
+.ex-tabs,.ex-chips{display:flex;gap:6px;flex-wrap:wrap;} .ex-tabs button,.ex-chips button{background:#121A2E;border:1px solid #243452;color:#9FB3CF;border-radius:999px;padding:8px 14px;font:700 11px var(--fm);cursor:pointer;min-height:38px;} .ex-tabs .on,.ex-chips .on{background:#E2A93B;color:#111;border-color:#E2A93B;}
+.ex-note{font:12px/1.5 var(--fm);color:#9FB3CF;} .ex-search{display:flex;gap:8px;} .ex-search input{flex:1;}
+.ex-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;}
+.ex,.exr{background:#0A1020;border:1px solid #1E2C48;border-radius:10px;padding:8px;display:flex;flex-direction:column;gap:5px;text-align:left;color:#C9D4E6;font:12px/1.4 var(--fm);}
+.ex{cursor:pointer;} .ex:hover{border-color:#E2A93B;} .ex img{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:6px;} .ex b,.exr b{color:#fff;font-size:12px;} .ex span,.exr span{color:#8FA0BA;font-size:11px;} .ex em{font-style:normal;color:#E2A93B;font-size:10px;font-weight:700;margin-top:auto;}
+.exr-im{aspect-ratio:16/10;background:#050810;border-radius:6px;overflow:hidden;display:flex;align-items:center;justify-content:center;} .exr-im img{width:100%;height:100%;object-fit:cover;} .exr-im i,.ex-load{color:#6C7C96;font-size:11px;}
+.exr-tags{display:flex;gap:4px;flex-wrap:wrap;} .exr-tags u{text-decoration:none;font-size:9px;background:#162038;color:#9FB3CF;padding:2px 6px;border-radius:4px;} .exr .hbtn{margin-top:auto;justify-content:center;}
+.au-p{font:12px/1.5 var(--fm);color:#9FB3CF;margin:0;} .au-sec{font:700 10px var(--fm);letter-spacing:.12em;text-transform:uppercase;color:#E2A93B;margin-top:4px;} .au-sec small{color:#6C7C96;text-transform:none;letter-spacing:0;font-weight:400;}
+.au-levels{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px;} .au-lv{background:#0A1020;border:1px solid #243452;border-radius:10px;padding:10px;text-align:left;color:#C9D4E6;cursor:pointer;display:flex;flex-direction:column;gap:4px;font:11px/1.4 var(--fm);min-height:44px;} .au-lv b{color:#fff;font-size:13px;} .au-lv.on{border-color:#E2A93B;background:#1A1608;}
+.au-checks{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:8px;} .au-ck{flex-direction:row!important;align-items:center;gap:8px!important;font:12px var(--fm)!important;text-transform:none!important;letter-spacing:0!important;color:#C9D4E6!important;} .au-ck input[type=checkbox],.au-scope input{width:auto;} .au-ck select{width:auto;flex:1;}
+.au-trg{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px;} .au-t{background:#0F1A30;border:1px solid #2B4166;border-radius:8px;padding:7px 9px;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:2px;color:#fff;font:11px var(--fm);min-height:44px;} .au-t i{font-style:normal;color:#7C8CA3;font-size:9px;} .au-t.off{opacity:.35;text-decoration:line-through;}
+.au-cc{display:inline-flex;align-items:center;gap:6px;background:#162038;border-radius:6px;padding:4px 8px;margin:2px;font:11px var(--fm);color:#C9D4E6;} .au-cc button{background:none;border:0;color:#F87171;cursor:pointer;min-width:28px;min-height:28px;}
+.au-add{display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:6px;} .au-scope{display:flex;gap:16px;font:12px var(--fm);color:#C9D4E6;} .au-scope label{flex-direction:row;align-items:center;gap:6px;text-transform:none;letter-spacing:0;font-size:12px;color:#C9D4E6;} .au-prev{font:12px var(--fm);color:#9FB3CF;background:#0A1020;border-radius:8px;padding:8px 10px;} .au-prev b{color:#E2A93B;}
+.fr-kind.trg{background:#E2A93B;color:#111;} .fr-why{font:10px var(--fm);color:#E2A93B;margin-top:2px;} .fr-cr{font:9px var(--fm);color:#6C7C96;margin-top:2px;} .fe-credit{font:10px var(--fm);color:#6C7C96;}
+@media(max-width:768px){.au-add{grid-template-columns:1fr 1fr;} .au-add input{grid-column:1/-1;} .ex-grid{grid-template-columns:repeat(2,minmax(0,1fr));} .sbs-tools .hbtn:not(.pri) span{display:none;}}
 </style>
 <style id="fh-prod-style">@media (max-width:768px){#hb-film{padding:0 10px!important;min-height:36px;} #hb-film span{display:inline!important;font-size:11px;}}</style>
 </head>
@@ -1431,29 +1448,160 @@ function mkFrame(kind,text,spk,par,prev,extra){
   else f.desc=text;
   return Object.assign(f,extra||{});
 }
+/* ------------------------------------------------------------------ */
+/* AUTO-POPULATE: scene + action + keyword triggers -> shot coverage   */
+/* ------------------------------------------------------------------ */
+var TRG=[
+ {id:'chase',n:'Chase / run',cat:'trg',kw:'run, chase, flee, sprint, race',re:/\b(chas(?:es|ed|ing)|runs?|running|sprints?|sprinting|flees?|fleeing|races?|racing|dash(?:es|ed)|pursu(?:es|ed|it))\b/i,
+  fr:[{size:'MS',angle:'LOW',move:'TRACKING',d:'Tracking shot alongside the runner'},{size:'WS',angle:'EYE',move:'HANDHELD',d:'The pursuit in the wide, handheld'}]},
+ {id:'fight',n:'Fight / impact',cat:'trg',kw:'fight, punch, hit, kick, tackle',re:/\b(fights?|fighting|punch(?:es|ed)?|hits?|slaps?|slapped|kicks?|kicked|tackl(?:es|ed)|struggl(?:es|ed)|grapples?|shoves?|shoved|strikes?|struck)\b/i,
+  fr:[{size:'MS',angle:'EYE',move:'HANDHELD',d:'Handheld coverage of the fight'},{size:'CU',angle:'EYE',move:'STATIC',d:'Impact close-up'}]},
+ {id:'weapon',n:'Weapon / gun',cat:'trg',kw:'gun, knife, aim, fire, shoot',re:/\b(guns?|pistol|rifle|knife|blade|weapon|aims?|aimed|aiming|shoots?|shot at|trigger|holster)\b/i,
+  fr:[{size:'INSERT',angle:'EYE',move:'STATIC',d:'Insert: the {w}'},{size:'OTS',angle:'LOW',move:'STATIC',d:'Over the shoulder along the line of aim'}]},
+ {id:'look',n:'Looks / notices',cat:'trg',kw:'looks at, notices, stares, glances, sees',re:/\b(looks? (?:at|up|down|over|around)|notices?|noticed|stares?|stared|glances?|glanced|watch(?:es|ed)|spots?|spotted|sees|gazes?|peers?)\b/i,
+  fr:[{size:'POV',angle:'EYE',move:'STATIC',d:'POV: what they see'},{size:'CU',angle:'EYE',move:'PUSH IN',d:'Reaction as they take it in'}]},
+ {id:'enter',n:'Entrance / exit',cat:'trg',kw:'enters, arrives, exits, bursts in',re:/\b(enters?|entered|arriv(?:es|ed)|walks? in|steps? in|bursts? (?:in|through)|storms? (?:in|out)|exits?|exited|slips? (?:in|out))\b/i,
+  fr:[{size:'MS',angle:'EYE',move:'DOLLY',d:'Follow the entrance'}]},
+ {id:'vehicle',n:'Vehicle',cat:'trg',kw:'car, truck, train, plane, drives',re:/\b(cars?|trucks?|vans?|drives?|driving|drove|motorcycles?|bus|taxi|train|planes?|boat|helicopter|pulls? up)\b/i,
+  fr:[{size:'WS',angle:'EYE',move:'TRACKING',d:'The {w} in motion'},{size:'MCU',angle:'EYE',move:'STATIC',d:'Driver / passenger inside the {w}'}]},
+ {id:'blast',n:'Explosion / crash',cat:'trg',kw:'explodes, crash, collapse, shatter',re:/\b(explod(?:es|ed)?|explosion|crash(?:es|ed)?|collaps(?:es|ed)|shatters?|shattered|detonat(?:es|ed)|blast|smashes|smashed)\b/i,
+  fr:[{size:'WS',angle:'EYE',move:'HANDHELD',d:'The {w} in the wide, camera shaken'},{size:'CU',angle:'DUTCH',move:'HANDHELD',d:'Reaction to the impact'}]},
+ {id:'fall',n:'Fall / jump',cat:'trg',kw:'falls, jumps, leaps, dives',re:/\b(falls?|fell|falling|jumps?|jumped|leaps?|leaped|dives?|dived|plunges?|tumbles?)\b/i,
+  fr:[{size:'WS',angle:'HIGH',move:'TILT',d:'The drop seen from above'}]},
+ {id:'emotion',n:'Emotion / tears',cat:'trg',kw:'cries, tears, screams, gasps',re:/\b(cr(?:y|ies|ied)|tears?|sobs?|weeps?|scream(?:s|ed)?|gasps?|trembl(?:es|ed)|panic(?:s|ked)?|terrified|devastated)\b/i,
+  fr:[{size:'ECU',angle:'EYE',move:'PUSH IN',d:'Eyes and face, pushing in on the emotion'}]},
+ {id:'touch',n:'Kiss / embrace',cat:'trg',kw:'kiss, embrace, hug, holds',re:/\b(kiss(?:es|ed)?|embrac(?:es|ed)|hugs?|hugged|holds? (?:her|him|hands?)|takes? (?:her|his) hand)\b/i,
+  fr:[{size:'2-SHOT',angle:'EYE',move:'DOLLY',d:'Two-shot, a slow move around the pair'},{size:'CU',angle:'EYE',move:'STATIC',d:'Close on hands / faces'}]},
+ {id:'reveal',n:'Reveal / discovery',cat:'trg',kw:'discovers, finds, reveals, realizes',re:/\b(reveals?|revealed|discovers?|discovered|uncovers?|realiz(?:es|ed)|finds? (?:a|an|the)|opens? (?:the|a) (?:box|case|drawer|envelope|folder|door))\b/i,
+  fr:[{size:'MCU',angle:'EYE',move:'PUSH IN',d:'Slow push-in on the discovery'}]},
+ {id:'landscape',n:'Landscape / city',cat:'trg',kw:'skyline, city, desert, ocean, highway',re:/\b(skyline|cityscape|landscape|horizon|mountains?|desert|ocean|forest|valley|highway|rooftops?|sweeping)\b/i,
+  fr:[{size:'AERIAL',angle:'BIRD',move:'CRANE',d:'Aerial / crane over the {w}'}]},
+ {id:'crowd',n:'Crowd',cat:'trg',kw:'crowd, mob, stadium, party',re:/\b(crowd|mob|audience|stadium|festival|rally|party|market)\b/i,
+  fr:[{size:'WS',angle:'HIGH',move:'PAN',d:'High wide of the {w}, panning across'}]},
+ {id:'weather',n:'Weather',cat:'trg',kw:'rain, storm, snow, fog',re:/\b(rain(?:s|ing)?|storm|thunder|lightning|snow(?:s|ing)?|fog|wind)\b/i,
+  fr:[{size:'WS',angle:'EYE',move:'STATIC',d:'The {w}, the environment sets the mood'}]},
+ {id:'sleep',n:'Sleep / dream',cat:'trg',kw:'sleeps, dreams, wakes',re:/\b(sleeps?|sleeping|asleep|dreams?|dreaming|wakes?|wakes up|unconscious|faints?)\b/i,
+  fr:[{size:'CU',angle:'OVERHEAD',move:'PUSH IN',d:'Overhead on the sleeper, slow push-in'}]},
+ {id:'whisper',n:'Whisper / secret',cat:'trg',kw:'whispers, secret, confides',re:/\b(whispers?|whispered|murmurs?|secret|confides?)\b/i,
+  fr:[{size:'ECU',angle:'EYE',move:'STATIC',d:'Extreme close on the mouth / eyes for the {w}'}]},
+ {id:'fire',n:'Fire / smoke',cat:'trg',kw:'fire, flames, smoke, burns',re:/\b(fire|flames?|smoke|burns?|burning|ablaze|embers?)\b/i,
+  fr:[{size:'WS',angle:'LOW',move:'STATIC',d:'The {w} lighting the scene'}]},
+ {id:'water',n:'Water',cat:'trg',kw:'swim, drown, river, lake, pool',re:/\b(swims?|swimming|drown(?:s|ing|ed)?|river|lake|pool|waves?|submerged|underwater)\b/i,
+  fr:[{size:'WS',angle:'EYE',move:'STATIC',d:'The water: {w}'}]},
+ {id:'mirror',n:'Mirror / reflection',cat:'trg',kw:'mirror, reflection, window',re:/\b(mirror|reflections?|reflects?|reflected)\b/i,
+  fr:[{size:'MCU',angle:'EYE',move:'STATIC',d:'Seen in the {w}'}]},
+ {id:'silence',n:'Silence / pause',cat:'trg',kw:'silence, beat, pause, stillness',re:/\b(silence|silent|pause|stillness|a beat|long beat)\b/i,
+  fr:[{size:'WS',angle:'EYE',move:'STATIC',d:'Hold the wide, let the {w} play'}]},
+ {id:'montage',n:'Montage / time',cat:'trg',kw:'montage, hours later, time-lapse',re:/\b(montage|time[- ]?lapse|hours? later|days? later|weeks? later|series of shots)\b/i,
+  fr:[{size:'INSERT',angle:'EYE',move:'STATIC',d:'Montage insert 1'},{size:'INSERT',angle:'EYE',move:'STATIC',d:'Montage insert 2'},{size:'WS',angle:'EYE',move:'STATIC',d:'Montage closing wide'}]},
+ {id:'memory',n:'Flashback / memory',cat:'trg',kw:'flashback, remembers, memory',re:/\b(flashback|remembers?|remembered|memory|memories|recalls?)\b/i,
+  fr:[{size:'MCU',angle:'EYE',move:'PUSH IN',d:'Push in as the memory takes over'}]},
+ {id:'prop',n:'Prop / message insert',cat:'ins',kw:'letter, phone, photo, key, watch, map',re:/\b(letters?|notes?|text message|phone|screen|photo(?:graph)?s?|envelopes?|keys?|rings?|watch|clock|maps?|files?|documents?|newspaper|badges?|wallet|laptop|passport|ticket|receipt)\b/i,
+  fr:[{size:'INSERT',angle:'OVERHEAD',move:'STATIC',d:'Insert: the {w}'}]},
+ {id:'consume',n:'Food / drink insert',cat:'ins',kw:'coffee, drink, bottle, cigarette',re:/\b(coffee|drinks?|pours?|poured|bottle|glass of|cigarette|smokes?|whiskey|beer|wine|eats?|plate)\b/i,
+  fr:[{size:'INSERT',angle:'EYE',move:'STATIC',d:'Insert: the {w}'}]}
+];
+var AUTO0={level:'standard',est:true,act:true,chunk:2,dlg:'cover',react:false,ins:true,intro:false,trg:true,off:[],custom:[]};
+var LEVELS={
+ essential:{est:true,act:true,chunk:4,dlg:'two',react:false,ins:false,intro:false,trg:false},
+ standard:{est:true,act:true,chunk:2,dlg:'cover',react:false,ins:true,intro:false,trg:true},
+ full:{est:true,act:true,chunk:2,dlg:'cover',react:true,ins:true,intro:true,trg:true}
+};
+function aopt(){ var a=Object.assign({},AUTO0,(B.ui&&B.ui.auto)||{}); a.off=a.off||[]; a.custom=a.custom||[]; return a; }
+var STOPW={INT:1,EXT:1,CUT:1,TO:1,FADE:1,IN:1,OUT:1,DAY:1,NIGHT:1,THE:1,AND:1,SUPER:1,TITLE:1,LATER:1,CONTINUOUS:1,MORNING:1,EVENING:1,DUSK:1,DAWN:1,POV:1,ECU:1,SFX:1,VO:1,OS:1,END:1,BACK:1,SMASH:1,MATCH:1,DISSOLVE:1,FLASHBACK:1,MONTAGE:1,INSERT:1,ANGLE:1,ON:1};
+var _im=null,_imK='';
+function introMap(){
+  var all; try{ all=scenes; }catch(e){ return {}; } if(!all||!all.length) return {};
+  var k=all.length+'|'+all.map(function(s){return s.lines.length;}).join(','); if(_im&&_imK===k) return _im;
+  var cues={}; all.forEach(function(s){ s.lines.forEach(function(l){ if(l.type==='character'){ var n=l.text.replace(/\(.*?\)/g,'').replace(/[^A-Za-z .'\-]/g,'').trim().toUpperCase(); if(n) cues[n]=1; } }); });
+  var seen={},map={};
+  all.forEach(function(s){
+    s.lines.forEach(function(l){
+      if(l.type!=='action') return;
+      (String(l.text).match(/\b[A-Z][A-Z'\-]{1,}(?: [A-Z][A-Z'\-]{1,})?\b/g)||[]).forEach(function(w){
+        if(STOPW[w]||!cues[w]||seen[w]) return; seen[w]=1; (map[s.num]=map[s.num]||[]).push({name:w,text:l.text});
+      });
+    });
+  });
+  _im=map; _imK=k; return map;
+}
+function trgFrames(text,A,st){
+  var out=[], n=0;
+  function mk(t,mm,k,sp,kwLabel){
+    var w=(mm&&mm[0]||'').toLowerCase();
+    var d=(sp.d||t.n).replace('{w}',w);
+    var f=mkFrame('trg',text.slice(0,140),'','',null,{size:sp.size,angle:sp.angle||'EYE',move:sp.move||'STATIC',lens:LENS[sp.size]||'35mm',desc:d,trg:t.id,trgName:t.n,why:kwLabel||('keyword “'+w+'”'),key:'trg|'+t.id+'|'+hsh(text)+'|'+k,auto:1});
+    out.push(f);
+  }
+  TRG.forEach(function(t){
+    if(n>=2||A.off.indexOf(t.id)>=0) return; if(t.cat==='ins'?!A.ins:!A.trg) return;
+    var mm=text.match(t.re); if(!mm) return;
+    st[t.id]=(st[t.id]||0)+1; if(st[t.id]>(A.level==='full'?3:1)) return;
+    var specs=(A.level==='full'||t.fr.length===1)?t.fr:t.fr.slice(0,1);
+    specs.forEach(function(sp,k){ mk(t,mm,k,sp); }); n++;
+  });
+  (A.custom||[]).forEach(function(c){
+    if(!c||!c.kw||n>=3) return;
+    var esc=String(c.kw).replace(/[.*+?^${}()|[\]\\]/g,'\\$&'), mm; try{ mm=text.match(new RegExp('\\b'+esc+'\\b','i')); }catch(e){ mm=null; } if(!mm) return;
+    mk({id:'c_'+hsh(c.kw),n:'Custom: '+c.kw},mm,0,{size:c.size||'MS',angle:c.angle||'EYE',move:c.move||'STATIC',d:'Custom trigger “'+c.kw+'”'},'your keyword “'+c.kw+'”'); n++;
+  });
+  return out;
+}
 function beatsOf(num,M){
   var sc=sceneTok(num), m=scMeta(M,num); if(!sc) return [];
-  var out=[], loc=(m.loc||sc.heading||'').toString();
-  out.push(mkFrame('est',sc.heading,'','',null,{desc:'Establishing shot: '+loc+' ('+(m.ie||'INT')+' '+(m.tod||'DAY')+')',key:'est|'+num}));
-  var L=sc.lines.filter(function(l){return l.type!=='scene-heading';}), i=0, prev='';
+  var A=aopt(), out=[], loc=(m.loc||sc.heading||'').toString(), st={}, intros=A.intro?(introMap()[num]||[]):[], introDone={};
+  if(A.est) out.push(mkFrame('est',sc.heading,'','',null,{desc:'Establishing shot: '+loc+' ('+(m.ie||'INT')+' '+(m.tod||'DAY')+')',key:'est|'+num}));
+  var L=sc.lines.filter(function(l){return l.type!=='scene-heading';}), i=0, prev='', exch=0;
+  function pushIntros(txt){
+    intros.forEach(function(it){
+      if(introDone[it.name]||txt.indexOf(it.name)<0) return; introDone[it.name]=1;
+      out.push(mkFrame('int',txt.slice(0,140),'','',null,{size:'MCU',angle:'EYE',move:'PUSH IN',lens:LENS.MCU,desc:'Introduce '+it.name+': first time we meet them',trg:'intro',trgName:'Character intro',why:'first appearance of '+it.name,key:'int|'+it.name,auto:1}));
+    });
+  }
   while(i<L.length){
     var l=L[i];
     if(l.type==='action'){
       var buf=[]; while(i<L.length&&L[i].type==='action'){buf.push(L[i].text);i++;}
       var sents=(buf.join(' ').match(/[^.!?]+[.!?]*["')]*\s*/g)||[buf.join(' ')]).map(function(s){return s.trim();}).filter(Boolean);
-      var cur='',n=0;
-      sents.forEach(function(s){cur=(cur?cur+' ':'')+s;n++;if(n>=2||cur.length>110){out.push(mkFrame('act',cur,'','',prev));cur='';n=0;}});
-      if(cur) out.push(mkFrame('act',cur,'','',prev));
+      var cur='',n=0, chunks=[];
+      sents.forEach(function(s){cur=(cur?cur+' ':'')+s;n++;if(n>=A.chunk||cur.length>(A.chunk>2?240:110)){chunks.push(cur);cur='';n=0;}});
+      if(cur) chunks.push(cur);
+      chunks.forEach(function(c){
+        if(A.act) out.push(mkFrame('act',c,'','',prev));
+        pushIntros(c);
+        trgFrames(c,A,st).forEach(function(f){out.push(f);});
+      });
       prev='';
     }else if(l.type==='character'){
-      var spk=l.text.replace(/\(.*?\)/g,'').trim(),par=[],dl=[]; i++;
-      while(i<L.length&&(L[i].type==='parenthetical'||L[i].type==='dialogue')){(L[i].type==='parenthetical'?par:dl).push(L[i].text);i++;}
-      out.push(mkFrame('dlg',dl.join(' ')||'(no dialogue)',spk,par.join(' '),prev)); prev=spk;
+      var run=[], spkSet={};
+      while(i<L.length&&(L[i].type==='character'||L[i].type==='parenthetical'||L[i].type==='dialogue'||(L[i].type==='action'&&false))){
+        if(L[i].type!=='character'){i++;continue;}
+        var spk=L[i].text.replace(/\(.*?\)/g,'').trim(),par=[],dl=[]; i++;
+        while(i<L.length&&(L[i].type==='parenthetical'||L[i].type==='dialogue')){(L[i].type==='parenthetical'?par:dl).push(L[i].text);i++;}
+        run.push({spk:spk,par:par.join(' '),dl:dl.join(' ')||'(no dialogue)'}); spkSet[spk]=1;
+      }
+      var names=Object.keys(spkSet);
+      if(A.dlg==='two'){
+        out.push(mkFrame('dlg',run.map(function(r){return r.dl;}).join(' ').slice(0,160),names[0]||'','',prev,{size:names.length>1?'2-SHOT':'MS',angle:'EYE',move:'STATIC',lens:LENS[names.length>1?'2-SHOT':'MS'],desc:(names.length>1?'Two-shot: '+names.join(' and ')+' talk':names[0]+' speaks'),dlg:run.map(function(r){return r.spk+': '+r.dl;}).join('  ').slice(0,200),key:'dlg2|'+hsh(run.map(function(r){return r.dl;}).join('|'))}));
+        prev=run.length?run[run.length-1].spk:prev; exch++;
+      }else if(A.dlg==='cover'){
+        if(names.length>=2&&run.length>=3) out.push(mkFrame('dlg',run[0].dl,names[0],'',prev,{size:'2-SHOT',angle:'EYE',move:'STATIC',lens:LENS['2-SHOT'],desc:'Master two-shot: '+names.slice(0,2).join(' and ')+' (coverage master)',dlg:'',key:'dlgm|'+hsh(run[0].dl+'|'+names.join()),trg:'master',trgName:'Dialogue master',why:'exchange of '+run.length+' lines'}));
+        run.forEach(function(r,ri){
+          var pv=ri===0?prev:run[ri-1].spk;
+          out.push(mkFrame('dlg',r.dl,r.spk,r.par,pv));
+          if(A.react&&pv&&pv!==r.spk&&(/[?!]/.test(r.dl)||r.dl.length>120)&&ri%2===0){
+            out.push(mkFrame('rea',r.dl.slice(0,120),pv,'',r.spk,{size:'CU',angle:'EYE',move:'STATIC',lens:LENS.CU,desc:'Reaction: '+pv+' listens to '+r.spk,dlg:'',key:'rea|'+hsh(r.dl+pv),trg:'reaction',trgName:'Reaction',why:'strong line from '+r.spk,auto:1}));
+          }
+          if(A.ins||A.trg){ trgFrames(r.dl,Object.assign({},A,{trg:false}),st).forEach(function(f){out.push(f);}); }
+        });
+        prev=run.length?run[run.length-1].spk:prev;
+      }else{ prev=run.length?run[run.length-1].spk:prev; }
     }else i++;
   }
   if(out.length>31){ var tail=out.splice(30); out[29].desc+=' '+tail.map(function(f){return f.desc;}).join(' '); }
   return out;
 }
+
 function mergeFrames(num,M){
   var fresh=beatsOf(num,M), old=(B.frames[num]||[]).slice(), used={}, res=[];
   fresh.forEach(function(nf,idx){
@@ -1599,6 +1747,199 @@ function wasDragged(root){return root.__dragAt&&Date.now()-root.__dragAt<350;}
 /* ------------------------------------------------------------------ */
 /* STORYBOARD STUDIO                                                   */
 /* ------------------------------------------------------------------ */
+/* ------------------------------------------------------------------ */
+/* SHOT EXAMPLES + REAL STILLS + AUTO-POPULATE DIALOG                  */
+/* ------------------------------------------------------------------ */
+var INFO={
+ size:{EWS:'Extreme wide. A tiny figure in a huge space: scale, isolation, geography.',WS:'Wide. The whole figure and the space around them. The default for establishing action.',FS:'Full shot. Head to toe, body language and costume.',MS:'Medium. Waist up. The workhorse for conversation and action.',MCU:'Medium close-up. Chest up. Intimate but still has body.',CU:'Close-up. Face fills the frame: emotion, reaction.',ECU:'Extreme close-up. Eyes, mouth, a tiny detail. Maximum intensity.',OTS:'Over the shoulder. Anchors two people; classic dialogue coverage.','2-SHOT':'Two-shot. Two characters in one frame: relationship and chemistry.',POV:'Point of view. We see through a character’s eyes.',INSERT:'Insert / cutaway. A prop, a screen, a detail the story needs.',AERIAL:'Aerial. High above: geography, scale, transitions.'},
+ angle:{EYE:'Eye level. Neutral, natural, honest.',LOW:'Low angle. Subject looks powerful, threatening, heroic.',HIGH:'High angle. Subject looks small, weak, observed.',DUTCH:'Dutch tilt. Horizon off-level: unease, disorientation.',OVERHEAD:'Overhead. Looking straight down: patterns, maps, isolation.',WORM:'Worm’s-eye. Ground-level looking up: towering, monumental.',BIRD:'Bird’s-eye. Far above: omniscient, fate, geography.'},
+ move:{STATIC:'Locked off. Calm, observational, composed.',PAN:'Pan. Swivel left or right to follow or reveal.',TILT:'Tilt. Swivel up or down: reveal height, follow a fall.','PUSH IN':'Push in. Move toward the subject: focus, tension, realization.','PULL OUT':'Pull out. Move away: reveal context, isolation.',DOLLY:'Dolly. Smooth move on a track alongside or toward the action.',TRACKING:'Tracking. Moves with a moving subject: chases, walks.',HANDHELD:'Handheld. Shaky, urgent, documentary: fights, panic.',STEADICAM:'Steadicam. Fluid and floating: long takes, following through spaces.',CRANE:'Crane / jib. Rise or descend: grand reveals, endings.',ZOOM:'Zoom. Lens change: sudden emphasis, retro feel.','WHIP PAN':'Whip pan. A fast blur to the next thing: surprise, energy.'}
+};
+var STILLS=[
+ {id:'gtr',q:'Great Train Robbery 1903 still',t:'The Great Train Robbery',y:1903,tags:['INSERT','POV','LOW','OTS'],why:'The outlaw fires straight at the lens. The classic insert and point-of-view jolt.'},
+ {id:'nos',q:'Nosferatu 1922 film still Orlok',t:'Nosferatu',y:1922,tags:['LOW','CU','MCU','MS'],why:'Long shadows and low-key lighting. Menace through framing.'},
+ {id:'cal',q:'Cabinet of Dr. Caligari 1920 still',t:'The Cabinet of Dr. Caligari',y:1920,tags:['DUTCH','WS','MS'],why:'Distorted sets and tilted lines. The origin of the Dutch angle look.'},
+ {id:'met',q:'Metropolis 1927 film still Fritz Lang',t:'Metropolis',y:1927,tags:['EWS','WS','LOW','BIRD','AERIAL'],why:'Monumental scale and towering architecture. A wide that sells a world.'},
+ {id:'pot',q:'Battleship Potemkin 1925 still',t:'Battleship Potemkin',y:1925,tags:['WS','HIGH','OVERHEAD','TRACKING','FS'],why:'The Odessa steps. Dynamic montage framing and strong diagonals.'},
+ {id:'moon',q:'A Trip to the Moon 1902 Melies still',t:'A Trip to the Moon',y:1902,tags:['CU','ECU','EWS','INSERT'],why:'The moon’s face: an iconic extreme close-up image.'},
+ {id:'gen',q:'The General 1926 Buster Keaton still',t:'The General',y:1926,tags:['WS','TRACKING','FS','MS'],why:'Locomotive chase. Wide tracking action with the performer in frame.'},
+ {id:'sl',q:'Safety Last 1923 Harold Lloyd clock still',t:'Safety Last!',y:1923,tags:['HIGH','LOW','MS','WS'],why:'Hanging from the clock: height conveyed through angle and depth.'},
+ {id:'kid',q:'The Kid 1921 Chaplin Coogan still',t:'The Kid',y:1921,tags:['2-SHOT','MS','FS'],why:'Two characters sharing the frame: relationship in a two-shot.'},
+ {id:'sh',q:'Sherlock Jr. 1924 Buster Keaton still',t:'Sherlock Jr.',y:1924,tags:['MS','MCU','WS'],why:'Clean medium coverage with precise staging.'},
+ {id:'pho',q:'Phantom of the Opera 1925 Lon Chaney unmasking still',t:'The Phantom of the Opera',y:1925,tags:['CU','MCU','ECU'],why:'The unmasking: a reveal built on a close-up.'},
+ {id:'gold',q:'The Gold Rush 1925 Chaplin Chilkoot Pass still',t:'The Gold Rush',y:1925,tags:['EWS','WS','AERIAL'],why:'A line of figures across a vast landscape: the extreme wide.'},
+ {id:'int',q:'Intolerance 1916 Babylon set still',t:'Intolerance',y:1916,tags:['EWS','WS','HIGH','CRANE'],why:'A giant set shot from above: the spectacle wide.'},
+ {id:'sun',q:'Sunrise 1927 Murnau still',t:'Sunrise',y:1927,tags:['MS','2-SHOT','TRACKING','WS'],why:'Fluid camera and layered depth across a couple in motion.'},
+ {id:'joan',q:'Passion of Joan of Arc 1928 Falconetti still',t:'The Passion of Joan of Arc',y:1928,tags:['CU','ECU','LOW'],why:'The face as landscape: the close-up at its purest.'}
+];
+var STILL_KEY='sbx_stills_v1', stillCache={};
+try{ stillCache=JSON.parse(localStorage.getItem(STILL_KEY)||'{}')||{}; }catch(e){ stillCache={}; }
+function stillSave(){ try{ localStorage.setItem(STILL_KEY,JSON.stringify(stillCache)); }catch(e){} }
+function plain(h){ var d=document.createElement('div'); d.innerHTML=String(h||''); return (d.textContent||'').trim().slice(0,120); }
+function commonsSearch(q,cb,n){
+  var u='https://commons.wikimedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrnamespace=6&gsrlimit='+(n||14)+'&gsrsearch='+encodeURIComponent(q+' filetype:bitmap')+'&prop=imageinfo&iiprop=url|extmetadata|mime&iiurlwidth=640';
+  var done=false, tm=setTimeout(function(){ if(!done){done=true;cb(null,'timeout');} },9000);
+  fetch(u).then(function(r){return r.json();}).then(function(j){
+    if(done) return; done=true; clearTimeout(tm);
+    var pages=j&&j.query&&j.query.pages?Object.keys(j.query.pages).map(function(k){return j.query.pages[k];}):[];
+    pages.sort(function(a,b){return (a.index||0)-(b.index||0);});
+    var res=[];
+    pages.forEach(function(p){
+      var ii=p.imageinfo&&p.imageinfo[0]; if(!ii||!ii.thumburl||!/image\/(jpeg|png)/.test(ii.mime||'')) return;
+      var md=ii.extmetadata||{}, lic=(md.LicenseShortName&&md.LicenseShortName.value)||'';
+      if(!/public domain|^pd|cc0|pd-/i.test(lic)) return;
+      res.push({u:ii.thumburl,page:ii.descriptionurl||'',lic:lic,artist:plain(md.Artist&&md.Artist.value)||'Unknown',title:String(p.title||'').replace(/^File:/,'').replace(/\.[a-z]+$/i,'')});
+    });
+    cb(res);
+  }).catch(function(){ if(done) return; done=true; clearTimeout(tm); cb(null,'offline'); });
+}
+function loadStill(s,cb){
+  if(stillCache[s.id]) return cb(stillCache[s.id]);
+  commonsSearch(s.q,function(res,err){
+    if(!res||!res.length) return cb(null,err||'none');
+    stillCache[s.id]=res[0]; stillSave(); cb(res[0]);
+  });
+}
+function creditOf(r){ return r.title+' · '+r.artist+' · '+r.lic+' · via Wikimedia Commons'; }
+function applyStill(r,id){
+  var f=findFrame(id||feId); if(!f) return say('Open a frame first, then choose a still.');
+  function put(u){ f.img=u; f.sketch=''; f.credit=creditOf(r); f.creditUrl=r.page||''; f.edited=true; commit(frameNum(f)); if(feId===f.id) feFill(); say('Reference still applied. Replace it any time with your own art.'); }
+  var im=new Image(); im.crossOrigin='anonymous';
+  im.onload=function(){ try{ var w=Math.min(560,im.naturalWidth),h=Math.round(im.naturalHeight*w/im.naturalWidth),c=document.createElement('canvas'); c.width=w;c.height=h; c.getContext('2d').drawImage(im,0,0,w,h); put(c.toDataURL('image/jpeg',.72)); }catch(e){ put(r.u); } };
+  im.onerror=function(){ put(r.u); };
+  im.src=r.u;
+}
+/* modal shell helper */
+function sbModal(id,title,body,foot,cls){
+  var d=$(id); if(!d){ d=document.createElement('div'); d.id=id; d.className='sbm'; document.body.appendChild(d); d.addEventListener('click',function(e){ if(e.target===d) d.classList.remove('on'); }); }
+  d.innerHTML='<div class="sbm-card '+(cls||'')+'"><div class="sbm-head"><b>'+title+'</b><button class="sbm-x" aria-label="Close" onclick="document.getElementById(\''+id+'\').classList.remove(\'on\')">✕</button></div><div class="sbm-body">'+body+'</div>'+(foot?'<div class="sbm-foot">'+foot+'</div>':'')+'</div>';
+  d.classList.add('on'); return d;
+}
+/* ---------- shot examples ---------- */
+var exTab='size', exTarget=null, exFilter='';
+window.sbExamples=function(tab,target){
+  exTab=tab||exTab||'size'; exTarget=target||feId||null; renderEx();
+};
+function exTile(kind,key){
+  var f={size:'MS',angle:'EYE',move:'STATIC'};
+  if(kind==='size'){ f.size=key; if(key==='AERIAL')f.angle='BIRD'; }
+  else if(kind==='angle'){ f.angle=key; f.size='MS'; }
+  else { f.move=key; f.size='WS'; }
+  var cur=exTarget&&findFrame(exTarget);
+  return '<button class="ex" data-k="'+kind+'" data-v="'+E(key)+'"><img alt="" src="'+svgThumb(f,{})+'"><b>'+E(key)+'</b><span>'+E(INFO[kind][key]||'')+'</span><em>'+(cur?'Use on this frame':'Add as new frame')+'</em></button>';
+}
+function renderEx(){
+  var tabs=[['size','Shot sizes'],['angle','Angles'],['move','Camera moves'],['real','Real stills']];
+  var body='<div class="ex-tabs">'+tabs.map(function(t){return '<button data-t="'+t[0]+'" class="'+(exTab===t[0]?'on':'')+'">'+t[1]+'</button>';}).join('')+'</div>';
+  if(exTab==='real'){
+    var chips=['']; SIZES.forEach(function(s){chips.push(s);}); ['LOW','HIGH','DUTCH','OVERHEAD','TRACKING'].forEach(function(s){chips.push(s);});
+    body+='<div class="ex-chips">'+chips.map(function(c){return '<button data-f="'+E(c)+'" class="'+(exFilter===c?'on':'')+'">'+(c||'All')+'</button>';}).join('')+'</div>'+
+      '<div class="ex-search"><input id="ex-q" placeholder="Search public-domain images (e.g. train chase, lighthouse, crowd)"><button class="hbtn" id="ex-go">Search</button></div>'+
+      '<div class="ex-grid" id="ex-real">'+STILLS.filter(function(s){return !exFilter||s.tags.indexOf(exFilter)>=0;}).map(function(s){
+        var c=stillCache[s.id];
+        return '<div class="exr" data-id="'+s.id+'"><div class="exr-im">'+(c?'<img alt="" src="'+E(c.u)+'" crossorigin="anonymous">':'<i>Loading…</i>')+'</div><b>'+E(s.t)+' ('+s.y+')</b><span>'+E(s.why)+'</span><div class="exr-tags">'+s.tags.map(function(t){return '<u>'+t+'</u>';}).join('')+'</div><button class="hbtn" data-use="'+s.id+'">'+(exTarget?'Use on this frame':'Add as new frame')+'</button></div>';}).join('')+'</div><div id="ex-res" class="ex-grid"></div><div class="ex-note">Silent-era frames, public domain · replace with your own art</div>';
+  }else{
+    body+='<div class="ex-grid">'+Object.keys(INFO[exTab]).map(function(k){return exTile(exTab,k);}).join('')+'</div>';
+  }
+  var d=sbModal('ex-modal','Shot examples',body,'<button class="hbtn pri" onclick="document.getElementById(\'ex-modal\').classList.remove(\'on\')">Done</button>','ex-card');
+  d.querySelector('.ex-tabs').addEventListener('click',function(e){ var b=e.target.closest('[data-t]'); if(b){ exTab=b.getAttribute('data-t'); renderEx(); } });
+  d.querySelector('.sbm-body').addEventListener('click',function(e){
+    var t=e.target.closest('.ex'); if(t){ applyExample(t.getAttribute('data-k'),t.getAttribute('data-v')); return; }
+    var fc=e.target.closest('[data-f]'); if(fc){ exFilter=fc.getAttribute('data-f'); renderEx(); return; }
+    var u=e.target.closest('[data-use]'); if(u){ useStill(u.getAttribute('data-use')); return; }
+    var ru=e.target.closest('[data-ruse]'); if(ru){ var r=(window.__exRes||[])[+ru.getAttribute('data-ruse')]; if(r) useResult(r); }
+  });
+  if(exTab==='real'){
+    STILLS.filter(function(s){return !exFilter||s.tags.indexOf(exFilter)>=0;}).forEach(function(s){
+      if(stillCache[s.id]) return;
+      loadStill(s,function(r,err){
+        var tile=d.querySelector('.exr[data-id="'+s.id+'"] .exr-im'); if(!tile) return;
+        tile.innerHTML=r?'<img alt="" crossorigin="anonymous" src="'+E(r.u)+'">':'<i>'+(err==='offline'||err==='timeout'?'Needs internet':'No image found')+'</i>';
+      });
+    });
+    var go=$('ex-go'), q=$('ex-q');
+    function run(){ var v=q.value.trim(); if(!v) return; var out=$('ex-res'); out.innerHTML='<i class="ex-load">Searching…</i>';
+      commonsSearch(v,function(res,err){ if(!res){ out.innerHTML='<i class="ex-load">Needs internet</i>'; return; } window.__exRes=res;
+        out.innerHTML=res.length?res.slice(0,12).map(function(r,i){return '<div class="exr"><div class="exr-im"><img alt="" crossorigin="anonymous" src="'+E(r.u)+'"></div><b>'+E(r.title.slice(0,60))+'</b><span>'+E(r.lic)+' · '+E(r.artist)+'</span><button class="hbtn" data-ruse="'+i+'">'+(exTarget?'Use on this frame':'Add as new frame')+'</button></div>';}).join(''):'<i class="ex-load">No public-domain results</i>'; }); }
+    go.addEventListener('click',run); q.addEventListener('keydown',function(e){ if(e.key==='Enter') run(); });
+  }
+}
+function newFrameWith(spec){
+  var M=meta(),n=curScene(M),arr=B.frames[n]||(B.frames[n]=[]);
+  var f=mkFrame('act','New frame','','',null); f.kind='man'; f.size=spec.size||'MS'; f.angle=spec.angle||'EYE'; f.move=spec.move||'STATIC'; f.lens=LENS[f.size]||'35mm'; f.desc=spec.desc||'New frame'; f.edited=true; f.key='man|'+f.id;
+  arr.push(f); commit(n); return f;
+}
+function applyExample(kind,val){
+  var f=exTarget&&findFrame(exTarget);
+  if(f){ if(kind==='size'){f.size=val;f.lens=LENS[val]||f.lens;} else if(kind==='angle')f.angle=val; else f.move=val; f.edited=true; commit(frameNum(f)); if(feId===f.id) feFill(); say(val+' applied.'); }
+  else { var spec={}; spec[kind==='move'?'move':kind]=val; var nf=newFrameWith(spec); exTarget=nf.id; say('New '+val+' frame added to scene '+frameNum(nf)+'.'); }
+  renderEx();
+}
+function useStill(id){
+  var s=STILLS.filter(function(x){return x.id===id;})[0], r=stillCache[id]; if(!s) return;
+  if(!r) return say('That still is still loading. Try again in a moment, or check your connection.');
+  useResult(r,s);
+}
+function useResult(r,s){
+  var id=exTarget; if(!id||!findFrame(id)){ var spec=s&&s.tags[0]?{size:(SIZES.indexOf(s.tags[0])>=0?s.tags[0]:'MS'),angle:(ANGLES.indexOf(s.tags[0])>=0?s.tags[0]:'EYE')}:{}; var nf=newFrameWith(spec); id=nf.id; exTarget=id; }
+  applyStill(r,id); renderEx();
+}
+window.feExamples=function(){ sbExamples('size',feId); };
+window.feStill=function(){ var f=findFrame(feId); exFilter=f&&SIZES.indexOf(f.size)>=0?f.size:''; exTab='real'; exTarget=feId; renderEx(); };
+/* ---------- auto-populate dialog ---------- */
+function countFrames(A){
+  var M=meta(); if(!M) return [0,0]; var keep=B.ui.auto; B.ui.auto=A; var cur=curScene(M), a=0, t=0;
+  try{ liveScenes(M).forEach(function(x){ var n=beatsOf(x.num,M).length; t+=n; if(x.num===cur) a=n; }); }catch(e){}
+  B.ui.auto=keep; return [a,t];
+}
+window.sbAuto=function(){
+  var A=aopt(), M=meta(); if(!M||!liveScenes(M).length) return say('Write or import a script first. Every scene becomes shots.');
+  var tmp=JSON.parse(JSON.stringify(A));
+  var body='<p class="au-p">Choose how much coverage to build. Frames are created from each scene heading, the action beats, the dialogue and the keywords below. Frames you have edited or drawn on are always kept.</p>'+
+    '<div class="au-sec">Coverage</div><div class="au-levels">'+
+    [['essential','Essential','Establishing shot, key action beats, one two-shot per conversation.'],['standard','Standard','Adds full dialogue coverage and keyword shots (chase, fight, weapon, reveal…).'],['full','Full','Adds reactions, character intros, repeat triggers and every insert.']].map(function(l){return '<button class="au-lv" data-lv="'+l[0]+'"><b>'+l[1]+'</b><span>'+l[2]+'</span></button>';}).join('')+'</div>'+
+    '<div class="au-sec">Include</div><div class="au-checks">'+
+    [['est','Establishing shot for every scene'],['act','Action beats'],['react','Reaction shots after strong lines'],['ins','Prop and detail inserts (phone, letter, key…)'],['intro','Character introductions'],['trg','Keyword-triggered shots']].map(function(c){return '<label class="au-ck"><input type="checkbox" data-o="'+c[0]+'"> '+c[1]+'</label>';}).join('')+
+    '<label class="au-ck">Dialogue <select data-o="dlg"><option value="cover">Full coverage (master, OTS, CU)</option><option value="two">One two-shot per conversation</option><option value="none">No dialogue frames</option></select></label>'+
+    '<label class="au-ck">Action beat size <select data-o="chunk"><option value="1">Every sentence</option><option value="2">Every 2 sentences</option><option value="4">Every 4 sentences</option></select></label></div>'+
+    '<div class="au-sec">Keyword triggers <small>tap to turn off</small></div><div class="au-trg">'+TRG.map(function(t){return '<button class="au-t" data-t="'+t.id+'" title="'+E(t.kw)+'"><b>'+E(t.n)+'</b><i>'+E(t.kw)+'</i></button>';}).join('')+'</div>'+
+    '<div class="au-sec">Your own keywords</div><div class="au-custom" id="au-custom"></div>'+
+    '<div class="au-add"><input id="au-kw" placeholder="Keyword, e.g. heist"><select id="au-sz">'+SIZES.map(function(s){return '<option>'+s+'</option>';}).join('')+'</select><select id="au-an">'+ANGLES.map(function(s){return '<option>'+s+'</option>';}).join('')+'</select><select id="au-mv">'+MOVES.map(function(s){return '<option>'+s+'</option>';}).join('')+'</select><button class="hbtn" id="au-addkw">Add</button></div>'+
+    '<div class="au-sec">Apply to</div><div class="au-scope"><label><input type="radio" name="au-sc" value="scene"> This scene</label><label><input type="radio" name="au-sc" value="all" checked> Whole script</label></div><div class="au-prev" id="au-prev"></div>';
+  var d=sbModal('au-modal','Auto-populate storyboard',body,'<button class="hbtn" onclick="document.getElementById(\'au-modal\').classList.remove(\'on\')">Cancel</button><button class="hbtn pri" id="au-go">Generate frames</button>','au-card');
+  function sync(){
+    [].forEach.call(d.querySelectorAll('[data-o]'),function(el){ var k=el.getAttribute('data-o'); if(el.type==='checkbox') el.checked=!!tmp[k]; else el.value=String(tmp[k===undefined?'':k]===false?'none':tmp[k]); });
+    [].forEach.call(d.querySelectorAll('[data-lv]'),function(b){ b.classList.toggle('on',tmp.level===b.getAttribute('data-lv')); });
+    [].forEach.call(d.querySelectorAll('[data-t]'),function(b){ b.classList.toggle('off',tmp.off.indexOf(b.getAttribute('data-t'))>=0); });
+    $('au-custom').innerHTML=tmp.custom.length?tmp.custom.map(function(c,i){return '<span class="au-cc">“'+E(c.kw)+'” → '+E(c.size)+' · '+E(c.angle)+' · '+E(c.move)+' <button data-del="'+i+'" aria-label="Remove">✕</button></span>';}).join(''):'<small>None yet. Any word you add makes a frame whenever it appears in the action.</small>';
+    var c=countFrames(tmp); $('au-prev').innerHTML='This scene: <b>'+c[0]+'</b> frames · Whole script: <b>'+c[1]+'</b> frames';
+  }
+  d.querySelector('.sbm-body').addEventListener('click',function(e){
+    var lv=e.target.closest('[data-lv]'); if(lv){ var k=lv.getAttribute('data-lv'); Object.assign(tmp,LEVELS[k],{level:k}); sync(); return; }
+    var t=e.target.closest('[data-t]'); if(t){ var id=t.getAttribute('data-t'),i=tmp.off.indexOf(id); if(i>=0)tmp.off.splice(i,1); else tmp.off.push(id); tmp.level='custom'; sync(); return; }
+    var dl=e.target.closest('[data-del]'); if(dl){ tmp.custom.splice(+dl.getAttribute('data-del'),1); sync(); return; }
+    if(e.target.id==='au-addkw'){ var kw=$('au-kw').value.trim(); if(!kw) return; tmp.custom.push({kw:kw,size:$('au-sz').value,angle:$('au-an').value,move:$('au-mv').value}); $('au-kw').value=''; sync(); }
+  });
+  d.querySelector('.sbm-body').addEventListener('change',function(e){
+    var el=e.target.closest('[data-o]'); if(!el) return; var k=el.getAttribute('data-o');
+    if(el.type==='checkbox') tmp[k]=el.checked; else if(k==='chunk') tmp[k]=+el.value; else tmp[k]=(el.value==='none'?false:el.value);
+    tmp.level='custom'; sync();
+  });
+  $('au-go').addEventListener('click',function(){
+    var scope=(d.querySelector('input[name="au-sc"]:checked')||{}).value||'all';
+    if(tmp.dlg===false) tmp.dlg='none';
+    B.ui.auto=tmp; bSave();
+    var M2=meta(), before=0, after=0;
+    liveScenes(M2).forEach(function(x){ before+=(B.frames[x.num]||[]).length; });
+    if(scope==='scene'){ var n=curScene(M2); mergeFrames(n,M2); bSave(); syncShots(n); }
+    else resyncAll();
+    liveScenes(M2).forEach(function(x){ after+=(B.frames[x.num]||[]).length; });
+    d.classList.remove('on'); sbRender(); if($('sbd-board')&&typeof olRender==='function') olRender();
+    say('Storyboard built: '+after+' frames'+(scope==='scene'?' (this scene re-covered)':' across the script')+'. Edited frames and art were kept.');
+  });
+  sync();
+};
+
 var feId=null, fileTarget=null;
 function curScene(M){
   var live=liveScenes(M); if(!live.length) return null;
@@ -1617,13 +1958,15 @@ function mountSB(){
       '<button class="hbtn acc" onclick="sbResync()" title="Rebuild beats from the script. Your edits and art are kept."><i class="fa-solid fa-rotate"></i><span> Sync script</span></button>'+
       '<select id="sbs-cols" class="sbs-sel" onchange="sbOpt()" title="Frames per row"><option value="0">Auto</option><option value="1">1 / row</option><option value="2">2 / row</option><option value="3">3 / row</option><option value="4">4 / row</option></select>'+
       '<select id="sbs-ratio" class="sbs-sel" onchange="sbOpt()" title="Frame shape">'+RATIOS.map(function(r){return '<option value="'+r[0]+'">'+r[1]+'</option>';}).join('')+'</select>'+
+      '<button class="hbtn pri" onclick="sbAuto()" title="Build frames from the script with keyword triggers"><i class="fa-solid fa-wand-magic-sparkles"></i><span> Auto-populate</span></button>'+
+      '<button class="hbtn" onclick="sbExamples(\'size\')" title="Shot, angle and move examples, plus real stills"><i class="fa-solid fa-images"></i><span> Shot examples</span></button>'+
       '<button class="hbtn" onclick="sbPrint()"><i class="fa-solid fa-print"></i><span> Print / PDF</span></button>'+
     '</div></div>'+
   '<div class="sbs-body"><nav class="sbs-rail" id="sbs-rail" aria-label="Scenes"></nav><section class="sbs-main" id="sbs-main"></section></div>'+
   '<input type="file" id="sbs-file" accept="image/*" style="display:none">';
   $('sbs-file').addEventListener('change',function(){
     var f=this.files&&this.files[0], t=fileTarget; this.value=''; if(!f||!t) return;
-    fileToData(f,function(d){ var fr=findFrame(t); if(!fr) return; fr.img=d; fr.edited=true; commit(fr.scene); if(feId===t) feFill(); });
+    fileToData(f,function(d){ var fr=findFrame(t); if(!fr) return; fr.img=d; fr.credit=''; fr.edited=true; commit(fr.scene); if(feId===t) feFill(); });
   });
   $('sbs-rail').addEventListener('click',function(e){var b=e.target.closest('[data-n]');if(b){B.ui.scene=b.getAttribute('data-n');bSave();sbRender();$('sbs-main').scrollTop=0;}});
   var mainEl=$('sbs-main');
@@ -1684,10 +2027,10 @@ function frameHTML(f,i,num,M){
   var lab=num+letter(i), art=!!(f.img||f.sketch);
   return '<article class="fr'+(f.kind==='est'?' est':'')+'" data-id="'+f.id+'" data-i="'+i+'">'+
     '<div class="fr-img"><img alt="Frame '+E(lab)+'" src="'+thumbOf(f,M,num)+'"><span class="fr-no">'+E(lab)+'</span>'+
-    (f.kind==='est'?'<span class="fr-kind">ESTABLISHING</span>':f.kind==='man'?'<span class="fr-kind">CUSTOM</span>':'')+
-    (art?'':'<span class="fr-hint">tap to edit · add art</span>')+'</div>'+
+    (f.kind==='est'?'<span class="fr-kind">ESTABLISHING</span>':f.kind==='man'?'<span class="fr-kind">CUSTOM</span>':f.trgName?'<span class="fr-kind trg">'+E(f.trgName.toUpperCase())+'</span>':'')+
+    (art?'':'<span class="fr-hint">example shot · tap to replace</span>')+'</div>'+
     '<div class="fr-tags"><b>'+E(f.size)+'</b><span>'+E(f.angle)+'</span><span>'+E(f.move)+'</span><span>'+E(f.lens)+'</span></div>'+
-    '<div class="fr-desc">'+E(f.desc)+'</div>'+(f.dlg?'<div class="fr-dlg">'+E(f.dlg.length>110?f.dlg.slice(0,108)+'…':f.dlg)+'</div>':'')+(f.notes?'<div class="fr-note">✎ '+E(f.notes)+'</div>':'')+
+    '<div class="fr-desc">'+E(f.desc)+'</div>'+(f.why?'<div class="fr-why">↳ '+E(f.why)+'</div>':'')+(f.credit?'<div class="fr-cr">'+E(f.credit)+'</div>':'')+(f.dlg?'<div class="fr-dlg">'+E(f.dlg.length>110?f.dlg.slice(0,108)+'…':f.dlg)+'</div>':'')+(f.notes?'<div class="fr-note">✎ '+E(f.notes)+'</div>':'')+
     '<div class="fr-act"><button class="fr-grip" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</button>'+
       '<button data-a="l" title="Move earlier" aria-label="Move earlier">◀</button><button data-a="r" title="Move later" aria-label="Move later">▶</button>'+
       '<button data-a="edit" title="Edit details"><i class="fa-solid fa-pen"></i></button>'+
@@ -1740,8 +2083,8 @@ function mountFE(){
   function opts(a){return a.map(function(x){return '<option>'+x+'</option>';}).join('');}
   d.innerHTML='<div class="sbm-card"><div class="sbm-head"><b id="fe-title">Frame</b><button onclick="feClose()" class="sbm-x" aria-label="Close">✕</button></div>'+
     '<div class="sbm-body"><div class="fe-prev"><img id="fe-img" alt=""></div>'+
-    '<div class="fe-art"><button class="hbtn" onclick="feSketch()"><i class="fa-solid fa-pencil"></i> Sketch</button><button class="hbtn" onclick="feUpload()"><i class="fa-solid fa-image"></i> Upload</button><button class="hbtn" onclick="feClearArt()">Remove art</button></div>'+
-    '<div class="fe-grid">'+
+    '<div class="fe-art"><button class="hbtn" onclick="feSketch()"><i class="fa-solid fa-pencil"></i> Sketch</button><button class="hbtn" onclick="feUpload()"><i class="fa-solid fa-image"></i> Upload</button><button class="hbtn" onclick="feExamples()"><i class="fa-solid fa-images"></i> Examples</button><button class="hbtn" onclick="feStill()"><i class="fa-solid fa-film"></i> Real still</button><button class="hbtn" onclick="feClearArt()">Remove art</button></div>'+
+    '<div class="fe-credit" id="fe-credit"></div><div class="fe-grid">'+
     '<label>Shot size<select id="fe-size">'+opts(SIZES)+'</select></label>'+
     '<label>Angle<select id="fe-angle">'+opts(ANGLES)+'</select></label>'+
     '<label>Movement<select id="fe-move">'+opts(MOVES)+'</select></label>'+
@@ -1762,7 +2105,7 @@ function feFill(){
   $('fe-title').textContent='Frame '+n+letter(i)+(f.kind==='est'?' · Establishing':'');
   $('fe-size').value=f.size; $('fe-angle').value=f.angle; $('fe-move').value=f.move; $('fe-lens').value=f.lens;
   $('fe-desc').value=f.desc||''; $('fe-dlg').value=f.dlg||''; $('fe-notes').value=f.notes||'';
-  $('fe-img').src=thumbOf(f,null,n);
+  $('fe-img').src=thumbOf(f,null,n); var cr=$('fe-credit'); if(cr) cr.textContent=(f.img&&f.credit)?'Image: '+f.credit:'';
 }
 function feRead(){
   var f=findFrame(feId); if(!f) return; var n=frameNum(f);
@@ -1776,7 +2119,7 @@ function feRead(){
 window.feClose=function(){ var m=$('fe-modal'); if(m) m.classList.remove('on'); feId=null; };
 window.feSketch=function(){ openSketch(feId); };
 window.feUpload=function(){ fileTarget=feId; $('sbs-file').click(); };
-window.feClearArt=function(){ var f=findFrame(feId); if(!f) return; f.img='';f.sketch='';f.edited=true; commit(frameNum(f)); feFill(); };
+window.feClearArt=function(){ var f=findFrame(feId); if(!f) return; f.img='';f.sketch='';f.credit='';f.edited=true; commit(frameNum(f)); feFill(); };
 window.feDup=function(){ var id=feId; feClose(); dupFrame(id); };
 window.feDel=function(){ var id=feId; feClose(); delFrame(id); };
 
@@ -1836,7 +2179,7 @@ window.skSave=function(){
   var c=out.getContext('2d'); c.fillStyle='#0C1220'; c.fillRect(0,0,out.width,out.height);
   function finish(){ c.drawImage(cv,0,0,out.width,out.height); f.sketch=out.toDataURL('image/jpeg',.72); f.edited=true; skClose(); commit(frameNum(f)); if(feId===f.id) feFill(); say('Sketch saved. The thumbnail now shows it everywhere.'); }
   var bg=f.img||(SK.guide?svgThumb(f,scMeta(meta(),frameNum(f))):'');
-  if(bg){ var im=new Image(); im.onload=function(){ c.drawImage(im,0,0,out.width,out.height); finish(); }; im.onerror=finish; im.src=bg; } else finish();
+  if(bg){ var im=new Image(); im.crossOrigin='anonymous'; im.onload=function(){ c.drawImage(im,0,0,out.width,out.height); finish(); }; im.onerror=finish; im.src=bg; } else finish();
 };
 
 /* ---- print / PDF ---- */
@@ -1850,7 +2193,7 @@ window.sbPrint=function(){
     '.g{flex:1;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr);gap:10px}.c{display:flex;flex-direction:column;min-height:0}.im{aspect-ratio:'+ar+';border:1px solid #111;position:relative;background:#222;overflow:hidden}.im img{width:100%;height:100%;object-fit:cover;display:block}.no{position:absolute;left:0;top:0;background:#111;color:#fff;font-size:11px;font-weight:700;padding:2px 6px}'+
     '.tg{font-size:9px;font-weight:700;margin-top:3px;text-transform:uppercase;letter-spacing:.05em}.ds{font-size:10px;line-height:1.3;margin-top:2px}.dl{font-size:10px;font-style:italic;margin-top:2px}.sc{font-size:9px;color:#555;margin-top:2px}</style></head><body>'+
     pages.map(function(pg,pi){return '<div class="pg"><div class="hd"><span>'+E(title)+'</span><span>Storyboard · page '+(pi+1)+' of '+pages.length+'</span></div><div class="g">'+pg.map(function(c){
-      return '<div class="c"><div class="im"><img src="'+thumbOf(c.f,M,c.n)+'"><span class="no">'+E(c.l)+'</span></div><div class="tg">'+E(c.f.size)+' · '+E(c.f.angle)+' · '+E(c.f.move)+' · '+E(c.f.lens)+'</div><div class="ds">'+E(c.f.desc)+'</div>'+(c.f.dlg?'<div class="dl">'+E(c.f.dlg)+'</div>':'')+'<div class="sc">Sc '+E(c.n)+' · '+E(c.h)+'</div></div>';}).join('')+'</div></div>';}).join('')+'</body></html>';
+      return '<div class="c"><div class="im"><img src="'+thumbOf(c.f,M,c.n)+'"><span class="no">'+E(c.l)+'</span></div><div class="tg">'+E(c.f.size)+' · '+E(c.f.angle)+' · '+E(c.f.move)+' · '+E(c.f.lens)+'</div><div class="ds">'+E(c.f.desc)+'</div>'+(c.f.dlg?'<div class="dl">'+E(c.f.dlg)+'</div>':'')+'<div class="sc">Sc '+E(c.n)+' · '+E(c.h)+(c.f.credit&&c.f.img&&!c.f.sketch?' · '+E(c.f.credit):'')+'</div></div>';}).join('')+'</div></div>';}).join('')+'</body></html>';
   var w=window.open('','_blank'); if(!w){ alert('Allow pop-ups to print the storyboard.'); return; }
   w.document.write(html); w.document.close(); setTimeout(function(){try{w.print();}catch(e){}},600);
 };
