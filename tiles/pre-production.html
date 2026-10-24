@@ -8551,7 +8551,8 @@ function build(entries){
 
       if(mode){
         if(isParen(t)&&(rel>=4||!useIndent||dlg.length||true)){ flushDlg(); out.push({type:P,text:t}); return; }
-        if(useIndent&&rel<7){ mode=null; /* falls through to action */ }
+        if(useIndent&&rel<7){ flushDlg(); mode=null; /* falls through to action */ }
+        else if(useIndent&&rel>=14&&rel<42&&isCue(t)&&!isParen(t)){ flushDlg(); mode=null; /* a new cue straight after dialogue (no blank line) */ }
         else { dlg.push(t); return; }
       }
       /* character cue */
@@ -8617,6 +8618,8 @@ function parseText(raw){
     });
     return {title:title,author:author,contact:'',lines:tagged.filter(function(n){return n.text;})};
   }
+  /* page numbers and CONTINUED marks left behind by text copied out of a PDF */
+  lines=lines.filter(function(l){ return !(/^\s{12,}[\W_]*(?:(?:page|pg|p)\.?\s*)?\d{1,4}[A-Z]?[.)]?[\W_]*$/i.test(l)||/^\s{20,}\(?(?:CONTINUED|MORE)\)?:?\s*(?:\(\d+\))?\s*$/i.test(l)||/^\s*(?:page|pg)\.?\s*\d{1,4}(?:\s*of\s*\d+)?\s*$/i.test(l)); });
   var tp=takeTitlePage(lines);
   var entries=tp.rest.map(function(l){
     if(!l.trim()) return {blank:true};
