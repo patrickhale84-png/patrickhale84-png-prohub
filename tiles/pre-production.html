@@ -8581,6 +8581,24 @@ function build(entries){
 }
 
 /* ---------- plain text / Fountain ---------- */
+/* a line that stops mid-sentence continues into the next action line (hard-wrapped or paragraph-spaced source text) */
+function joinWrapped(lines){
+  var out=[];
+  lines.forEach(function(n){
+    var p=out[out.length-1];
+    if(p&&p.type==='ACTION'&&n.type==='ACTION'&&!n.align&&!p.align){
+      var pt=p.text.replace(/\s+$/,''), nt=n.text.replace(/^\s+/,'');
+      var pCaps=pt===pt.toUpperCase()&&/[A-Z]/.test(pt), nCaps=nt===nt.toUpperCase()&&/[A-Z]/.test(nt);
+      var term=/[.!?…:;"”]$/.test(pt), close=/[)\]]$/.test(pt);
+      var heading=/^(?:#?\d+[A-Z]?[.)#]?\s+)?(?:INT|EXT|I\/E)[. \/]/i.test(nt);
+      var join=!heading&&pt.length<320&&((!term&&!close&&!(pCaps&&!nCaps))||(close&&/^[a-z]/.test(nt)));
+      if(join){ p.text=pt+' '+nt; return; }
+    }
+    out.push(n);
+  });
+  out.forEach(function(n){ if(n.type==='ACTION') n.text=n.text.replace(/\s*\n\s*/g,' '); });
+  return out;
+}
 function parseText(raw){
   raw=String(raw||'').replace(/^﻿/,'').replace(/\r\n?/g,'\n').replace(/\t/g,'    ');
   raw=raw.replace(/\/\*[\s\S]*?\*\//g,'').replace(/\[\[[\s\S]*?\]\]/g,'');
@@ -8605,14 +8623,7 @@ function parseText(raw){
     var ind=l.match(/^ */)[0].length;
     return {t:l.trim(),ind:ind};
   });
-  var built=build(entries), joined=[];
-  /* hard-wrapped action: a line that stops mid-sentence continues into the next action line */
-  built.forEach(function(n){
-    var p=joined[joined.length-1];
-    if(p&&p.type==='ACTION'&&n.type==='ACTION'&&!/[.!?:;"”)\]…—]$/.test(p.text.trim())&&!/^(INT|EXT|I\/E)[. ]/i.test(n.text)&&p.text.length<260) p.text=p.text.replace(/\s+$/,'')+' '+n.text.replace(/^\s+/,'');
-    else joined.push(n);
-  });
-  joined.forEach(function(n){ if(n.type==='ACTION') n.text=n.text.replace(/\s*\n\s*/g,' '); });
+  var joined=joinWrapped(build(entries));
   return {title:tp.title,author:tp.author,contact:tp.contact,lines:joined};
 }
 
@@ -8642,16 +8653,38 @@ function pdfFromPages(pages){
     cooked.push(kept);
   });
   /* drop page numbers, running heads and CONTINUED markers */
-  var all=[];
+  var all=[], np=cooked.length;
+  var NUMRE=/^[\W_]*(?:(?:page|pg|p)\.?\s*)?\d{1,4}[A-Z]?\.?(?:\s*(?:of|\/)\s*\d{1,4})?[\W_]*$/i;
+  function isPN(t){ return t.length<=16&&/\d/.test(t)&&NUMRE.test(t); }
+  function zT(L){ return L.h-L.y<Math.max(112,L.h*.135); }
+  function zB(L){ return L.y<Math.max(70,L.h*.09); }
+  function keyOf(t){ return t.toLowerCase().replace(/\d+/g,'#').replace(/(?:#[\s.\-)(]*)+/g,'#').replace(/\s+/g,' ').trim(); }
+  /* text that repeats at the same height on many pages is a running header or footer */
+  var rep={}, hf={};
+  cooked.forEach(function(kept){ var seen={}; kept.forEach(function(L){ if(!(zT(L)||zB(L))) return; var k=keyOf(L.text); if(!k||seen[k]) return; seen[k]=1; (rep[k]=rep[k]||[]).push(Math.round(L.y)); }); });
+  Object.keys(rep).forEach(function(k){
+    var ys=rep[k]; if(ys.length<Math.max(2,Math.ceil(np*.8))||k.length>80) return;
+    var ym={}, mx=0; ys.forEach(function(y){ var q=Math.round(y/6); ym[q]=(ym[q]||0)+1; if(ym[q]>mx) mx=ym[q]; });
+    if(mx>=ys.length*.7) hf[k]=1;
+  });
+  /* a bare number that counts up from page to page is a page number wherever it sits */
+  var seqOff={}, seqC={};
   cooked.forEach(function(kept,pi){
-    kept.forEach(function(L,li){
-      var t=L.text.trim();
-      var top=L.h-L.y<100, bottom=L.y<64;
-      if((top||bottom)&&(/^(page\s+)?\d+[.\-)]?(\s+of\s+\d+)?$/i.test(t)||/^\d+[.\-]?$/.test(t)||/^[A-Z ]{0,24}(REVISIONS?|DRAFT)\b.*$/i.test(t)||/^\(?(CONTINUED|MORE)\)?:?\s*(\(\d+\))?$/i.test(t)||t.length<=3)) { L.drop=true; return; }
+    var top2=kept.slice(0,2), bot2=kept.slice(-2);
+    top2.concat(bot2).forEach(function(L){ var t=L.text.trim(); if(!isPN(t)) return; var n=parseInt(t.replace(/\D+/g,''),10); if(!(n>=0)) return; var off=n-pi; seqC[off]=(seqC[off]||0)+1; (L._seq=true); });
+  });
+  var seqBest=null,seqN=0; Object.keys(seqC).forEach(function(k){ if(seqC[k]>seqN){ seqN=seqC[k]; seqBest=+k; } });
+  var seqOn=seqN>=Math.max(3,Math.ceil(np*.5));
+  cooked.forEach(function(kept,pi){
+    var edge=kept.slice(0,2).concat(kept.slice(-2));
+    kept.forEach(function(L){
+      var t=L.text.trim(), inZone=zT(L)||zB(L);
+      if(inZone&&(isPN(t)||hf[keyOf(t)]||/^[A-Z ]{0,24}(REVISIONS?|DRAFT)\b.*$/i.test(t)||/^\(?(CONTINUED|MORE)\)?:?\s*(\(\d+\))?$/i.test(t)||t.length<=3)){ L.drop=true; return; }
+      if(seqOn&&edge.indexOf(L)>=0&&isPN(t)&&(parseInt(t.replace(/\D+/g,''),10)-pi)===seqBest){ L.drop=true; return; }
       if(/^\(?\s*(CONTINUED|MORE)\s*\)?:?\s*(\(\d+\))?$/i.test(t)||/^CONTINUED:?\s*\(\d+\)$/i.test(t)||/^\d+[A-Z]?\s+CONTINUED:?$/i.test(t)){ L.more=/MORE/i.test(t); L.drop=true; return; }
-      all.push(L);
     });
   });
+  cooked.forEach(function(kept){ kept.forEach(function(L){ if(L.drop){ if(/^\(?\s*MORE/i.test(L.text.trim())) L.more=true; return; } all.push(L); }); });
   /* title page */
   var title='',author='',startPage=0;
   if(pages.length>1){
@@ -8735,7 +8768,7 @@ function pdfFromPages(pages){
     if(e.page!=null) lastPage=e.page;
     fin.push(e);
   });
-  return {title:title,author:author,lines:build(fin)};
+  return {title:title,author:author,lines:joinWrapped(build(fin))};
 }
 
 /* ---------- FDX ---------- */
