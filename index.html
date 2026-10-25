@@ -872,5 +872,9 @@ var rm=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches
 setTimeout(done,rm?1400:5000);
 })();
 </script>
+<style id="ph-fit-style">
+.tile-title{overflow-wrap:anywhere;hyphens:auto}
+@media (min-width:601px) and (max-width:950px){.tile-title{font-size:clamp(11px,1.7vw,16px)!important}}
+</style>
 </body>
 </html>
