@@ -293,6 +293,7 @@ function parseText(text){
       var nn=rows[i+1].trim();if((Math.abs(a-C.v)>3&&(/^\(/.test(nn)||Math.abs(b-D.v)>3))||(/^\(/.test(nn)?false:Math.abs(b-D.v)>6)&&Math.abs(a-C.v)>3||(pv.trim()&&!/[a-z]/.test(pv)&&ind(pv)>=a-4&&!/^\s*\(/.test(pv)&&!/[.!?,"'-]\s*$/.test(pv)&&ind(pv)>=C.v-3&&false)||(pv.trim()&&!/[a-z]/.test(pv)&&!/^\s*\(/.test(pv)&&!/^\s*(\d+[A-Z]?\s+)?(INT|EXT|EST|I\/E)\b/.test(pv)&&!/[:.]\s*$/.test(pv.trim().slice(-1))&&pv.trim().length>2&&!/\)\s*$/.test(pv)))veto[i]=1;});})();
   rows.forEach(function(raw,ix,arr){
     var t=raw.replace(/(^\s*\d+[A-Z]?\s+|\s+\d+[A-Z]?$|^\*\d+\*)/g,'').trim();
+    if(mode==='num'&&/^\s*\d+[A-Z]?\s+OMITTED\s*$/.test(raw)){speaker=false;return;}
     if(mode==='num'&&NUMH.test(raw)&&!/[a-z]/.test(raw)&&(!arr[ix-1]||!arr[ix-1].trim())){out.push({type:'scene-heading',text:NUMH.exec(raw)[2].trim()});speaker=false;return;}
     if(raw.charAt(0)==='\u0001'){out.push({type:'scene-heading',text:raw.slice(1)});speaker=false;return;}
     if(!t){speaker=false;return;}
