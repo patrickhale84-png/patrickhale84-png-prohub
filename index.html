@@ -215,7 +215,7 @@ a{color:inherit;text-decoration:none;}
 </style>
 <link id="ph-anton" href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
 <link id="ph-icons" rel="icon" type="image/svg+xml" href="favicon.svg"><link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png"><link rel="apple-touch-icon" href="apple-touch-icon.png">
-</head>
+<!--ph-pwa--><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#05070B"><meta name="apple-mobile-web-app-capable" content="yes"><!--/ph-pwa--></head>
 <body>
 <style id="ph-intro-style">
 #ph-intro{position:fixed;inset:0;z-index:2147483000;background:#05070B;display:flex;align-items:center;justify-content:center;padding:16px;cursor:pointer;transition:opacity .55s ease}
@@ -838,14 +838,14 @@ var sc=document.createElement('div');sc.id='ix-scrim';var sh=document.createElem
 function close(){sc.classList.remove('on');sh.classList.remove('on');}
 function open(){
   var proj=(document.getElementById('projName')||{}).textContent||'';
-  var items=[['importBtn','Import script','Brings it into every tool'],['saveAllBtn','Save all','Download everything as one file'],['loadAllBtn','Load all','Restore a saved file'],['resetBtn','Reset tile sizes','Put the dashboard back to normal']];
+  var items=[['importBtn','Import script','Brings it into every tool'],['__safety','Backups & history','Snapshots, restore, auto-save to a folder'],['saveAllBtn','Save all','Download everything as one file'],['loadAllBtn','Load all','Restore a saved file'],['resetBtn','Reset tile sizes','Put the dashboard back to normal']];
   var h='<div class="g"></div><div class="t">proHUB</div><div class="s">'+proj+'</div>';
   h+='<a href="filmhub.html#print">Print / Export<small>Call sheet, script, stripboard, sides to PDF</small></a>';
   h+='<a href="filmhub.html">filmHUB<small>Front desk: all tiles in one place</small></a>';
   items.forEach(function(x,i){h+='<button data-i="'+i+'">'+x[1]+'<small>'+x[2]+'</small></button>';});
   h+='<button class="x" data-x="1">&#10005; Close menu</button>';
   sh.innerHTML=h;
-  [].forEach.call(sh.querySelectorAll('button'),function(x){x.onclick=function(){close();if(x.getAttribute('data-x'))return;var el=document.getElementById(items[+x.getAttribute('data-i')][0]);setTimeout(function(){if(el)el.click();},60);};});
+  [].forEach.call(sh.querySelectorAll('button'),function(x){x.onclick=function(){close();if(x.getAttribute('data-x'))return;var id=items[+x.getAttribute('data-i')][0];if(id==='__safety'){setTimeout(function(){window.PHSafety&&PHSafety.open();},60);return;}var el=document.getElementById(id);setTimeout(function(){if(el)el.click();},60);};});
   sc.classList.add('on');sh.classList.add('on');sh.scrollTop=0;
 }
 b.onclick=open;sc.onclick=close;
@@ -876,5 +876,5 @@ setTimeout(done,rm?1400:5000);
 .tile-title{overflow-wrap:anywhere;hyphens:auto}
 @media (min-width:601px) and (max-width:950px){.tile-title{font-size:clamp(11px,1.7vw,16px)!important}}
 </style>
-</body>
+<!--ph-pwa--><script id="ph-pwa-js">(function(){try{if("serviceWorker" in navigator&&/^https?:/.test(location.protocol)){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})})}}catch(e){}})();</script><script src="lib/safety.js" defer></script><!--/ph-pwa--></body>
 </html>
