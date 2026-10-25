@@ -333,7 +333,7 @@ body{background:var(--bg);color:var(--tx);font-family:var(--fui);margin:0;displa
 <style id="fh-prod-style">@media (max-width:768px){#hb-film{padding:0 10px!important;min-height:36px;} #hb-film span{display:inline!important;font-size:11px;}}</style>
 <link id="ph-anton" href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
 <link id="ph-icons" rel="icon" type="image/svg+xml" href="../favicon.svg"><link rel="icon" type="image/png" sizes="32x32" href="../favicon-32.png"><link rel="apple-touch-icon" href="../apple-touch-icon.png">
-<!--ph-pwa--><link rel="manifest" href="../manifest.webmanifest"><meta name="theme-color" content="#05070B"><meta name="apple-mobile-web-app-capable" content="yes"><!--/ph-pwa--></head>
+<!--ph-pwa--><link rel="manifest" href="../manifest.webmanifest"><meta name="theme-color" content="#05070B"><meta name="apple-mobile-web-app-capable" content="yes"><!--/ph-pwa--><script src="../lib/autotag.js"></script></head>
 <body>
 <script id="sn-cue">
 /* Strict character-cue rules shared by every tool (parser, schedule, call sheet, evaluator). */
@@ -1134,7 +1134,7 @@ document.addEventListener('DOMContentLoaded', () => {
 /* ===== SCRIPTATION: tag + annotate the script once, push scene metadata to every production tile ===== */
 (function(){
 const CATS={prop:['Props','#60A5FA'],vehicle:['Vehicles','#F59E0B'],wardrobe:['Wardrobe','#F472B6'],sfx:['SFX','#F87171'],stunt:['Stunts','#FB923C'],extra:['Extras','#A78BFA'],animal:['Animals','#4ADE80'],vfx:['VFX','#22D3EE'],sound:['Sound','#FCD34D'],mu:['Makeup','#E879F9']};
-const AUTO={prop:/\b(cleaver|knife|gun|phone|letter|photo|bottle|key|bag|lantern|flashlight|radio|book|camera)s?\b/gi,vehicle:/\b(car|sedan|truck|van|motorcycle|bike|helicopter|boat)s?\b/gi,animal:/\b(dog|cat|horse|bird)s?\b/gi,sfx:/\b(explosion|fire|smoke|rain|blood|gunshot|shatters?)\b/gi,stunt:/\b(fight|leaps?|falls?|punch(es)?|tackles?|chase[sd]?|crash(es)?|charges)\b/gi,vfx:/\b(searchlights?|hologram|glow(s|ing)?)\b/gi,extra:/\b(crowd|onlookers|patrons|passersby)\b/gi,sound:/\b(music|song|siren|alarm|echo)\b/gi,wardrobe:/\b(coat|uniform|dress|jacket|hat|robe|apron)s?\b/gi};
+const AUTO=window.PH_AUTO||{prop:/\b(cleaver|knife|gun|phone|letter|photo|bottle|key|bag|lantern|flashlight|radio|book|camera)s?\b/gi,vehicle:/\b(car|sedan|truck|van|motorcycle|bike|helicopter|boat)s?\b/gi,animal:/\b(dog|cat|horse|bird)s?\b/gi,sfx:/\b(explosion|fire|smoke|rain|blood|gunshot|shatters?)\b/gi,stunt:/\b(fight|leaps?|falls?|punch(es)?|tackles?|chase[sd]?|crash(es)?|charges)\b/gi,vfx:/\b(searchlights?|hologram|glow(s|ing)?)\b/gi,extra:/\b(crowd|onlookers|patrons|passersby)\b/gi,sound:/\b(music|song|siren|alarm|echo)\b/gi,wardrobe:/\b(coat|uniform|dress|jacket|hat|robe|apron)s?\b/gi};
 const HLC=['#FDE047','#86EFAC','#93C5FD','#F9A8D4','#FDBA74','#C4B5FD'];
 const KEY='prohub_scriptation_v1',OUT='prohub_meta_v1';
 let ST={ann:[],notes:{},omit:{},hl:[],auto:true},META=null,curCat='prop';
@@ -1150,7 +1150,7 @@ function build(){
       cast:[...new Set(s.chars.map(cname))],words,eighths,pg:Math.floor(cum)+1,tags:{},notes:ST.notes[s.num]||'',omit:!!ST.omit[s.num]};
     cum+=eighths/8;
     Object.keys(CATS).forEach(k=>o.tags[k]=new Set());
-    if(ST.auto)s.lines.forEach(l=>{if(l.type==='action'||l.type==='dialogue')Object.keys(AUTO).forEach(k=>{(l.text.match(AUTO[k])||[]).forEach(w=>o.tags[k].add(w.toLowerCase()));});});
+    if(ST.auto)s.lines.forEach(l=>{if(l.type==='action'||l.type==='dialogue')Object.keys(AUTO).forEach(k=>{(l.text.match(AUTO[k])||[]).forEach(w=>o.tags[k].add(window.PH_NORM?PH_NORM(w):w.toLowerCase()));});});
     ST.ann.filter(a=>a.scene===s.num).forEach(a=>o.tags[a.cat].add(a.text.toLowerCase()));
     Object.keys(o.tags).forEach(k=>o.tags[k]=[...o.tags[k]]);
     return o;});
@@ -1160,7 +1160,7 @@ function build(){
   days.forEach(d=>{d.cast=[...new Set(d.scenes.flatMap(x=>x.cast))];d.needs={};Object.keys(CATS).forEach(k=>{const v=[...new Set(d.scenes.flatMap(x=>x.tags[k]))];if(v.length)d.needs[k]=v;});});
   return {scenes:sc,days:days,cast:[...new Set(sc.flatMap(x=>x.cast))],ts:Date.now()};
 }
-function save(){try{localStorage.setItem(KEY,JSON.stringify(ST));localStorage.setItem(OUT,JSON.stringify(META));}catch(e){}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(ST));localStorage.setItem(OUT,JSON.stringify(META));}catch(e){} try{if(window.linkPublish&&!window.__lpBusyFlag){clearTimeout(window.__lpT2);window.__lpT2=setTimeout(window.linkPublish,900);}}catch(e){}}
 function dayOf(num){for(const d of META.days)if(d.scenes.some(x=>x.num===num))return d.n;return 0;}
 function sceneOf(num){return META.scenes.find(x=>x.num===num)||{};}
 /* ---- Breakdown tile ---- */
@@ -2207,7 +2207,21 @@ var SCH=null;
 function iso(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function sDefault(){var d=new Date();d.setDate(d.getDate()+((8-d.getDay())%7||7));return {start:iso(d),call:'07:00',lunch:30,per8:15,move:20,items:[]};}
 function sLoad(){ try{SCH=JSON.parse(localStorage.getItem(SKEY)||'null');}catch(e){SCH=null;} if(!SCH||!Array.isArray(SCH.items)) SCH=sDefault(); SCH.lunch=+SCH.lunch||30; SCH.per8=+SCH.per8||15; SCH.move=SCH.move==null?20:+SCH.move; }
-function sSave(){ try{localStorage.setItem(SKEY,JSON.stringify(SCH));}catch(e){} }
+var _lpT=null,_lpBusy=false;
+function sSave(){ try{localStorage.setItem(SKEY,JSON.stringify(SCH));}catch(e){} if(!_lpBusy){clearTimeout(_lpT);_lpT=setTimeout(linkPublish,700);} }
+function linkPublish(){
+  if(_lpBusy) return; _lpBusy=true;
+  try{
+    var d=scheduleDays(); if(!d.length) return;
+    var days=d.map(function(x){return {n:x.n,date:x.date,call:x.call,wrap:x.wrap,lunch:x.lunch,loc:x.loc,eighths:x.eighths,scenes:x.scenes,cast:x.cast,needs:x.needs};});
+    var live=0,e8=0,cast={}; d.forEach(function(x){live+=x.scenes.length;e8+=x.eighths||0;x.cast.forEach(function(c){cast[c]=1;});});
+    var cs=JSON.stringify({days:days}), prev=null; try{prev=JSON.parse(localStorage.getItem('prohub_callsheet_v1')||'null');}catch(e){}
+    if(!prev||JSON.stringify({days:prev.days})!==cs) localStorage.setItem('prohub_callsheet_v1',JSON.stringify({days:days,ts:Date.now()}));
+    var plan={src:'stripboard',shootDays:d.length,scenes:live,pages:Math.max(1,Math.round(e8/8)),cast:Object.keys(cast).length,eighths:e8}, pp=null; try{pp=JSON.parse(localStorage.getItem('prohub_plan_v1')||'null');}catch(e){}
+    if(!pp||['shootDays','scenes','pages','cast','eighths'].some(function(k){return pp[k]!==plan[k];})){plan.ts=Date.now();localStorage.setItem('prohub_plan_v1',JSON.stringify(plan));}
+  }catch(e){} finally{ _lpBusy=false; }
+}
+window.linkPublish=linkPublish; setTimeout(linkPublish,2500);
 function hm(s){var p=String(s||'07:00').split(':');return (+p[0]||0)*60+(+p[1]||0);}
 function tm(min){min=Math.round(min)%1440;return String(Math.floor(min/60)).padStart(2,'0')+':'+String(min%60).padStart(2,'0');}
 function dur(M,num){var x=scMeta(M,num);return Math.max(20,(x.eighths||1)*SCH.per8);}

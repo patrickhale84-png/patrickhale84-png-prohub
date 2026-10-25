@@ -9765,7 +9765,7 @@ function render(){
  if(!shell())return;
  var body=$('.bd-body',root),sc=body?body.scrollTop:0;
  var C=compute();
- var h=topHTML(C)+tabsHTML()+'<div class="bd-body"><div class="bd-wrap bd-'+(B.ui.mode==='rep'?'rep':'est')+'">'+
+ var h=topHTML(C)+tabsHTML()+linkBanner()+'<div class="bd-body"><div class="bd-wrap bd-'+(B.ui.mode==='rep'?'rep':'est')+'">'+
   (B.ui.tab==='top'?topSheet(C):B.ui.tab==='det'?detail(C):vars(C))+'</div></div>'+
   '<input type="file" id="bd-file" accept=".json,application/json" style="display:none">';
  root.innerHTML=h;
@@ -9971,6 +9971,9 @@ function onClick(e){
   case 'clearot':snapshot();B.a.forEach(function(a){a.l.forEach(function(l){l.ot=0})});save();render();toast('OT cleared',undo);break;
   case 'reset':if(confirm('Replace all lines with the '+TIERS[B.tier].n+' template?')){snapshot();var t0=B.title,u0=B.ui;B=build(B.tier);B.title=t0;B.ui=u0;save();render()}break;
   case 'pull':pull();break;
+  case 'linkapply':linkApply();break;
+  case 'linkauto':B.link=B.link||{};B.link.auto=true;save();linkApply();toast('Budget will follow the schedule automatically.');break;
+  case 'linkdismiss':{var pp=planInfo();B.link=B.link||{};if(pp)B.link.ignored=pp.shootDays;save();render();break}
   case 'csv':exportCSV();break;
   case 'json':exportJSON();break;
   case 'import':{var fi=$('#bd-file');if(fi)fi.click();break}
@@ -9995,6 +9998,22 @@ function snapModal(){
   (l.length?l.map(function(s){return '<div class="bd-snap"><b>'+esc(s.name)+'</b><span>'+money(s.total)+' · '+new Date(s.t).toLocaleDateString()+'</span><button class="bd-btn" data-act="snapload" data-l="'+s.id+'">Restore</button><button class="bd-btn dng" data-act="snapdel" data-l="'+s.id+'">✕</button></div>'}).join(''):'<div class="bd-empty">No saved versions yet.</div>'),
   '<button class="bd-btn" data-act="mclose">Close</button>');
 }
+
+/* ---------- Schedule link ---------- */
+function planInfo(){try{var p=JSON.parse(localStorage.getItem('prohub_plan_v1')||'null');return p&&p.shootDays>0?p:null}catch(e){return null}}
+function linkOff(p){return !p||n(B.m.sd)===p.shootDays||(B.link&&B.link.ignored===p.shootDays)}
+function linkBanner(){
+ var p=planInfo();if(linkOff(p))return '';
+ return '<div class="bd-link" style="display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:10px 14px;margin:8px 12px 0;border:1px solid #A9D95B;border-radius:10px;background:rgba(169,217,91,.08);color:#E9EDF5;font-size:12px"><span style="flex:1 1 260px"><b>Schedule changed.</b> The stripboard has '+p.shootDays+' shoot days ('+p.scenes+' scenes, '+p.pages+' pages). This budget assumes '+n(B.m.sd)+'.</span>'+
+  '<button class="bd-btn pri" data-act="linkapply">Update budget</button><button class="bd-btn" data-act="linkauto" title="Always follow the schedule from now on">Always follow</button><button class="bd-btn" data-act="linkdismiss">Not now</button></div>';
+}
+function linkApply(quiet){
+ var p=planInfo();if(!p||n(B.m.sd)===p.shootDays)return;
+ snapshot();var was=n(B.m.sd);B.m.sd=p.shootDays;if(p.pages)B.m.pages=p.pages;requantity(B);save();render();
+ toast('Budget now follows the schedule: '+was+' → '+p.shootDays+' shoot days.',undo);
+}
+function linkSync(){if(!B)return;var p=planInfo();if(linkOff(p))return;if(B.link&&B.link.auto)linkApply();else render();}
+window.addEventListener('storage',function(e){if(e.key==='prohub_plan_v1')linkSync()});
 
 /* ---------- Script pull ---------- */
 function pull(){
@@ -10053,7 +10072,7 @@ function init(){
    if(e.key==='Escape')closeModal();
   });
  }
- render();
+ render();linkSync();
 }
 window.renderBudget=function(){init()};
 window.exportBudgetPDF=function(){if(!B)init();doPrint()};

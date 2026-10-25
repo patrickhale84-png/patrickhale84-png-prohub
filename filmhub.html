@@ -148,7 +148,7 @@ tr:hover td{background:rgba(255,255,255,.03)}
 }
 </style>
 <link id="ph-icons" rel="icon" type="image/svg+xml" href="favicon.svg"><link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png"><link rel="apple-touch-icon" href="apple-touch-icon.png">
-<!--ph-pwa--><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#05070B"><meta name="apple-mobile-web-app-capable" content="yes"><!--/ph-pwa--></head>
+<!--ph-pwa--><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#05070B"><meta name="apple-mobile-web-app-capable" content="yes"><!--/ph-pwa--><script src="lib/autotag.js"></script></head>
 <body>
 <script id="sn-cue">
 /* Strict character-cue rules shared by every tool (parser, schedule, call sheet, evaluator). */
@@ -243,7 +243,7 @@ window.SNCue={name:name,demote:demote,strip:strip};
 'use strict';
 var KEYS=['prehub_master_v1','prehub_v3','prohub_meta_v1','prohub_scriptation_v1','prohub_callsheet_v1','prehub_shotlist','prohub_shots_v1','prohub_props_tracker_v1','ob_letters','prehub_quick_notes'];
 var CATS={prop:['Props','#60A5FA'],vehicle:['Vehicles','#F59E0B'],wardrobe:['Wardrobe','#F472B6'],sfx:['SFX','#F87171'],stunt:['Stunts','#FB923C'],extra:['Extras','#A78BFA'],animal:['Animals','#4ADE80'],vfx:['VFX','#22D3EE'],sound:['Sound','#FCD34D'],mu:['Makeup','#E879F9']};
-var AUTO={prop:/\b(cleaver|knife|gun|phone|letter|photo|bottle|key|bag|lantern|flashlight|radio|book|camera|lipstick|badge|lanyard)s?\b/gi,vehicle:/\b(car|sedan|truck|van|motorcycle|bike|helicopter|boat|mustang)s?\b/gi,animal:/\b(dog|cat|horse|bird)s?\b/gi,sfx:/\b(explosion|fire|smoke|rain|blood|gunshot|shatters?)\b/gi,stunt:/\b(fight|leaps?|falls?|punch(es)?|tackles?|chase[sd]?|crash(es)?|charges)\b/gi,vfx:/\b(searchlights?|hologram|glow(s|ing)?|membrane)\b/gi,extra:/\b(crowd|onlookers|patrons|passersby)\b/gi,sound:/\b(music|song|siren|alarm|echo)\b/gi,wardrobe:/\b(coat|uniform|dress|jacket|hat|robe|apron|nightgown)s?\b/gi};
+var AUTO=window.PH_AUTO||{prop:/\b(cleaver|knife|gun|phone|letter|photo|bottle|key|bag|lantern|flashlight|radio|book|camera|lipstick|badge|lanyard)s?\b/gi,vehicle:/\b(car|sedan|truck|van|motorcycle|bike|helicopter|boat|mustang)s?\b/gi,animal:/\b(dog|cat|horse|bird)s?\b/gi,sfx:/\b(explosion|fire|smoke|rain|blood|gunshot|shatters?)\b/gi,stunt:/\b(fight|leaps?|falls?|punch(es)?|tackles?|chase[sd]?|crash(es)?|charges)\b/gi,vfx:/\b(searchlights?|hologram|glow(s|ing)?|membrane)\b/gi,extra:/\b(crowd|onlookers|patrons|passersby)\b/gi,sound:/\b(music|song|siren|alarm|echo)\b/gi,wardrobe:/\b(coat|uniform|dress|jacket|hat|robe|apron|nightgown)s?\b/gi};
 var SAMPLE="1 EXT. HOUSE / CARPORT - NIGHT 1\n\nSweeping searchlights spin across the yard. In the distance, the dog barks.\nINGRID charges off the porch, heavy steel butcher cleaver raised high.\n\nINGRID\n(whispering)\nLotus, stay with me.\n\n2 INT. 1989 FORD MUSTANG - CONTINUOUS 2\n\nIngrid dives inside the car. She twists the ignition key. The V8 ENGINE ROARS to life.\nShe throws it in reverse!\n\n3 INT. INTERROGATION ROOM - DAY\n\nA pool of light beams down onto a two-cushion couch. INGRID lies flat.\n\nINGRID\nLotus!\n\nTHERAPIST (O.S.)\nThe transition can be disorienting.";
 var UI={day:1,script:'all',shotF:'all',bud:true,cur:null,demo:false,sig:''};
 var M=null;
@@ -295,7 +295,7 @@ function derive(lines){
     else if(l.type==='dialogue'&&speaker){cur.dlg[speaker]=(cur.dlg[speaker]||0)+t.split(/\s+/).length;}
     else if(l.type!=='parenthetical'){speaker=null;}
     if(l.type==='action'||l.type==='dialogue'){
-      Object.keys(AUTO).forEach(function(k){(t.match(AUTO[k])||[]).forEach(function(w){w=w.toLowerCase();if(cur.tags[k].indexOf(w)<0)cur.tags[k].push(w);});});
+      Object.keys(AUTO).forEach(function(k){(t.match(AUTO[k])||[]).forEach(function(w){w=window.PH_NORM?PH_NORM(w):w.toLowerCase();if(cur.tags[k].indexOf(w)<0)cur.tags[k].push(w);});});
     }
   });
   var cum=0;
@@ -345,17 +345,36 @@ function build(){
   var srcDays=(call&&call.days)||(metaUsed&&meta.days)||null;
   if(srcDays&&metaUsed){days=srcDays.map(function(d){return {n:d.n,loc:d.loc,eighths:d.eighths,nums:(d.scenes||[]).map(function(x){x=typeof x==='object'?x.num:x;return (typeof nm!=='undefined'&&nm[x])||x;}),cast:[],needs:{}};});}
   else days=cluster(scenes);
+  var drift=null;
+  if(srcDays&&metaUsed){
+    var known={},placed={},byNum={};scenes.forEach(function(x){known[x.num]=1;byNum[x.num]=x;});
+    var gone=[],added=[];
+    days.forEach(function(d){d.nums=d.nums.filter(function(q){var ok=known[q]&&!byNum[q].omit&&!placed[q];if(!ok&&!placed[q])gone.push(q);if(ok)placed[q]=1;return ok;});});
+    var open=scenes.filter(function(x){return !x.omit&&!placed[x.num];});
+    if(days.length&&open.length){open.forEach(function(x){var tgt=null;days.forEach(function(d){if(d.loc===x.loc)tgt=d;});tgt=tgt||days[days.length-1];tgt.nums.push(x.num);placed[x.num]=1;added.push(x.num);});}
+    days.forEach(function(d){d.eighths=d.nums.reduce(function(a,q){return a+((byNum[q]||{}).eighths||0);},0);});
+    days=days.filter(function(d){return d.nums.length;});
+    if(gone.length||added.length)drift={removed:gone,added:added};
+  }
   days=finishDays(days,scenes);
   var cast=[];scenes.forEach(function(s){s.cast.forEach(function(c){if(cast.indexOf(c)<0)cast.push(c);});});
   var eighths=scenes.reduce(function(a,s){return a+(s.omit?0:s.eighths);},0);
   var words=lines.reduce(function(a,l){return a+String(l.text).split(/\s+/).filter(Boolean).length;},0);
-  return {title:title,lines:lines,scenes:scenes,days:days,cast:cast,eighths:eighths,pages:Math.max(lines.length?1:0,Math.round(eighths/8*10)/10),words:words,
+  return {drift:drift,title:title,lines:lines,scenes:scenes,days:days,cast:cast,eighths:eighths,pages:Math.max(lines.length?1:0,Math.round(eighths/8*10)/10),words:words,
     source:source,rev:(master&&master.shoot)||null,metaUsed:metaUsed,meta:meta,call:call,pre:pre,master:master,
     shots:(function(){var a=J('prehub_shotlist')||[],b=J('prohub_shots_v1')||[],seen={};return a.concat(b).filter(function(x){if(!x||seen[x.id])return false;seen[x.id]=1;return true;});})(),outreach:J('ob_letters')||[],notes:J('prehub_quick_notes')||[],props:J('prohub_props_tracker_v1')||[],ann:J('prohub_scriptation_v1')};
 }
 function sigNow(){return KEYS.map(function(k){var v=localStorage.getItem(k);return v?v.length:0;}).join('.')+(UI.demo?'d':'');}
 function reload(manual){
   M=build();UI.sig=sigNow();
+  try{
+    if(M.drift){var ds=JSON.stringify(M.drift);if(UI.driftSig!==ds){UI.driftSig=ds;var bits=[];if(M.drift.added.length)bits.push('scene '+M.drift.added.join(', ')+' added to the schedule');if(M.drift.removed.length)bits.push('scene '+M.drift.removed.join(', ')+' dropped');toast('Schedule updated from the script: '+bits.join('; ')+'.');}}
+    if(M.lines.length&&!UI.demo&&M.days.length){
+      var pl=null;try{pl=JSON.parse(localStorage.getItem('prohub_plan_v1')||'null');}catch(e){}
+      if(!pl||pl.src==='hub'){var cs={};M.days.forEach(function(d){d.cast.forEach(function(c){cs[c]=1;});});var np={src:'hub',shootDays:M.days.length,scenes:M.scenes.filter(function(x){return !x.omit;}).length,pages:Math.max(1,Math.round(M.eighths/8)),cast:Object.keys(cs).length,eighths:M.eighths};
+        if(!pl||['shootDays','scenes','pages','cast','eighths'].some(function(k){return pl[k]!==np[k];})){np.ts=Date.now();localStorage.setItem('prohub_plan_v1',JSON.stringify(np));}}
+    }
+  }catch(e){}
   $('pTitle').textContent=M.title;
   $('pSub').textContent=M.lines.length?('// '+M.source):'// no script yet';
   var live=!!M.lines.length&&!UI.demo;
