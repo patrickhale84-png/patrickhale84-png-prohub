@@ -841,6 +841,7 @@ function open(){
   var items=[['importBtn','Import script','Brings it into every tool'],['__safety','Backups & history','Snapshots, restore, auto-save to a folder'],['saveAllBtn','Save all','Download everything as one file'],['loadAllBtn','Load all','Restore a saved file'],['resetBtn','Reset tile sizes','Put the dashboard back to normal']];
   var h='<div class="g"></div><div class="t">proHUB</div><div class="s">'+proj+'</div>';
   h+='<a href="filmhub.html#print">Print / Export<small>Call sheet, script, stripboard, sides to PDF</small></a>';
+  h+='<a href="filmhub.html#export">Export data<small>Spreadsheets, calendar, Fountain, Final Draft</small></a>';
   h+='<a href="filmhub.html">filmHUB<small>Front desk: all tiles in one place</small></a>';
   items.forEach(function(x,i){h+='<button data-i="'+i+'">'+x[1]+'<small>'+x[2]+'</small></button>';});
   h+='<button class="x" data-x="1">&#10005; Close menu</button>';

@@ -214,6 +214,7 @@ window.SNCue={name:name,demote:demote,strip:strip};
     <div class="sync" id="syncPill"><i></i><span class="mono" id="syncTxt">Live link</span></div>
     <button class="tb" onclick="reload(true)" title="Re-read preHUB and proHUB data"><i class="fa-solid fa-rotate"></i><span>Refresh</span></button>
     <button class="tb" id="saveAllBtn" onclick="SNMaster.save()" title="Save everything (all tools) to one JSON file"><i class="fa-solid fa-floppy-disk"></i><span>Save all</span></button>
+    <button class="tb" id="phExportBtn" onclick="window.PHX&&PHX.open()" title="Export spreadsheets, calendar, Fountain and Final Draft files"><i class="fa-solid fa-file-export"></i><span>Export data</span></button>
     <button class="tb" id="phBackupBtn" onclick="window.PHSafety&&PHSafety.open()" title="Automatic snapshots, restore and folder auto-save"><i class="fa-solid fa-clock-rotate-left"></i><span>Backups</span></button>
     <button class="tb" onclick="hubImport()" title="Import a master JSON or a client/backup HTML file"><i class="fa-solid fa-folder-open"></i><span>Load backup</span></button>
     <button class="tb g" onclick="clientExport(false)" title="Download a self-contained presentation website (HTML) for a client"><i class="fa-solid fa-display"></i><span>Client site</span></button>
@@ -339,6 +340,7 @@ function build(){
     Object.keys(CATS).forEach(function(k){scenes.forEach(function(s){s.tags[k]=s.tags[k]||[];});});
     metaUsed=true;
   }
+  if(!metaUsed){var st0=J('prohub_scriptation_v1')||{};scenes.forEach(function(s){(st0.ann||[]).forEach(function(a){if(String(a.scene)===String(s.num)&&s.tags[a.cat]){var w=String(a.text).toLowerCase();if(s.tags[a.cat].indexOf(w)<0)s.tags[a.cat].push(w);}});if(st0.notes&&st0.notes[s.num])s.notes=st0.notes[s.num];if(st0.omit&&st0.omit[s.num])s.omit=true;});}
   var days;
   var srcDays=(call&&call.days)||(metaUsed&&meta.days)||null;
   if(srcDays&&metaUsed){days=srcDays.map(function(d){return {n:d.n,loc:d.loc,eighths:d.eighths,nums:(d.scenes||[]).map(function(x){x=typeof x==='object'?x.num:x;return (typeof nm!=='undefined'&&nm[x])||x;}),cast:[],needs:{}};});}
@@ -759,7 +761,7 @@ function loadPdf(){return new Promise(function(res,rej){if(window.pdfjsLib){res(
 function readPDF(file){return loadPdf().then(function(){return file.arrayBuffer();}).then(function(buf){return pdfjsLib.getDocument({data:buf}).promise;}).then(async function(pdf){var acc=[];for(var i=1;i<=pdf.numPages;i++){var pg=await pdf.getPage(i),tc=await pg.getTextContent(),by={};tc.items.forEach(function(it){var y=Math.round(it.transform[5]);(by[y]=by[y]||[]).push({x:it.transform[4],s:it.str});});Object.keys(by).map(Number).sort(function(a,b){return b-a;}).forEach(function(y){var s=by[y].sort(function(a,b){return a.x-b.x;}).map(function(t){return t.s;}).join(' ').trim();if(s)acc.push(s);});acc.push('');}return acc.join('\n');});}
 function readFDX(file){return file.text().then(function(t){var x=new DOMParser().parseFromString(t,'text/xml'),acc=[];Array.prototype.forEach.call(x.getElementsByTagName('Paragraph'),function(p){var ty=(p.getAttribute('Type')||'').toLowerCase(),s=Array.prototype.map.call(p.getElementsByTagName('Text'),function(n){return n.textContent;}).join('').trim();if(!s)return;if(ty.indexOf('scene')>=0||ty.indexOf('character')>=0)acc.push(s.toUpperCase());else if(ty.indexOf('parenthetical')>=0)acc.push('('+s.replace(/^\(|\)$/g,'')+')');else acc.push(s);if(ty.indexOf('scene')>=0||ty.indexOf('dialogue')>=0||ty.indexOf('action')>=0||ty.indexOf('transition')>=0)acc.push('');});return acc.join('\n');});}
 function readJSON(file){return file.text().then(function(t){var d=JSON.parse(t),l=[];if(d.script&&Array.isArray(d.script.lines))l=d.script.lines;else if(Array.isArray(d.lines))l=d.lines;else if(Array.isArray(d))l=d;return l.map(function(x){return typeof x==='string'?x:(x.value||x.text||'');}).join('\n');});}
-function readAny(file){var n=file.name.toLowerCase();if(/\.pdf$/.test(n))return readPDF(file);if(/\.fdx$/.test(n))return readFDX(file);if(/\.json$/.test(n))return readJSON(file);return file.text();}
+function readAny(file){var n=file.name.toLowerCase();if(/\.pdf$/.test(n))return readPDF(file);if(/\.fdx$/.test(n))return window.PHX?PHX.readFDX(file):readFDX(file);if(/\.json$/.test(n))return readJSON(file);return file.text();}
 function titleOf(raw,fallback){var m=String(raw).match(/^\s*Title:\s*(.+)$/im);if(m)return m[1].trim().toUpperCase();return fallback;}
 window.fhRun=function(raw,name){
   raw=String(raw||'').replace(/\r/g,'');
@@ -1969,5 +1971,5 @@ body{display:flex;flex-direction:column;min-height:0}
 .tsub{white-space:normal;overflow:hidden;text-overflow:clip;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .hero .wx{white-space:normal;overflow-wrap:anywhere}
 </style>
-<!--ph-pwa--><script id="ph-pwa-js">(function(){try{if("serviceWorker" in navigator&&/^https?:/.test(location.protocol)){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})})}}catch(e){}})();</script><script src="lib/safety.js" defer></script><!--/ph-pwa--></body>
+<!--ph-pwa--><script id="ph-pwa-js">(function(){try{if("serviceWorker" in navigator&&/^https?:/.test(location.protocol)){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})})}}catch(e){}})();</script><script src="lib/safety.js" defer></script><script src="lib/exchange.js" defer></script><!--/ph-pwa--></body>
 </html>
