@@ -260,14 +260,30 @@ function pill(t,c){return '<span class="pill" style="color:'+c+'">'+esc(t)+'</sp
 
 /* ---------- script parsing (used when only raw text is stored) ---------- */
 function parseText(text){
-  var out=[],speaker=false;
-  String(text||'').split(/\r?\n/).forEach(function(raw,ix,arr){
-    var t=raw.replace(/(^\d+[A-Z]?\s+|\s+\d+[A-Z]?$|^\*\d+\*)/g,'').trim();
+  var out=[],speaker=false,rows=String(text||'').split(/\r?\n/).map(function(r){return r.replace(/\t/g,'        ').replace(/<[^>]+>/g,'').replace(/\s+$/,'');});
+  /* layout detection: numbered headings without INT./EXT. (e.g. "12  HIS VIEW"), and page-slug scripts ("A1" under a dashed rule) */
+  var NUMH=/^\s*(\d+[A-Z]?)\s+([A-Z][A-Z0-9 .,'"&\/\-\u2013\u2014()#!?:;]*[A-Z0-9)!?.])\s*$/,SLUG=/^\s*[A-Z]{0,2}\d+[A-Z]{0,2}\s*$/;
+  var numN=0,slugN=0;
+  rows.forEach(function(r,i){if(NUMH.test(r)&&!/[a-z]/.test(r)&&(!rows[i-1]||!rows[i-1].trim())&&i+1<rows.length&&(rows[i+1]||'').trim()==='')numN++;if(/^-{20,}\s*$/.test(r)&&SLUG.test(rows[i+1]||'')&&String(rows[i+2]||'').trim())slugN++;});
+  var mode=slugN>=10?'slug':(numN>=8?'num':'');
+  if(mode==='slug'){var nr=[],last='';
+    for(var i=0;i<rows.length;i++){var r=rows[i];
+      if(/^-{20,}\s*$/.test(r)||/^\s*\d{1,2}\/\d{1,2}\/\d{2,4}\s+\S*\s*[a-z]?\d*\s*$/.test(r))continue;
+      if(SLUG.test(r)){var j=i+1;while(j<rows.length&&!rows[j].trim())j++;var nx=rows[j]||'';
+        if(/^\s*CONTINUED\b/i.test(nx)){i=j;continue;}
+        if(r.trim()!==last&&nx.trim()&&!/[a-z]/.test(nx)){last=r.trim();nr.push('\u0001'+nx.trim());i=j;continue;}
+        continue;}
+      nr.push(r);}
+    rows=nr;}
+  rows.forEach(function(raw,ix,arr){
+    var t=raw.replace(/(^\s*\d+[A-Z]?\s+|\s+\d+[A-Z]?$|^\*\d+\*)/g,'').trim();
+    if(mode==='num'&&NUMH.test(raw)&&!/[a-z]/.test(raw)&&(!arr[ix-1]||!arr[ix-1].trim())){out.push({type:'scene-heading',text:NUMH.exec(raw)[2].trim()});speaker=false;return;}
+    if(raw.charAt(0)==='\u0001'){out.push({type:'scene-heading',text:raw.slice(1)});speaker=false;return;}
     if(!t){speaker=false;return;}
     var ht=t.replace(/^\d+\s+/,''),cl=t.replace(/\s*\((CONT['’]D|V\.O\.|O\.S\.|O\.C\.)\)\s*$/i,'').trim(),type='action';
     if(/^(INT\.|EXT\.|EST\.|INT\/EXT\.|I\/E\.)/i.test(ht)){type='scene-heading';speaker=false;}
     else if(/^\(.*\)$/.test(t)){type='parenthetical';}
-    else if(/TO:$/.test(t.toUpperCase())){type='transition';speaker=false;}
+    else if(/TO:$/.test(t.toUpperCase())||/^(DISSOLVE|SMASH CUT|MATCH CUT|CUT|FADE (IN|OUT)|IRIS (IN|OUT)|WIPE)\b[A-Z :.]*$/.test(t)&&t.length<30){type='transition';speaker=false;}
     else if(window.SNCue&&SNCue.name(t)!==null&&String(arr[ix+1]||'').trim()&&!/^(INT\.|EXT\.|EST\.|INT\/EXT\.|I\/E\.)/i.test(String(arr[ix+1]).trim())){type='character';speaker=true;}
     else if(speaker){type='dialogue';}
     out.push({type:type,text:t});
@@ -285,7 +301,8 @@ function derive(lines){
     if(l.type==='character'&&window.SNCue){var nx=lines[li+1],nt=nx?nx.type:'';if(SNCue.name(t)===null||!(nt==='dialogue'||nt==='parenthetical')){l.type='action';}}
     if(l.type==='scene-heading'){
       var h=t.replace(/^\d+[A-Z]?\s+/,'').replace(/\s+\d+[A-Z]?$/,'').toUpperCase();
-      var m=h.match(/^(INT\.\/EXT\.|INT\/EXT\.|I\/E\.|INT\.|EXT\.|EST\.)\s*(.*?)(?:\s+[-–—]\s+([A-Z][A-Z .\/]*))?$/)||[];
+      h=h.replace(/^(INT|EXT)\s*(?:&|AND|\/)\s*(EXT|INT)\b\.?/,'INT/EXT.').replace(/^(INT|EXT)\s+(?=[A-Z])/,'$1. ');
+      var m=h.match(/^(INT\.\/EXT\.|INT\/EXT\.|I\/E\.|INT\.|EXT\.|EST\.)\s*(.*?)(?:\s+[-–—]\s+([A-Z][A-Z .\/]*))?$/)||h.match(/^()(.*?)(?:\s+[-–—]\s+((?:EARLY |LATE )?(?:DAY|NIGHT|DAWN|DUSK|MORNING|EVENING|AFTERNOON|SUNSET|SUNRISE)[A-Z .\/]*))$/)||[];
       var sn=l.sn&&!scenes.some(function(z){return z.num===l.sn;})?l.sn:null;
       cur={num:sn||String(scenes.length+1),sn:sn?1:0,heading:h,ie:(m[1]||'INT.').replace(/\./g,''),loc:(m[2]||h).trim(),tod:((m[3]||'DAY').trim().split(/\s+/)[0]),cast:[],words:0,lines:[],tags:{},notes:'',omit:!!l.om,hrv:l.rv?1:0,dlg:{}};
       Object.keys(CATS).forEach(function(k){cur.tags[k]=[];});
