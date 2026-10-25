@@ -281,10 +281,10 @@ function parseText(text){
     if(raw.charAt(0)==='\u0001'){out.push({type:'scene-heading',text:raw.slice(1)});speaker=false;return;}
     if(!t){speaker=false;return;}
     var ht=t.replace(/^\d+\s+/,''),cl=t.replace(/\s*\((CONT['’]D|V\.O\.|O\.S\.|O\.C\.)\)\s*$/i,'').trim(),type='action';
-    if(/^(INT\.|EXT\.|EST\.|INT\/EXT\.|I\/E\.)/i.test(ht)){type='scene-heading';speaker=false;}
+    if(/^(INT\.|EXT\.|EST\.|INT\/EXT\.|I\/E\.)/i.test(ht)||(/^(INT|EXT)\s*(?:[\/&]\s*(?:INT|EXT)\s*)?[.\s]\s*[A-Z\d]/.test(ht)&&!/[a-z]/.test(ht))){type='scene-heading';speaker=false;}
     else if(/^\(.*\)$/.test(t)){type='parenthetical';}
     else if(/TO:$/.test(t.toUpperCase())||/^(DISSOLVE|SMASH CUT|MATCH CUT|CUT|FADE (IN|OUT)|IRIS (IN|OUT)|WIPE)\b[A-Z :.]*$/.test(t)&&t.length<30){type='transition';speaker=false;}
-    else if(window.SNCue&&SNCue.name(t)!==null&&String(arr[ix+1]||'').trim()&&!/^(INT\.|EXT\.|EST\.|INT\/EXT\.|I\/E\.)/i.test(String(arr[ix+1]).trim())){type='character';speaker=true;}
+    else if(window.SNCue&&SNCue.name(t)!==null&&String(arr[ix+1]||'').trim()&&!/^(INT|EXT|EST|I\/E)[.\s\/]/i.test(String(arr[ix+1]).trim())){type='character';speaker=true;}
     else if(speaker){type='dialogue';}
     out.push({type:type,text:t});
   });
