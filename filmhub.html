@@ -275,6 +275,13 @@ function parseText(text){
         continue;}
       nr.push(r);}
     rows=nr;}
+  /* bare location headings (no INT./EXT., e.g. "HOTEL LOBBY") set apart by blank lines at the action indent */
+  if(!mode){(function(){var ind=function(r){return r.length-r.replace(/^\s+/,'').length;},cnt={},cand=[],TR=/^(FADE|CUT|DISSOLVE|FLARE|SMASH|MATCH|IRIS|WIPE|THE END|CONTINUED|MORE|SUPER|TITLE|INTERCUT|BACK TO)\b/;
+    rows.forEach(function(r,i){if(/[a-z]/.test(r)&&(!rows[i-1]||!rows[i-1].trim())){var a=ind(r);cnt[a]=(cnt[a]||0)+1;}});
+    var ks=Object.keys(cnt).sort(function(x,y){return cnt[y]-cnt[x];});if(!ks.length)return;var A=+ks[0];
+    var real=rows.filter(function(r){return /^\s*(\d+[A-Z]?\s+)?(INT|EXT|EST|I\/E)[.\s\/]/.test(r)&&!/[a-z]/.test(r);}).length;
+    rows.forEach(function(r,i){var t=r.trim();if(t&&!/[a-z]/.test(t)&&/[A-Z]{2}/.test(t)&&ind(r)===A&&t.length<60&&!(rows[i-1]||'').trim()&&rows[i+1]!==undefined&&!rows[i+1].trim()&&!TR.test(t)&&!/[:;]$/.test(t.replace(/\s+$/,''))||t&&/^[A-Z][A-Z ]+:\s+[A-Z][A-Z .,'-]+$/.test(t)&&ind(r)===A&&!(rows[i-1]||'').trim()&&rows[i+1]!==undefined&&!rows[i+1].trim())cand.push(i);});
+    if(cand.length>=8&&cand.length>real*3){cand.forEach(function(i){rows[i]='\u0001'+rows[i].trim();});}})();}
   /* cue column statistics: veto speaker candidates (centered signs, titles) that sit off the script's cue/dialogue columns */
   var veto={};
   (function(){var ind=function(r){return r.length-r.replace(/^\s+/,'').length;},cand=[],ci={},di={};
