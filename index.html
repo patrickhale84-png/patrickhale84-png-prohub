@@ -217,6 +217,15 @@ a{color:inherit;text-decoration:none;}
 <link id="ph-icons" rel="icon" type="image/svg+xml" href="favicon.svg"><link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png"><link rel="apple-touch-icon" href="apple-touch-icon.png">
 </head>
 <body>
+<style id="ph-intro-style">
+#ph-intro{position:fixed;inset:0;z-index:2147483000;background:#05070B;display:flex;align-items:center;justify-content:center;padding:16px;cursor:pointer;transition:opacity .55s ease}
+#ph-intro.out{opacity:0;pointer-events:none}
+#ph-intro svg{width:min(92vw,760px);height:auto;display:block}
+#ph-intro .ph-skip{position:absolute;right:max(16px,env(safe-area-inset-right,0px));bottom:max(16px,env(safe-area-inset-bottom,0px));background:transparent;color:#8A99B2;border:1px solid #25344E;border-radius:999px;padding:8px 16px;font:600 12px system-ui,sans-serif;letter-spacing:.08em;cursor:pointer}
+#ph-intro .ph-skip:focus-visible{outline:3px solid #5B68E8;outline-offset:2px}
+</style>
+<div id="ph-intro" role="presentation"><svg class="phi" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 200" role="img" aria-label="proHUB"><title>proHUB</title><style>.phi .b{animation:phi-in .7s cubic-bezier(.22,1.25,.4,1) both;animation-delay:var(--d)}.phi .gp{animation:phi-gp 1s cubic-bezier(.65,0,.25,1) 2s both}.phi .gh{animation:phi-gh 1s cubic-bezier(.65,0,.25,1) 2s both}.phi .cp{animation:phi-in .7s cubic-bezier(.22,1.25,.4,1) both,phi-cp .8s ease both;animation-delay:var(--d),2s}.phi .ch{animation:phi-in .7s cubic-bezier(.22,1.25,.4,1) both,phi-ch .8s ease both;animation-delay:var(--d),2s}.phi .sl{animation:phi-sl .6s cubic-bezier(.2,.9,.3,1) both}@keyframes phi-in{from{opacity:0;transform:translate(var(--x),var(--y))}60%{opacity:1}to{opacity:1;transform:none}}@keyframes phi-gp{from{transform:translate(103.0px,14.0px) scale(18)}to{transform:translate(27.3px,53.0px) scale(9.4)}}@keyframes phi-gh{from{transform:translate(229.0px,14.0px) scale(18)}to{transform:translate(224.7px,53.0px) scale(9.4)}}@keyframes phi-cp{to{fill:#FFFFFF}}@keyframes phi-ch{to{fill:#A9D95B}}@keyframes phi-sl{from{opacity:0;transform:translate(var(--sx),0)}to{opacity:1;transform:none}}@media (prefers-reduced-motion:reduce){.phi *{animation:none!important}.phi .cp{fill:#FFFFFF}.phi .ch{fill:#A9D95B}.phi .gp{transform:translate(27.3px,53.0px) scale(9.4)}.phi .gh{transform:translate(224.7px,53.0px) scale(9.4)}}</style><rect width="440" height="200" rx="24" fill="#05070B"/><g transform="translate(158.9,53.0) scale(9.4)"><g class="sl" style="--sx:-12px;animation-delay:3.00s"><rect class="" x="0.05" y="2.05" width="5.90" height="1.90" rx=".16" fill="#FFFFFF"/><rect class="" x="0.05" y="6.05" width="5.90" height="1.90" rx=".16" fill="#FFFFFF"/><rect class="" x="0.05" y="4.05" width="1.90" height="1.90" rx=".16" fill="#FFFFFF"/><rect class="" x="4.05" y="4.05" width="1.90" height="1.90" rx=".16" fill="#FFFFFF"/></g></g><g transform="translate(93.1,53.0) scale(9.4)"><g class="sl" style="--sx:-5px;animation-delay:2.90s"><rect class="" x="0.05" y="2.05" width="1.90" height="5.90" rx=".16" fill="#FFFFFF"/><rect class="" x="2.05" y="2.05" width="3.90" height="1.90" rx=".16" fill="#FFFFFF"/><rect class="" x="4.05" y="4.05" width="1.90" height="1.90" rx=".16" fill="#FFFFFF"/></g></g><g transform="translate(356.3,53.0) scale(9.4)"><g class="sl" style="--sx:-14px;animation-delay:3.10s"><rect class="" x="0.05" y="0.05" width="1.90" height="7.90" rx=".16" fill="#A9D95B"/><rect class="" x="2.05" y="0.05" width="1.90" height="1.90" rx=".16" fill="#A9D95B"/><rect class="" x="2.05" y="3.05" width="3.90" height="1.90" rx=".16" fill="#A9D95B"/><rect class="" x="2.05" y="6.05" width="1.90" height="1.90" rx=".16" fill="#A9D95B"/><rect class="" x="4.05" y="0.05" width="1.90" height="2.90" rx=".16" fill="#A9D95B"/><rect class="" x="4.05" y="5.05" width="1.90" height="2.90" rx=".16" fill="#A9D95B"/></g></g><g transform="translate(290.5,53.0) scale(9.4)"><g class="sl" style="--sx:-7px;animation-delay:3.00s"><rect class="" x="0.05" y="0.05" width="1.90" height="7.90" rx=".16" fill="#A9D95B"/><rect class="" x="4.05" y="0.05" width="1.90" height="7.90" rx=".16" fill="#A9D95B"/><rect class="" x="2.05" y="6.05" width="1.90" height="1.90" rx=".16" fill="#A9D95B"/></g></g><g class="gp" style="transform:translate(103.0px,14.0px) scale(18)"><rect class="b cp" x="0.05" y="2.05" width="1.90" height="7.90" rx=".16" fill="#8CC63F" style="--x:0px;--y:12px;--d:0.10s"/><rect class="b cp" x="2.05" y="2.05" width="3.90" height="1.90" rx=".16" fill="#D56A36" style="--x:-9px;--y:0px;--d:0.24s"/><rect class="b cp" x="4.05" y="4.05" width="1.90" height="1.90" rx=".16" fill="#8B6FEA" style="--x:9px;--y:0px;--d:0.38s"/><rect class="b cp" x="2.05" y="6.05" width="3.90" height="1.90" rx=".16" fill="#3F93D9" style="--x:-9px;--y:0px;--d:0.52s"/></g><g class="gh" style="transform:translate(229.0px,14.0px) scale(18)"><rect class="b ch" x="0.05" y="0.05" width="1.90" height="7.90" rx=".16" fill="#E0689C" style="--x:0px;--y:-12px;--d:0.66s"/><rect class="b ch" x="4.05" y="0.05" width="1.90" height="7.90" rx=".16" fill="#DDA420" style="--x:0px;--y:12px;--d:0.80s"/><rect class="b ch" x="2.05" y="3.05" width="1.90" height="1.90" rx=".16" fill="#1FAE9A" style="--x:0px;--y:-8px;--d:0.94s"/></g></svg><button class="ph-skip" type="button">SKIP</button></div>
+
 <div class="shell">
   <header class="topbar">
     <button class="brand" id="brandBtn" title="Back to the tile dashboard">pro<span>HUB</span></button>
@@ -852,5 +861,16 @@ b.onclick=open;sc.onclick=close;
 .hdr-logo,#m-bar .mb-title.hdr-logo{color:#A9D95B!important}
 #ix-sheet .t{font-family:Impact,Haettenschweiler,"Anton","Arial Narrow Bold",sans-serif!important;font-weight:400!important;letter-spacing:.02em!important}
 </style>
+<script id="ph-intro-js">
+(function(){
+var el=document.getElementById('ph-intro');if(!el)return;
+var seen=false;try{seen=sessionStorage.getItem('ph_intro_seen')==='1'||/[?&]nointro/.test(location.search);}catch(e){}
+function done(){if(el.__d)return;el.__d=1;try{sessionStorage.setItem('ph_intro_seen','1');}catch(e){}el.classList.add('out');setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el);},650);}
+if(seen){el.parentNode.removeChild(el);return;}
+el.addEventListener('click',done);document.addEventListener('keydown',function(e){if(e.key==='Escape'||e.key==='Enter'||e.key===' ')done();});
+var rm=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+setTimeout(done,rm?1400:5000);
+})();
+</script>
 </body>
 </html>
