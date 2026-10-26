@@ -61,7 +61,7 @@ Tiles whose desk lives in another file open that file: Advanced Budget opens the
 
 ## Screenwriter formats
 
-- **Import:** PDF (rebuilt from page layout), Final Draft `.fdx`, Fountain / plain text (indented or not), WriterDuet-style `.json`, and multi-line paste straight into the editor.
+- **Import:** PDF (rebuilt from page layout), `.fdx`, Fountain / plain text (indented or not), WriterDuet-style `.json`, and multi-line paste straight into the editor.
 - **Cleanup on import:** hard-wrapped lines are rejoined, scene numbers, page numbers, `(MORE)` / `(CONTINUED)` and `(CONT'D)` are removed, the title page is read separately, and a speech split across pages is stitched back together.
 - **Export:** Fountain, formatted plain text, FDX and JSON, all of which re-import identically.
 - **Layout:** Courier 12 pt on a 12 pt line grid, 1.5 in / 1 in margins, standard indents, page numbers from page 2, headings and cues kept with the line that follows, automatic `(CONT'D)`, and printing that matches the screen page for page.
