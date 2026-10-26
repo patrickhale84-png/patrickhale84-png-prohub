@@ -160,7 +160,7 @@ a{color:inherit;text-decoration:none;}
 }
 
 /* ===== phone: scrolling grid of true squares ===== */
-@media (max-width:768px){
+@media (max-width:1100px){
   .grid{overflow-y:auto!important;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;
     grid-template-rows:none!important;grid-auto-rows:var(--cell,180px)!important;align-content:start;gap:8px;padding:8px 8px 28px;}
   .tile{aspect-ratio:1/1;min-height:0;padding:12px;border-radius:14px;}
@@ -191,7 +191,8 @@ a{color:inherit;text-decoration:none;}
   .topbar{flex-wrap:nowrap!important;height:48px!important;flex:0 0 48px!important;padding:0 8px!important;row-gap:0!important;gap:6px!important;align-items:center;}
   .brand{margin:0;padding:6px 4px;line-height:1;font-size:21px!important;}
   .top-right{margin-left:auto!important;display:flex;align-items:center;gap:6px;}
-  .top-right #importBtn,.top-right #saveAllBtn,.top-right #loadAllBtn,.top-right #resetBtn,.top-right #printLink,.top-right .proj{display:none!important;}
+  .top-right .ibtn,.top-right .proj,.stage{display:none!important;}
+  .top-right{display:none!important}
   #filmHubLink{min-height:40px;padding:0 12px!important;}
   #ixBurger{display:inline-flex;align-items:center;justify-content:center;width:44px;height:40px;border-radius:9px;background:#0C1220;border:1px solid #26344E;flex:0 0 auto;padding:0;}
   #ixBurger span,#ixBurger span:before,#ixBurger span:after{display:block;width:20px;height:2px;background:#E9EDF5;border-radius:2px;position:relative;content:"";}
@@ -372,16 +373,15 @@ function tilesFor(mode){
 
 function colsFor(mode){
   var w = window.innerWidth;
-  if(mode === 'all') return w >= 1100 ? 6 : (w >= 700 ? 4 : 2);
-  if(mode === 'pre' || mode === 'post') return w >= 700 ? 4 : 2;
-  return w >= 700 ? 4 : 2;
+  if(mode === 'all') return w >= 1100 ? 6 : (w >= 700 ? 4 : (w >= 460 ? 3 : 2));
+  return w >= 700 ? 4 : (w >= 460 ? 3 : 2);
 }
 
 function heroFor(mode){ return mode === 'all' ? shell.allHero : shell.heroes[mode]; }
 
 /* phone: every row is exactly as tall as a column is wide, so tiles stay square while the page scrolls */
 function squareCells(){
-  if(window.innerWidth > 768){ grid.style.removeProperty('--cell'); return; }
+  if(window.innerWidth > 1100){ grid.style.removeProperty('--cell'); return; }
   var cs = getComputedStyle(grid), gap = parseFloat(cs.columnGap) || 8, pad = (parseFloat(cs.paddingLeft) || 0) + (parseFloat(cs.paddingRight) || 0);
   var cols = colsFor(shell.mode), w = grid.clientWidth - pad;
   if(w > 0) grid.style.setProperty('--cell', ((w - gap * (cols - 1)) / cols).toFixed(2) + 'px');
@@ -829,7 +829,7 @@ window.SNMaster={save:save,load:load,pick:pick,dump:dump,extract:extract,apply:a
 <script id="ix-burger-js">
 (function(){
 var tb=document.querySelector('.topbar'),tr=document.querySelector('.top-right');if(!tb||!tr||document.getElementById('ixBurger'))return;
-var b=document.createElement('button');b.id='ixBurger';b.type='button';b.setAttribute('aria-label','Menu');b.innerHTML='<span></span>';tr.appendChild(b);
+var b=document.createElement('button');b.id='ixBurger';b.type='button';b.setAttribute('aria-label','Menu');b.innerHTML='<span></span>';var br=tb.querySelector('.brand');tb.insertBefore(b,br?br.nextSibling:tb.firstChild);
 /* phone tab row under the bar (mirrors the original tabs, which stay for desktop) */
 var tabs=document.getElementById('tabs'),row=document.createElement('div');row.id='ixTabs';row.style.display='none';
 function mq(){return true;}
