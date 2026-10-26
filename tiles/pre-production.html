@@ -2705,30 +2705,11 @@ let sbMapPos={},sbMapSel=null,_sbWLocs={},_sbWPos={};
 const _SB_CPAL=['#60A5FA','#34D399','#F87171','#FBBF24','#A78BFA','#F472B6','#4ADE80','#38BDF8','#FB923C','#E879F9'];
 let _sbCCol={};
 if(window.pdfjsLib)pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-/* Zen ambience: generated with Web Audio, so it needs no network, no embeds and works inside iframes */
-let ZN={ctx:null,master:null,nodes:[],timers:[],cur:null};
-function onYouTubeIframeAPIReady(){}
-function _zCtx(){if(!ZN.ctx){const A=window.AudioContext||window.webkitAudioContext;if(!A)return null;ZN.ctx=new A();ZN.master=ZN.ctx.createGain();ZN.master.gain.value=(parseInt(document.getElementById('zvl').innerText)||50)/100;ZN.master.connect(ZN.ctx.destination);}if(ZN.ctx.state==='suspended')ZN.ctx.resume();return ZN.ctx;}
-function _zNoise(c,secs){const b=c.createBuffer(1,c.sampleRate*secs,c.sampleRate),d=b.getChannelData(0);let l=0;for(let i=0;i<d.length;i++){const w=Math.random()*2-1;l=(l+0.02*w)/1.02;d[i]=w;}return b;}
-function _zReverb(c){const cv=c.createConvolver(),n=c.sampleRate*2.5,b=c.createBuffer(2,n,c.sampleRate);for(let ch=0;ch<2;ch++){const d=b.getChannelData(ch);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/n,3);}cv.buffer=b;const g=c.createGain();g.gain.value=.5;cv.connect(g);g.connect(ZN.master);return cv;}
-function _zNote(c,out,f,t,dur,type,vol){const o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.value=f;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+.08);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(g);g.connect(out);o.start(t);o.stop(t+dur+.1);}
-function _zEvery(ms,fn){fn();ZN.timers.push(setInterval(fn,ms));}
-function _zRain(c){const s=c.createBufferSource();s.buffer=_zNoise(c,4);s.loop=true;const hp=c.createBiquadFilter();hp.type='highpass';hp.frequency.value=700;const lp=c.createBiquadFilter();lp.type='lowpass';lp.frequency.value=7000;const g=c.createGain();g.gain.value=.55;s.connect(hp);hp.connect(lp);lp.connect(g);g.connect(ZN.master);s.start();
-  const r=c.createBufferSource();r.buffer=_zNoise(c,5);r.loop=true;const lf=c.createBiquadFilter();lf.type='lowpass';lf.frequency.value=250;const g2=c.createGain();g2.gain.value=.5;r.connect(lf);lf.connect(g2);g2.connect(ZN.master);r.start();
-  const lfo=c.createOscillator(),lg=c.createGain();lfo.frequency.value=.12;lg.gain.value=.12;lfo.connect(lg);lg.connect(g.gain);lfo.start();ZN.nodes.push(s,r,lfo);}
-function _zClassical(c){const rv=_zReverb(c),sc=[261.63,293.66,329.63,392,440,523.25,587.33,659.25];let k=0;
-  _zEvery(2400,function(){const t=c.currentTime+.05,root=[130.81,110,87.31,98][k++%4];_zNote(c,rv,root,t,6,'sine',.22);_zNote(c,rv,root*1.5,t,6,'sine',.12);for(let n=0;n<3;n++)if(Math.random()<.8)_zNote(c,rv,sc[Math.floor(Math.random()*sc.length)],t+n*.7+Math.random()*.4,3.5,'triangle',.1);});}
-function _zLofi(c){const lp=c.createBiquadFilter();lp.type='lowpass';lp.frequency.value=1800;lp.connect(ZN.master);const rv=_zReverb(c);lp.connect(rv);
-  const ch=[[220,261.63,329.63,392],[174.61,220,261.63,329.63],[261.63,329.63,392,493.88],[196,246.94,293.66,349.23]];let bar=0;const beat=60/74;
-  const cr=c.createBufferSource();cr.buffer=_zNoise(c,3);cr.loop=true;const ch2=c.createBiquadFilter();ch2.type='highpass';ch2.frequency.value=3500;const cg=c.createGain();cg.gain.value=.03;cr.connect(ch2);ch2.connect(cg);cg.connect(ZN.master);cr.start();ZN.nodes.push(cr);
-  _zEvery(beat*4*1000,function(){const t=c.currentTime+.05,cc=ch[bar++%4];cc.forEach(function(f,i){_zNote(c,lp,f,t+i*.015,beat*3.6,'triangle',.16)});_zNote(c,lp,cc[0]/2,t,beat*2,'sine',.3);
-    for(let b=0;b<4;b++){const bt=t+b*beat;if(b%2===0){const o=c.createOscillator(),g=c.createGain();o.frequency.setValueAtTime(120,bt);o.frequency.exponentialRampToValueAtTime(40,bt+.15);g.gain.setValueAtTime(.5,bt);g.gain.exponentialRampToValueAtTime(.001,bt+.2);o.connect(g);g.connect(ZN.master);o.start(bt);o.stop(bt+.25);}
-      const hs=c.createBufferSource();hs.buffer=_zNoise(c,1);const hf=c.createBiquadFilter();hf.type='highpass';hf.frequency.value=6000;const hg=c.createGain();hg.gain.setValueAtTime(.08,bt+beat/2);hg.gain.exponentialRampToValueAtTime(.001,bt+beat/2+.06);hs.connect(hf);hf.connect(hg);hg.connect(ZN.master);hs.start(bt+beat/2);hs.stop(bt+beat/2+.1);}});}
-function _zStop(){ZN.timers.forEach(clearInterval);ZN.timers=[];ZN.nodes.forEach(function(n){try{n.stop()}catch(e){}});ZN.nodes=[];if(ZN.master){try{ZN.master.disconnect()}catch(e){}ZN.master=null;const v=ZN.ctx;ZN.ctx=null;try{v.close()}catch(e){}}}
-function playZ(id){_zStop();const c=_zCtx();if(!c){toast('This browser cannot play audio.');return;}ZN.cur=id;
-  if(id==='-OekvEFm1lo')_zRain(c);else if(id==='bwZUs26HZI8')_zClassical(c);else _zLofi(c);toast('Zen audio active.');}
-function stopZ(){_zStop();ZN.cur=null;toast('Zen audio stopped.');}
-function setZV(v){document.getElementById('zvl').innerText=v+'%';if(ZN.master)ZN.master.gain.value=v/100;}
+let ytP=null,ytPnd=null;
+function onYouTubeIframeAPIReady(){ytP=new YT.Player('yt-player',{height:'120',width:'200',videoId:'',playerVars:{autoplay:1,controls:0,playsinline:1,enablejsapi:1},events:{onReady:()=>{if(ytPnd){playZ(ytPnd);ytPnd=null;}}}});}
+function playZ(id){const v=parseInt(document.getElementById('zvl').innerText)||50;if(!window.YT||!YT.Player){ytPnd=id;toast('Initializing audio...');return;}if(!ytP||!ytP.loadVideoById){ytPnd=id;return;}ytP.loadVideoById({videoId:id,startSeconds:0});ytP.setVolume(v);ytP.playVideo();toast('Zen audio active.');}
+function stopZ(){if(ytP&&ytP.stopVideo){ytP.stopVideo();toast('Zen audio stopped.');}}
+function setZV(v){document.getElementById('zvl').innerText=v+'%';if(ytP&&ytP.setVolume)ytP.setVolume(v);}
 // ========== TOAST ==========
 function toast(m){const c=document.getElementById('tc'),t=document.createElement('div');t.className='tm';t.innerText=m;c.appendChild(t);setTimeout(()=>t.remove(),3000);}
 // ========== NAVIGATION ==========
