@@ -860,22 +860,22 @@ function loadBridgeData(showToast = false){
   let title = "UNTITLED PROJECT";
   let script = "";
 
-  // 1. Try prehub master storage
+  // 1. The transmitted Master Script is the source of truth
   try{
-    const d = JSON.parse(localStorage.getItem('prehub_v3') || 'null');
-    if(d){
-      if(d.projectName) title = d.projectName;
-      if(d.scriptText) script = d.scriptText;
+    const m = JSON.parse(localStorage.getItem('prehub_master_v1') || 'null');
+    if(m && m.lines && m.lines.length){
+      title = m.projectName || title;
+      script = m.lines.map(l => l.text).join('\n');
     }
   }catch(e){}
 
-  // 2. Try prehub transmitted lines
+  // 2. Otherwise fall back to the preHUB working copy
   if(!script){
     try{
-      const m = JSON.parse(localStorage.getItem('prehub_master_v1') || 'null');
-      if(m && m.lines && m.lines.length){
-        title = m.projectName || title;
-        script = m.lines.map(l => l.text).join('\n');
+      const d = JSON.parse(localStorage.getItem('prehub_v3') || 'null');
+      if(d){
+        if(d.projectName) title = d.projectName;
+        if(d.scriptText) script = d.scriptText;
       }
     }catch(e){}
   }

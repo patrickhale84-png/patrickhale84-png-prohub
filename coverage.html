@@ -113,6 +113,7 @@ body.cvm #cvScrim,body.cvm #cvSheet{display:block}
 <script src="lib/cov-measures.js"></script>
 <script src="lib/cov-tropes.js"></script>
 <script src="lib/cov-params.js"></script>
+<script src="lib/cov-repair.js"></script>
 <script src="lib/cov-report.js"></script>
 <script src="lib/cov-diff.js"></script>
 <script>
@@ -137,7 +138,7 @@ function loadVersions(){return dbAll().then(function(a){S.versions=a.sort(functi
 
 /* ---------- running the analysis ---------- */
 function analyze(raw,keepTab){
-  var pr=C.prepare(raw);if(pr.changed){raw=pr.text;setTimeout(function(){toast('Run-on text detected: split into '+pr.counts.speeches+' speeches, '+pr.counts.actions+' action paragraphs'+(pr.counts.scenes?' and '+pr.counts.scenes+' numbered scenes':''))},400)}
+  var pr=C.prepare(raw,{skip:S.rep&&S.rep.skip,on:S.rep&&S.rep.on});if(pr.changed){raw=pr.text;setTimeout(function(){var rp=pr.repair;toast((pr.counts?'Run-on text detected: split into '+pr.counts.speeches+' speeches, '+pr.counts.actions+' action paragraphs. ':'')+(rp&&rp.total?'Cleaned up '+rp.total+' import problems (see Auto-format \u2192 Clean-up rules).':''))},400)}
   S.raw=raw;$('main').innerHTML='<div class="empty mu">Reading the script…</div>';
   return new Promise(function(res){setTimeout(function(){
     try{S.R=C.analyze(raw,{format:$('fmtSel').value});}catch(e){console.error(e);$('main').innerHTML='<div class="empty"><b>Could not read this script.</b><div class="mu sm">'+esc(e.message)+'</div></div>';return res();}
@@ -374,8 +375,9 @@ $('bExp').onclick=function(){
 };
 
 /* ---------- auto-format ---------- */
-$('bFmt').onclick=function(){
-  if(!S.raw)return;var r;try{r=C.autoFormat(S.raw,{format:$('fmtSel').value})}catch(e){return toast('Could not format: '+e.message)}
+S.rep=S.rep||{skip:[],on:[]};
+function openFmt(){
+  if(!S.raw)return;var r;try{r=C.autoFormat(S.raw,{format:$('fmtSel').value,skip:S.rep.skip,on:S.rep.on})}catch(e){return toast('Could not format: '+e.message)}
   var st=r.stats,same=r.text.trim()===S.raw.trim();
   var warn=(r.before.scenes!==r.after.scenes||r.before.speakers!==r.after.speakers)?'<div class="tip" style="border-color:#f87171">Heads up: the scene or speaker count changes ('+r.before.scenes+' → '+r.after.scenes+' scenes, '+r.before.speakers+' → '+r.after.speakers+' speakers). Look at the preview before applying; you can Undo afterwards.</div>':'<div class="sm" style="color:var(--gd)">Check passed: '+r.after.scenes+' scenes and '+r.after.speakers+' speakers before and after.</div>';
   var d=document.createElement('div');d.className='modal';
@@ -385,7 +387,20 @@ $('bFmt').onclick=function(){
   setTimeout(function(){try{var D=C.diff(S.raw,r.text,{format:$('fmtSel').value}),shown=0,h='';
     D.scenes.forEach(function(sc){sc.hunks.forEach(function(x){if((x.op==='~'||x.op==='=')&&shown<14&&x.a.trim()!==x.b.trim()){shown++;h+='<div class="dl2 r">- '+esc(x.a)+'</div><div class="dl2 a">+ '+esc(x.b)+'</div>'}})});
     $('fmtPv').innerHTML=h?'<b>Sample of the changes</b>'+h:'Only spacing changes.'}catch(e){$('fmtPv').textContent=''}},40);
-};
+  var rp=r.stats&&r.stats.repair;
+  if(rp){var box=document.createElement('details');box.style.cssText='margin:8px 0';
+    var h='<summary style="cursor:pointer"><b>Clean-up rules</b> <span class="mu sm">'+(rp.total?rp.total+' fixes from '+rp.log.filter(function(x){return x.n}).length+' rules':'nothing to clean')+'</span></summary>';
+    (rp.notes||[]).forEach(function(n){h+='<div class="tip" style="border-color:#f87171">'+esc(n)+'</div>'});
+    var gr='';rp.log.forEach(function(x){if(x.group!==gr){gr=x.group;h+='<div class="mu sm" style="margin-top:6px"><b>'+esc(gr)+'</b></div>'}
+      var on=!x.skipped;h+='<label style="display:block;font-size:12px;padding:2px 0"><input type="checkbox" data-r="'+x.id+'"'+(on?' checked':'')+'> '+esc(x.name)+(x.n?' <b>('+x.n+')</b>':'')+(x.off?' <i class="mu">off by default</i>':'')+'<div class="mu sm" style="margin-left:20px">'+esc(x.desc)+(x.ex?'<br><i>e.g. '+esc(x.ex)+'</i>':'')+'</div></label>'});
+    box.innerHTML=h;var pv=$('fmtPv');pv.parentNode.insertBefore(box,pv);if(S.rep.open)box.open=true;
+    box.addEventListener('toggle',function(){S.rep.open=box.open});
+    box.addEventListener('change',function(e){var id=e.target.getAttribute('data-r');if(!id)return;var R=rp.log.filter(function(x){return x.id===id})[0];
+      S.rep.skip=S.rep.skip.filter(function(k){return k!==id});S.rep.on=S.rep.on.filter(function(k){return k!==id});
+      if(e.target.checked){if(R&&R.off)S.rep.on.push(id)}else S.rep.skip.push(id);
+      S.rep.open=true;d.remove();openFmt()})}
+}
+$('bFmt').onclick=function(){S.rep={skip:[],on:[]};openFmt()};
 
 $('cvBurger').onclick=function(){document.body.classList.toggle('cvm')};$('cvScrim').onclick=function(){document.body.classList.remove('cvm')};
 $('cvSheet').addEventListener('click',function(e){var b=e.target.closest('button.btn');if(b&&b.id!=='fmtSel')setTimeout(function(){document.body.classList.remove('cvm')},60)});
