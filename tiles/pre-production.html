@@ -1089,7 +1089,7 @@ body{background:var(--bg);color:var(--tx);font-family:var(--fui);margin:0;displa
 
 
 <!-- YouTube hidden player -->
-<div style="position:fixed;bottom:0;right:0;width:200px;height:120px;opacity:.001;pointer-events:none;z-index:-50;overflow:hidden;"><div id="yt-player"></div></div>
+<div style="position:fixed;bottom:0;left:-340px;width:320px;height:200px;pointer-events:none;overflow:hidden;"><div id="yt-player"></div></div>
 
 <!-- TOP MENU BAR -->
 <div id="hdr-scrim" onclick="togSB(false)"></div>
@@ -2706,8 +2706,8 @@ const _SB_CPAL=['#60A5FA','#34D399','#F87171','#FBBF24','#A78BFA','#F472B6','#4A
 let _sbCCol={};
 if(window.pdfjsLib)pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 let ytP=null,ytPnd=null;
-function onYouTubeIframeAPIReady(){ytP=new YT.Player('yt-player',{height:'120',width:'200',videoId:'',playerVars:{autoplay:1,controls:0,playsinline:1,enablejsapi:1},events:{onReady:()=>{if(ytPnd){playZ(ytPnd);ytPnd=null;}}}});}
-function playZ(id){const v=parseInt(document.getElementById('zvl').innerText)||50;if(!window.YT||!YT.Player){ytPnd=id;toast('Initializing audio...');return;}if(!ytP||!ytP.loadVideoById){ytPnd=id;return;}ytP.loadVideoById({videoId:id,startSeconds:0});ytP.setVolume(v);ytP.playVideo();toast('Zen audio active.');}
+function onYouTubeIframeAPIReady(){ytP=new YT.Player('yt-player',{height:'200',width:'320',playerVars:{autoplay:1,controls:0,playsinline:1,enablejsapi:1,origin:location.origin},events:{onReady:()=>{ytP._rdy=1;if(ytPnd){const i=ytPnd;ytPnd=null;playZ(i);}},onError:(e)=>{toast('That YouTube stream cannot be played here (error '+e.data+'). Try another.');},onStateChange:(e)=>{if(e.data===5||e.data===-1){try{ytP.playVideo();}catch(x){}}}}});}
+function playZ(id){const v=parseInt(document.getElementById('zvl').innerText)||50;if(!window.YT||!YT.Player){ytPnd=id;toast('Loading YouTube audio... (blocked? check ad blockers)');return;}if(!ytP||!ytP._rdy){ytPnd=id;toast('Initializing audio...');return;}ytP.loadVideoById({videoId:id,startSeconds:0});ytP.setVolume(v);ytP.unMute();ytP.playVideo();toast('Zen audio active.');}
 function stopZ(){if(ytP&&ytP.stopVideo){ytP.stopVideo();toast('Zen audio stopped.');}}
 function setZV(v){document.getElementById('zvl').innerText=v+'%';if(ytP&&ytP.setVolume)ytP.setVolume(v);}
 // ========== TOAST ==========
