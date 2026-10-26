@@ -83,3 +83,19 @@ export const projectMeta = webMethod(Permissions.SiteMember, async (pid) => {
   const r = await wixData.query(SAVES).eq('pid', pid).eq('i', 0).limit(1000).find(OPTS);
   const m = {}; r.items.forEach(it => { m[it.k] = { ts: it.ts, by: it.by || '' }; }); return { meta: m };
 });
+
+// Co-writing: read one key (smaller than loadProject), and see who else is in the script right now.
+export const loadKey = webMethod(Permissions.SiteMember, async (pid, k) => {
+  const u = await me(); await project(pid, u, false);
+  if (!KEY.test(k || '')) throw new Error('Bad request');
+  const r = await wixData.query(SAVES).eq('pid', pid).eq('k', k).ascending('i').limit(1000).find(OPTS);
+  if (!r.items.length) return { found: false };
+  return { found: true, ts: r.items[0].ts, by: r.items[0].by || '', parts: r.items.map(i => i.v) };
+});
+
+export const presence = webMethod(Permissions.SiteMember, async (pid) => {
+  const u = await me(); await project(pid, u, false);
+  const r = await wixData.query(SAVES).eq('pid', pid).startsWith('k', 'pres-').eq('i', 0).limit(100).find(OPTS);
+  const now = Date.now();
+  return { people: r.items.filter(i => now - i.ts < 45000 && i.by !== u.name).map(i => ({ by: i.by || '', ts: i.ts, v: i.v })), me: u.name };
+});

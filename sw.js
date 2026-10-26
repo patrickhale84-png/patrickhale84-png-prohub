@@ -1,11 +1,11 @@
 /* proHUB service worker: makes the site installable and usable with no signal.
    Pages and scripts: try the network first so updates arrive, fall back to the saved copy.
    Fonts, icons and library files from other sites: serve the saved copy, refresh it in the background. */
-var VER = 'prohub-v33';
+var VER = 'prohub-v34';
 var CORE = [
   './', 'index.html', 'filmhub.html', 'roles.json', 'manifest.webmanifest',
   'tiles/pre-production.html', 'tiles/production.html', 'tiles/post-production.html',
-  'lib/pdf-lib.min.js', 'lib/safety.js', 'lib/exchange.js','lib/icons.css','lib/hubstyle.css','lib/hubstyle.js','lib/budget-data.js','lib/budget-core.js','budget.html','lib/revisions.js','lib/cloud.js', 'lib/autotag.js', 'lib/screenplay.js','lib/cov-core.js','lib/cov-measures.js','lib/cov-tropes.js','lib/cov-params.js','lib/cov-repair.js','lib/cov-report.js','lib/cov-diff.js','coverage.html', 'lib/onset.js',
+  'lib/pdf-lib.min.js', 'lib/safety.js', 'lib/exchange.js','lib/icons.css','lib/hubstyle.css','lib/hubstyle.js','lib/budget-data.js','lib/budget-core.js','lib/cowrite.js','cowrite.html','budget.html','lib/revisions.js','lib/cloud.js', 'lib/autotag.js', 'lib/screenplay.js','lib/cov-core.js','lib/cov-measures.js','lib/cov-tropes.js','lib/cov-params.js','lib/cov-repair.js','lib/cov-report.js','lib/cov-diff.js','coverage.html', 'lib/onset.js',
   'favicon.svg', 'favicon-32.png', 'favicon-192.png', 'favicon-512.png', 'apple-touch-icon.png'
 ];
 self.addEventListener('install', function (e) {

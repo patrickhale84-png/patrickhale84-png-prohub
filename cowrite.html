@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Co-write</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#05070B">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#060911;--bar:#070C15;--line:#1B2436;--line2:#26344E;--tx:#E9EDF5;--mu:#8794A6;--dim:#4A5A70;--lime:#88C13F;--gold:#E5A93C;--bad:#F87171;--ok:#4ADE80}
+*{box-sizing:border-box}html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--tx);font:13px/1.45 "Segoe UI",-apple-system,sans-serif;display:flex;flex-direction:column}
+.mono,td.n,th.n,input.n{font-family:'IBM Plex Mono',monospace}
+button,select,input,textarea{font:inherit;color:inherit}
+header{height:44px;flex:0 0 44px;background:var(--bar);border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 56px;gap:10px}
+header h1{font-size:13px;margin:0;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+header small{color:var(--mu);font-family:'IBM Plex Mono',monospace;font-size:11px}
+.mbtn{position:fixed;top:4px;width:36px;height:36px;border:1px solid var(--line2);background:#0E1524;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;padding:0;color:var(--tx);text-decoration:none;font-size:15px;z-index:90;border-radius:3px}
+#cBurger{left:10px}#cBurger span{display:block;width:16px;height:2px;background:currentColor;box-shadow:0 5px currentColor,0 -5px currentColor}
+.xbtn{right:10px;color:#FCA5A5;border-color:#7F1D1D}
+#cScrim{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:80}
+#cSheet{display:none;position:fixed;left:8px;top:52px;width:320px;max-width:calc(100vw - 16px);max-height:calc(100vh - 64px);overflow:auto;background:#0B1220;border:1px solid var(--line2);padding:10px;z-index:85;border-radius:3px}
+body.cm #cScrim,body.cm #cSheet{display:block}
+#cSheet .btn{display:block;width:100%;text-align:left;margin:0 0 6px;padding:10px 12px}
+.btn{background:rgba(255,255,255,.05);border:1px solid var(--line2);border-radius:3px;padding:5px 10px;cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+.btn:hover{border-color:#3a4d72}.btn.g{border-color:#556f2a;color:var(--lime)}.btn.p{background:var(--lime);color:#000;border-color:var(--lime)}.btn.sm{padding:2px 7px;font-size:10px}.btn.d{color:var(--bad);border-color:#5b2626}
+nav.tabs{display:flex;gap:2px;padding:0 8px;border-bottom:1px solid var(--line);overflow-x:auto;flex:0 0 auto;background:var(--bar)}
+nav.tabs button{background:none;border:0;border-bottom:2px solid transparent;padding:10px 12px;color:var(--mu);font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:11px;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;white-space:nowrap}
+nav.tabs button.on{color:var(--tx);border-color:var(--lime)}
+main{flex:1;min-height:0;overflow:auto;padding:14px}
+.wrap{max-width:1180px;margin:0 auto}
+.card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:12px;margin-bottom:12px}
+.sec{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--mu);margin:0 0 8px}
+table{border-collapse:collapse;width:100%;font-size:11.5px}
+th{font-family:'IBM Plex Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--mu);text-align:left;padding:4px 6px;border-bottom:1px solid var(--line2);white-space:nowrap}
+td{padding:3px 6px;border-bottom:1px solid var(--line);vertical-align:middle}
+td.n,th.n{text-align:right}
+tr.sub td{font-weight:700;border-top:1px solid var(--line2);background:rgba(255,255,255,.03)}
+tr.grp td{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--lime);padding-top:12px;border-bottom:1px solid var(--line2)}
+tr.click{cursor:pointer}tr.click:hover td{background:rgba(255,255,255,.04)}
+input,select{background:#05070B;border:1px solid var(--line);border-radius:3px;padding:3px 5px;max-width:100%}
+input.n{text-align:right;width:84px}input.s{width:52px}input.w{width:100%;min-width:170px}td select[data-f=rateRef]{width:170px}td select[data-f=fringe]{width:110px}
+.b{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:700;padding:1px 5px;border-radius:2px;text-transform:uppercase;letter-spacing:.04em}
+.b.current{background:#1c3a13;color:#9be07a}.b.older{background:#4a3410;color:#f3c26b}.b.statutory{background:#15304d;color:#8cc4f5}.b.assumed{background:#3b2150;color:#d0a8f0}
+.big{font-family:'IBM Plex Mono',monospace;font-size:26px;font-weight:700}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.kpi{flex:1;min-width:150px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:10px}
+.kpi .l{font-family:'IBM Plex Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--mu)}
+.warn{color:var(--gold);font-size:12px;margin:2px 0}
+.mu{color:var(--mu)}.pos{color:var(--bad)}.neg{color:var(--ok)}
+.toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#111827;border:1px solid var(--lime);padding:8px 14px;z-index:95;display:none;border-radius:3px}
+.tw{overflow-x:auto}
+@media(max-width:700px){main{padding:8px}.big{font-size:20px}input.n{width:70px}}
+@media print{header,nav.tabs,.mbtn,.noprint{display:none!important}body{background:#fff;color:#000;display:block}main{overflow:visible}.card,.kpi{background:#fff;border-color:#bbb}th,.mu{color:#555}td{border-color:#ccc}input,select{border:0;background:none}}
+</style>
+<style id="ph-touch">button,a,[onclick],select,summary,label{touch-action:manipulation;-webkit-tap-highlight-color:transparent}@media (pointer:coarse){.btn,button.btn{min-height:40px}input,select{font-size:16px;min-height:34px}}</style>
+<style>
+.top{display:flex;gap:10px;align-items:center;padding:6px 12px;border-bottom:1px solid var(--line);background:var(--bar);flex-wrap:wrap;font-family:'IBM Plex Mono',monospace;font-size:11px}
+.pill{border:1px solid var(--line2);padding:1px 7px;border-radius:2px;color:var(--mu)}.pill.on{color:#000;background:var(--lime);border-color:var(--lime)}
+.sync{margin-left:auto;color:var(--mu)}
+.ed{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:12px;flex:1;min-height:0}
+.ed>div{overflow:auto;padding:12px}
+.ln{display:grid;grid-template-columns:96px minmax(0,1fr) 54px;gap:6px;align-items:start;margin:2px 0;border-left:3px solid transparent;padding-left:4px}
+.ln.sel{border-color:var(--lime);background:rgba(136,193,63,.06)}.ln.far{border-color:var(--gold)}
+.ln select{font-size:10px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;color:var(--mu)}
+.ln textarea{width:100%;background:transparent;border:1px solid transparent;border-radius:2px;padding:3px 6px;font:14px/1.45 'Courier Prime','Courier New',monospace;resize:none;overflow:hidden;color:var(--tx)}
+.ln textarea:focus{border-color:var(--line2);background:#05070B;outline:0}
+.ln.slug textarea{font-weight:700;text-transform:uppercase}.ln.character textarea{text-transform:uppercase;padding-left:14%}.ln.dialogue textarea{padding-left:8%;padding-right:8%}.ln.parenthetical textarea{padding-left:11%;font-style:italic}.ln.transition textarea{text-align:right;text-transform:uppercase}
+.ln .cc{font-size:10px;font-family:'IBM Plex Mono',monospace;color:var(--mu);text-align:right;cursor:pointer;padding-top:5px}
+.ln .cc.has{color:var(--gold)}
+.who{font-size:9px;color:var(--gold);font-family:'IBM Plex Mono',monospace;margin-left:6px}
+.cm{border:1px solid var(--line2);padding:6px 8px;margin:6px 0;border-radius:3px;font-size:12px}.cm.done{opacity:.5}
+.cm b{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--lime)}
+@media(max-width:900px){.ed{grid-template-columns:minmax(0,1fr)}.ed>div:last-child{max-height:35vh;border-top:1px solid var(--line)}.ln{grid-template-columns:70px minmax(0,1fr) 40px}}
+</style>
+</head><body>
+<button class="mbtn" id="cBurger" aria-label="Menu"><span></span></button>
+<header><h1>Co-write</h1><small id="hSub"></small></header>
+<a class="mbtn xbtn" href="filmhub.html" aria-label="Close" title="Close and go back to filmHUB. Your budget stays in this browser.">&#10005;</a>
+<div id="cScrim"></div>
+<div id="cSheet" role="dialog" aria-label="Co-write menu">
+  <button class="btn g" data-a="proj">Choose or create shared project</button>
+  <button class="btn" data-a="share">Invite writers by email</button>
+  <button class="btn" data-a="take">Load my current script into this</button>
+  <button class="btn" data-a="apply">Send this back to my script</button>
+  <button class="btn" data-a="now">Sync now</button>
+  <button class="btn" data-a="login">Log in</button>
+  <a class="btn" href="filmhub.html" style="text-decoration:none;text-align:center">Back to filmHUB</a>
+</div>
+<div class="top"><span id="proj" class="pill">No project</span><span id="peeps"></span><span class="sync" id="sync">Not synced</span></div>
+<div class="ed"><div id="lines"></div><div id="side"></div></div>
+<div class="toast" id="toast"></div>
+<script src="lib/screenplay.js"></script>
+<script src="lib/cloud.js"></script>
+<script src="lib/cowrite.js"></script>
+<script>
+(function(){
+'use strict';
+var X=window.PHCow,$=function(i){return document.getElementById(i)};
+var ST=X.local(),who='',sel='',online=false,dirty=false,lastSync=0,busy=false,TYPES=['slug','action','character','parenthetical','dialogue','transition'];
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function toast(t){var e=$('toast');e.textContent=t;e.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(function(){e.style.display='none'},2800)}
+function save(){X.store(ST);dirty=true}
+function idx(id){for(var i=0;i<ST.doc.lines.length;i++)if(ST.doc.lines[i].id===id)return i;return -1}
+var others={};
+function render(keep){
+  var L=ST.doc.lines,h='';
+  if(!L.length)h='<div class="card" style="max-width:520px"><div class="sec">Empty script</div><p>Load your current script from filmHUB (menu), or start typing here.</p><button class="btn g" id="start">Start a first line</button></div>';
+  L.forEach(function(l){var n=ST.doc.comments.filter(function(c){return c.line===l.id&&!c.done}).length,far=Object.keys(others).filter(function(k){return others[k]===l.id});
+    h+='<div class="ln '+l.type+(l.id===sel?' sel':'')+(far.length?' far':'')+'" data-id="'+l.id+'"><select data-k="type">'+TYPES.map(function(t){return '<option value="'+t+'"'+(t===l.type?' selected':'')+'>'+t+'</option>'}).join('')+'</select><div><textarea rows="1" data-k="text" spellcheck="true">'+esc(l.text)+'</textarea>'+(far.length?'<span class="who">'+esc(far.join(', '))+' is here</span>':'')+'</div><div class="cc'+(n?' has':'')+'" data-k="cm">'+(n?n+' note':'note')+'</div></div>'});
+  var scr=$('lines').scrollTop;$('lines').innerHTML=h;$('lines').scrollTop=scr;
+  Array.prototype.forEach.call(document.querySelectorAll('.ln textarea'),grow);
+  if(keep){var t=document.querySelector('.ln[data-id="'+keep.id+'"] textarea');if(t){t.focus();try{t.setSelectionRange(keep.pos,keep.pos)}catch(e){}}}
+  side();
+}
+function grow(t){t.style.height='auto';t.style.height=(t.scrollHeight+2)+'px'}
+function side(){
+  var l=ST.doc.lines[idx(sel)],h='<div class="sec">Notes on this line</div>';
+  if(!l){$('side').innerHTML=h+'<div class="mu">Click a line, then add a note for your co-writers.</div>';return}
+  h+='<div class="mu" style="font-size:11px;margin-bottom:6px">'+esc((l.text||'').slice(0,80))+'</div>';
+  ST.doc.comments.filter(function(c){return c.line===sel}).forEach(function(c){h+='<div class="cm'+(c.done?' done':'')+'"><b>'+esc(c.by)+'</b> '+esc(c.text)+'<div style="margin-top:4px"><button class="btn sm" data-done="'+c.id+'">'+(c.done?'Reopen':'Resolve')+'</button></div></div>'});
+  h+='<textarea id="cmNew" rows="3" placeholder="Write a note" style="width:100%;background:#05070B;border:1px solid var(--line2);color:var(--tx);padding:6px"></textarea><button class="btn g" id="cmAdd" style="margin-top:6px">Add note</button>';
+  $('side').innerHTML=h;
+}
+document.addEventListener('input',function(e){
+  var t=e.target;if(t.dataset.k!=='text')return;var row=t.closest('.ln'),i=idx(row.dataset.id);if(i<0)return;
+  var l=ST.doc.lines[i];l.text=t.value;l.by=who;l.ts=Date.now();grow(t);save();
+});
+document.addEventListener('change',function(e){var t=e.target;if(t.dataset.k!=='type')return;var i=idx(t.closest('.ln').dataset.id);if(i<0)return;ST.doc.lines[i].type=t.value;ST.doc.lines[i].by=who;save();render()});
+document.addEventListener('focusin',function(e){var row=e.target.closest&&e.target.closest('.ln');if(row&&row.dataset.id!==sel){sel=row.dataset.id;Array.prototype.forEach.call(document.querySelectorAll('.ln'),function(r){r.classList.toggle('sel',r.dataset.id===sel)});side();X.beat(sel,who)}});
+document.addEventListener('keydown',function(e){
+  var t=e.target;if(!t.dataset||t.dataset.k!=='text')return;var row=t.closest('.ln'),i=idx(row.dataset.id),l=ST.doc.lines[i];
+  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();var pos=t.selectionStart,a=l.text.slice(0,pos),b=l.text.slice(pos);l.text=a;var nt={slug:'action',action:'action',character:'dialogue',parenthetical:'dialogue',dialogue:'action',transition:'slug'}[l.type]||'action';var n={id:X.uid(),type:nt,text:b,by:who,ts:Date.now()};ST.doc.lines.splice(i+1,0,n);save();sel=n.id;render({id:n.id,pos:0})}
+  else if(e.key==='Backspace'&&t.selectionStart===0&&t.selectionEnd===0&&i>0){e.preventDefault();var p=ST.doc.lines[i-1],at=p.text.length;p.text+=l.text;ST.doc.lines.splice(i,1);save();sel=p.id;render({id:p.id,pos:at})}
+  else if(e.key==='Tab'){e.preventDefault();var k=TYPES.indexOf(l.type);l.type=TYPES[(k+(e.shiftKey?TYPES.length-1:1))%TYPES.length];save();render({id:l.id,pos:t.selectionStart})}
+  else if(e.key==='ArrowUp'&&t.selectionStart===0&&i>0){var q=document.querySelector('.ln[data-id="'+ST.doc.lines[i-1].id+'"] textarea');if(q){e.preventDefault();q.focus()}}
+  else if(e.key==='ArrowDown'&&t.selectionStart===t.value.length&&i<ST.doc.lines.length-1){var q2=document.querySelector('.ln[data-id="'+ST.doc.lines[i+1].id+'"] textarea');if(q2){e.preventDefault();q2.focus();q2.setSelectionRange(0,0)}}
+});
+function menu(on){document.body.classList.toggle('cm',on)}
+function status(t){$('sync').textContent=t}
+async function cloudInit(){
+  try{var h=await PHCloud.hello();online=h.embedded;if(!h.embedded){status('Offline: open this inside your Wix site to share');return}
+    if(!h.loggedIn){status('Log in (menu) to co-write');return}
+    var w=await PHCloud.whoami();who=w.name||w.email;var c=PHCloud.cfg();$('proj').textContent=c.pid?(c.name||'Shared project'):'No project';$('proj').classList.toggle('on',!!c.pid);
+    if(c.pid)syncNow()}catch(e){status(String(e.message||e))}
+}
+async function syncNow(){
+  if(busy||!online)return;var c=PHCloud.cfg();if(!c.pid){status('Choose a shared project (menu)');return}busy=true;
+  try{var a=document.activeElement,keep=a&&a.dataset&&a.dataset.k==='text'?{id:a.closest('.ln').dataset.id,pos:a.selectionStart}:null;
+    var r=await X.sync(ST,who);if(r.ok){lastSync=Date.now();dirty=false;status('Synced '+new Date().toLocaleTimeString());if(r.changed)render(keep);if(r.merged)toast(r.merged+' clash'+(r.merged>1?'es':'')+' kept: your version is in the notes')}else status(r.msg)
+    var p=await X.people();others={};var nm=[];p.people.forEach(function(x){nm.push(x.by);try{var v=JSON.parse(x.v);if(v.line)others[x.by]=v.line}catch(e){}});
+    $('peeps').innerHTML=nm.length?nm.map(function(n){return '<span class="pill on">'+esc(n)+'</span>'}).join(' '):'<span class="pill">Only you</span>';
+    Array.prototype.forEach.call(document.querySelectorAll('.ln'),function(r){var f=Object.keys(others).some(function(k){return others[k]===r.dataset.id});r.classList.toggle('far',f)})
+  }catch(e){status('Sync failed: '+String(e.message||e).slice(0,80))}busy=false;
+}
+setInterval(function(){if(online&&!document.hidden)syncNow()},4000);
+document.addEventListener('click',async function(e){
+  var t=e.target.closest('button,.cc,#start');if(!t)return;
+  if(t.id==='cBurger'){menu(!document.body.classList.contains('cm'));return}
+  if(t.id==='start'){ST.doc.lines.push({id:X.uid(),type:'slug',text:'',by:who,ts:Date.now()});save();render();return}
+  if(t.dataset.k==='cm'){sel=t.closest('.ln').dataset.id;render();var n=$('cmNew');if(n)n.focus();return}
+  if(t.id==='cmAdd'){var v=$('cmNew').value.trim();if(v&&sel){ST.doc.comments.push({id:X.uid(),line:sel,by:who||'Me',text:v,ts:Date.now(),done:false});save();render()}return}
+  if(t.dataset.done){ST.doc.comments.forEach(function(c){if(c.id===t.dataset.done)c.done=!c.done});save();render();return}
+  var a=t.dataset.a;if(!a)return;menu(false);
+  if(a==='take'){if(ST.doc.lines.length&&!window.confirm('Replace what is here with your current filmHUB script?'))return;ST.doc=X.fromMaster(ST.doc,who);save();render();toast('Loaded '+ST.doc.lines.length+' lines')}
+  else if(a==='apply'){if(window.confirm('Replace your filmHUB script with this shared version?')){var n=X.toMaster(ST.doc);toast('Your script now has '+n+' lines')}}
+  else if(a==='now')syncNow();
+  else if(a==='login'){try{await PHCloud.login();cloudInit()}catch(err){toast(String(err.message||err))}}
+  else if(a==='proj'){try{var ps=await PHCloud.projects(),msg='Type the number of a project, or a new name to create one:\n'+ps.map(function(p,i){return (i+1)+'. '+p.name}).join('\n'),r=window.prompt(msg);if(!r)return;var k=parseInt(r,10);if(k&&ps[k-1])PHCloud.select(ps[k-1].pid,ps[k-1].name);else await PHCloud.create(r);cloudInit()}catch(err){toast(String(err.message||err))}}
+  else if(a==='share'){var em=window.prompt('Email addresses of your co-writers (they must be members of your site), separated by commas');if(em){try{var s=await PHCloud.share(em);toast('Shared with '+s.editors.length+' people')}catch(err){toast(String(err.message||err))}}}
+});
+$('cScrim').addEventListener('click',function(){menu(false)});
+window.addEventListener('beforeunload',function(){X.store(ST)});
+render();cloudInit();
+if('serviceWorker' in navigator)try{navigator.serviceWorker.register('sw.js')}catch(e){}
+})();
+</script></body></html>

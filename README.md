@@ -100,3 +100,7 @@ Cloud save needs a logged-in Wix member. filmHUB runs inside a page on the Wix s
 - `ProHubSaves`: `pid`, `k`, `i`, `n`, `ts`, `v`, `by` (text, number as listed)
 
 Both collections should be Admin-only; the CSV files in `velo/` create them. Projects belong to the member who created them and can be shared with other members by email. Outside the Wix page, or when logged out, cloud save stays off.
+
+## Co-writing
+
+The Co-write tile opens `cowrite.html`. Writers share one script through the member-login cloud project. Each line has its own id, so edits to different lines merge automatically; if two people change the same line, the other version stays and yours is added as a note on that line. Add the two new web-module methods (`loadKey`, `presence`) by re-pasting `velo/backend/proHubCloud.web.js` and `velo/page-code.js` into Wix.

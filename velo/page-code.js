@@ -5,7 +5,7 @@ import { authentication } from 'wix-members-frontend';
 import * as cloud from 'backend/proHubCloud.web';
 
 const FRAME = '#html1';
-const OPS = ['whoami', 'listProjects', 'createProject', 'shareProject', 'removeProject', 'saveKey', 'loadProject', 'projectMeta'];
+const OPS = ['whoami', 'listProjects', 'createProject', 'shareProject', 'removeProject', 'saveKey', 'loadProject', 'projectMeta', 'loadKey', 'presence'];
 
 $w.onReady(function () {
   const f = $w(FRAME);
