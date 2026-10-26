@@ -187,7 +187,7 @@ a{color:inherit;text-decoration:none;}
 </style>
 <style id="ix-burger-style">
 #ixBurger{display:none}
-@media (max-width:768px){
+@media all{
   .topbar{flex-wrap:nowrap!important;height:48px!important;flex:0 0 48px!important;padding:0 8px!important;row-gap:0!important;gap:6px!important;align-items:center;}
   .brand{margin:0;padding:6px 4px;line-height:1;font-size:21px!important;}
   .top-right{margin-left:auto!important;display:flex;align-items:center;gap:6px;}
@@ -211,6 +211,7 @@ a{color:inherit;text-decoration:none;}
 #ix-sheet .s{font-size:11px;color:#8794A6;padding:0 6px 8px}
 #ix-sheet button,#ix-sheet a{display:flex;flex-direction:column;align-items:flex-start;width:100%;text-align:left;padding:13px 12px;margin:0 0 6px;border-radius:10px;background:#101828;border:1px solid #1B2436;color:#E9EDF5;font:700 14px/1.2 inherit;text-decoration:none}
 #ix-sheet small{font-weight:500;font-size:11px;color:#8794A6;margin-top:3px}
+@media(min-width:769px){#ix-sheet{left:auto;right:12px;bottom:auto;top:52px;width:380px;max-height:calc(100vh - 64px);border:1px solid #26344E;border-radius:12px;transform:translateY(-8px);opacity:0;pointer-events:none;transition:transform .15s,opacity .15s}#ix-sheet.on{transform:none;opacity:1;pointer-events:auto}#ix-sheet .g{display:none}.topbar{flex-wrap:nowrap!important}.proj{display:none!important}}
 #ix-sheet .x{background:rgba(127,29,29,.25);border-color:#7F1D1D;color:#FCA5A5}
 </style>
 <link id="ph-anton" href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
@@ -831,7 +832,7 @@ var tb=document.querySelector('.topbar'),tr=document.querySelector('.top-right')
 var b=document.createElement('button');b.id='ixBurger';b.type='button';b.setAttribute('aria-label','Menu');b.innerHTML='<span></span>';tr.appendChild(b);
 /* phone tab row under the bar (mirrors the original tabs, which stay for desktop) */
 var tabs=document.getElementById('tabs'),row=document.createElement('div');row.id='ixTabs';row.style.display='none';
-function mq(){return window.matchMedia('(max-width:768px)').matches;}
+function mq(){return true;}
 function syncTabs(){row.innerHTML='';[].forEach.call(tabs.querySelectorAll('.tab'),function(t){var c=document.createElement('button');c.textContent=t.textContent;if(t.classList.contains('on'))c.className='on';c.onclick=function(){t.click();setTimeout(syncTabs,30);};row.appendChild(c);});row.style.display=mq()?'flex':'none';}
 tb.parentNode.insertBefore(row,tb.nextSibling);syncTabs();window.addEventListener('resize',syncTabs);tabs.addEventListener('click',function(){setTimeout(syncTabs,30);});
 var sc=document.createElement('div');sc.id='ix-scrim';var sh=document.createElement('div');sh.id='ix-sheet';sh.setAttribute('role','dialog');document.body.appendChild(sc);document.body.appendChild(sh);

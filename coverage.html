@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Script Coverage</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#05070B">
+<link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=IBM+Plex+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#07090F;--p1:#0E1320;--p2:#131A2B;--line:#1F2A42;--tx:#E6ECF5;--mu:#8794A6;--ac:#E5A93C;--gd:#4ADE80;--bd:#F87171;--wn:#FBBF24;--bl:#60A5FA;--pu:#A78BFA}
+*{box-sizing:border-box}html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--tx);font:14px/1.5 Inter,system-ui,sans-serif;display:flex;flex-direction:column}
+.mono{font-family:'IBM Plex Mono',monospace}
+button,select,input,textarea{font:inherit;color:inherit}
+header{display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+header a.back{color:var(--mu);text-decoration:none;font-size:20px;line-height:1}
+header h1{font-size:15px;margin:0;font-weight:800;letter-spacing:.04em;text-transform:uppercase}
+header h1 small{color:var(--mu);font-weight:500;margin-left:6px;text-transform:none;letter-spacing:0}
+.sp{flex:1}
+.btn{background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:8px;padding:6px 11px;cursor:pointer;font-size:12px;font-weight:600;white-space:nowrap}
+.btn:hover{border-color:#34436a}.btn.g{border-color:#7a5a16;color:var(--ac)}.btn.p{background:var(--ac);color:#000;border-color:var(--ac)}.btn.sm{padding:3px 8px;font-size:11px}.btn:disabled{opacity:.4;cursor:default}
+nav.tabs{display:flex;gap:2px;padding:0 8px;border-bottom:1px solid var(--line);overflow-x:auto;flex:0 0 auto}
+nav.tabs button{background:none;border:0;border-bottom:2px solid transparent;padding:9px 12px;color:var(--mu);font-weight:700;font-size:12px;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;white-space:nowrap}
+nav.tabs button.on{color:var(--tx);border-color:var(--ac)}
+nav.tabs .n{background:#1b2540;border-radius:9px;padding:0 6px;margin-left:5px;font-size:10px}
+main{flex:1;min-height:0;overflow:auto;padding:14px;position:relative}
+.wrap{max-width:1100px;margin:0 auto}
+.card{background:var(--p1);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}
+.card h2{margin:0 0 8px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--mu)}
+.card h3{margin:12px 0 4px;font-size:13px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.big{font-size:64px;font-weight:900;line-height:1}
+.chip{display:inline-block;border-radius:6px;padding:1px 7px;font-size:11px;font-weight:700;font-family:'IBM Plex Mono',monospace;background:#1b2540}
+.sc{display:inline-block;min-width:34px;text-align:center;border-radius:6px;padding:1px 6px;font:700 12px 'IBM Plex Mono',monospace;color:#000}
+.bar{height:8px;border-radius:4px;background:#1b2540;overflow:hidden;margin:4px 0}.bar i{display:block;height:100%}
+.cat{display:grid;grid-template-columns:90px 1fr 38px;gap:8px;align-items:center;font-size:13px}
+.cite{display:inline-block;margin:2px 4px 2px 0;padding:2px 8px;border:1px solid var(--line);border-radius:14px;background:#0a0f1c;color:var(--bl);font-size:11.5px;cursor:pointer;max-width:100%;text-align:left}
+.cite:hover{border-color:var(--bl);background:#0f1730}
+.cite b{font-family:'IBM Plex Mono',monospace;color:var(--ac);margin-right:5px}
+.mu{color:var(--mu)}.sm{font-size:12px}
+.row{padding:8px 0;border-top:1px solid var(--line)}.row:first-child{border:0}
+.tip{border-left:3px solid var(--ac);padding:2px 0 2px 9px;margin:5px 0;color:#cbd5e1;font-size:13px}
+.pill{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;border-radius:4px;padding:1px 6px;margin-right:6px}
+.pill.fix{background:#14532d;color:#86efac}.pill.warn{background:#713f12;color:#fde68a}.pill.note{background:#1e3a5f;color:#bfdbfe}.pill.trope{background:#4c1d95;color:#ddd6fe}
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.filters button{background:#0E1320;border:1px solid var(--line);border-radius:14px;padding:3px 11px;font-size:12px;cursor:pointer}.filters button.on{background:var(--ac);color:#000;border-color:var(--ac)}
+/* script view */
+.sv{display:grid;grid-template-columns:200px minmax(0,1fr) 340px;gap:12px;height:100%}
+.sv>div{min-height:0;overflow:auto}
+.nav .it{display:block;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid #151d33;padding:5px 6px;cursor:pointer;font-size:11px;color:var(--mu)}
+.nav .it:hover,.nav .it.on{color:var(--tx);background:#0E1320}.nav .it b{color:var(--ac);font-family:'IBM Plex Mono',monospace;margin-right:5px}
+.page{background:#0b0f19;border:1px solid var(--line);border-radius:8px;padding:18px 14px;font-family:'Courier Prime',monospace;font-size:13px;line-height:1.45}
+.ln{padding:1px 4px;border-radius:3px;cursor:pointer;position:relative;white-space:pre-wrap;overflow-wrap:anywhere}
+.ln:hover{background:#121a2e}
+.ln.scn{font-weight:700;text-transform:uppercase;margin-top:16px}
+.ln.chr{margin-left:34%;font-weight:700;text-transform:uppercase;margin-top:9px}
+.ln.par{margin-left:26%;color:#9CA3AF;font-style:italic}.ln.dlg{margin:0 14% 0 20%}.ln.trn{text-align:right;font-weight:700;margin-top:8px}.ln.pbk{margin-top:9px}
+.ln.i-fix{box-shadow:inset 3px 0 #4ade80}.ln.i-warn{box-shadow:inset 3px 0 #fbbf24}.ln.i-note{box-shadow:inset 3px 0 #60a5fa}.ln.i-trope{box-shadow:inset 3px 0 #a78bfa}
+.ln.sel{background:#3a2d0b!important;outline:1px solid var(--ac)}
+.ln .pg{position:absolute;right:2px;top:0;font:10px 'IBM Plex Mono',monospace;color:#3d4a68}
+.panel{background:var(--p1);border:1px solid var(--line);border-radius:10px;padding:12px}
+.panel h3{margin:0 0 4px}
+textarea.ed{width:100%;min-height:70px;background:#05070B;border:1px solid var(--line);border-radius:6px;padding:7px;font-family:'Courier Prime',monospace;font-size:13px}
+input.tx,select.tx{background:#05070B;border:1px solid var(--line);border-radius:6px;padding:6px 8px;width:100%}
+.sug{border:1px solid var(--line);border-radius:8px;padding:8px;margin:6px 0;background:#0a0f1c}
+.sug .pv{font:12px 'Courier Prime',monospace;margin:4px 0;color:#cbd5e1;white-space:pre-wrap}
+del{background:#4c1519;color:#fecaca;text-decoration:line-through}ins{background:#14391f;color:#bbf7d0;text-decoration:none}
+.dh{border:1px solid var(--line);border-radius:8px;margin:6px 0;background:#0a0f1c}.dh summary{cursor:pointer;padding:6px 10px;font-size:12px}
+.dl2{font:12px 'Courier Prime',monospace;padding:1px 10px;white-space:pre-wrap}.dl2.a{background:#10301b}.dl2.r{background:#35161a}
+.toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#111827;border:1px solid var(--ac);padding:8px 14px;border-radius:8px;z-index:50;display:none}
+.empty{max-width:620px;margin:6vh auto;text-align:center}
+.empty textarea{width:100%;height:150px;background:#05070B;border:1px solid var(--line);border-radius:8px;padding:8px;font-family:'Courier Prime',monospace}
+@media(max-width:1000px){.sv{grid-template-columns:minmax(0,1fr);height:auto}.sv>div{overflow:visible}.nav{display:none}.panel{position:sticky;bottom:0;max-height:55vh;overflow:auto;z-index:5}}
+@media print{header,nav.tabs,.noprint{display:none!important}body{background:#fff;color:#000;display:block}main{overflow:visible}.card,.panel{background:#fff;border-color:#bbb}.mu{color:#555}}
+</style>
+</head>
+<body>
+<header>
+  <a class="back" href="filmhub.html" title="Back to filmHUB">&#8592;</a>
+  <h1>Script Coverage <small id="hTitle"></small></h1>
+  <span class="sp"></span>
+  <select id="fmtSel" class="tx" style="width:auto" title="Format for page-count and structure checks"><option value="FEATURE">Feature</option><option value="PILOT">TV pilot</option><option value="TV60">TV 60 min</option><option value="TV30">TV 30 min</option><option value="SHORT">Short</option></select>
+  <button class="btn g" id="bLoad">Load script</button>
+  <button class="btn" id="bHub">From filmHUB</button>
+  <button class="btn" id="bSave" disabled>Save version</button>
+  <button class="btn" id="bUndo" disabled>Undo</button>
+  <button class="btn" id="bExp" disabled>Export</button>
+  <input type="file" id="fIn" accept=".txt,.fountain,.fdx,.pdf,.json,.html,.htm" style="display:none">
+</header>
+<nav class="tabs" id="tabs"></nav>
+<main id="main"></main>
+<div class="toast" id="toast"></div>
+<script src="lib/autotag.js"></script>
+<script src="lib/screenplay.js"></script>
+<script src="lib/cov-core.js"></script>
+<script src="lib/cov-measures.js"></script>
+<script src="lib/cov-tropes.js"></script>
+<script src="lib/cov-params.js"></script>
+<script src="lib/cov-report.js"></script>
+<script src="lib/cov-diff.js"></script>
+<script>
+(function(){
+'use strict';
+var C=window.PHCov,U=C.util,$=function(i){return document.getElementById(i)};
+var S={raw:'',R:null,tab:'summary',undo:[],versions:[],sel:null,sIdx:null,filter:{cat:'All',sev:'All'},dismissed:{},notes:[],diff:null,cmp:null,vA:'',vB:'',base:null};
+var TABS=[['summary','Summary'],['logline','Logline'],['params','100 Parameters'],['findings','Findings'],['script','Script'],['tropes','Tropes'],['versions','Versions & diff']];
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function toast(t){var e=$('toast');e.textContent=t;e.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(function(){e.style.display='none'},2600)}
+function col(s){if(s==null)return'#3d4a68';return s>=8?'#4ADE80':s>=7?'#A3E635':s>=6?'#FBBF24':s>=4?'#FB923C':'#F87171'}
+function chip(s){return '<span class="sc" style="background:'+col(s)+'">'+(s==null?'n/a':(+s).toFixed(1))+'</span>'}
+function ask(t){return window.prompt(t)}
+
+/* ---------- storage: IndexedDB with in-memory fallback ---------- */
+var DB=null,MEM=[];
+function dbOpen(){return new Promise(function(res){try{var r=indexedDB.open('prohub_cov_v1',1);r.onupgradeneeded=function(){r.result.createObjectStore('v',{keyPath:'id'})};r.onsuccess=function(){DB=r.result;res()};r.onerror=function(){res()}}catch(e){res()}})}
+function dbAll(){return new Promise(function(res){if(!DB)return res(MEM.slice());try{var q=DB.transaction('v').objectStore('v').getAll();q.onsuccess=function(){res(q.result||[])};q.onerror=function(){res([])}}catch(e){res([])}})}
+function dbPut(o){return new Promise(function(res){if(!DB){MEM=MEM.filter(function(x){return x.id!==o.id}).concat([o]);return res()}try{var t=DB.transaction('v','readwrite');t.objectStore('v').put(o);t.oncomplete=res;t.onerror=res}catch(e){res()}})}
+function dbDel(id){return new Promise(function(res){if(!DB){MEM=MEM.filter(function(x){return x.id!==id});return res()}try{var t=DB.transaction('v','readwrite');t.objectStore('v').delete(id);t.oncomplete=res;t.onerror=res}catch(e){res()}})}
+function loadVersions(){return dbAll().then(function(a){S.versions=a.sort(function(x,y){return x.ts-y.ts});})}
+
+/* ---------- running the analysis ---------- */
+function analyze(raw,keepTab){
+  S.raw=raw;$('main').innerHTML='<div class="empty mu">Reading the script…</div>';
+  return new Promise(function(res){setTimeout(function(){
+    try{S.R=C.analyze(raw,{format:$('fmtSel').value});}catch(e){console.error(e);$('main').innerHTML='<div class="empty"><b>Could not read this script.</b><div class="mu sm">'+esc(e.message)+'</div></div>';return res();}
+    S.sel=null;S.sIdx=null;
+    $('hTitle').textContent=S.R.m.meta.title||'';
+    ['bSave','bExp'].forEach(function(i){$(i).disabled=false});$('bUndo').disabled=!S.undo.length;
+    tabs();render();res();
+  },30)});
+}
+function tabs(){
+  var R=S.R,nf=R?R.issues.filter(function(i){return i.sev!=='trope'&&!S.dismissed[key(i)]}).length:0;
+  $('tabs').innerHTML=TABS.map(function(t){var n=t[0]==='findings'?'<span class="n">'+nf+'</span>':t[0]==='versions'&&S.versions.length?'<span class="n">'+S.versions.length+'</span>':'';return '<button data-t="'+t[0]+'" class="'+(S.tab===t[0]?'on':'')+'">'+t[1]+n+'</button>'}).join('');
+  [].forEach.call($('tabs').querySelectorAll('button'),function(b){b.onclick=function(){S.tab=b.getAttribute('data-t');tabs();render()}});
+}
+function key(i){return i.rule+'|'+i.li+'|'+(i.q||'').slice(0,30)}
+
+/* ---------- citations ---------- */
+function locate(c){
+  var m=S.R.m;if(c.li!=null&&m.lines[c.li])return c.li;
+  var q=String(c.q||'').toLowerCase().replace(/[“”"]/g,'').replace(/…/g,'').slice(0,28).trim();
+  var sc=c.si!=null?m.scenes[c.si]:null,pool=sc?sc.lines:m.lines;
+  if(q.length>5)for(var i=0;i<pool.length;i++){if(pool[i].text.toLowerCase().indexOf(q)>=0)return pool[i].i}
+  return sc&&sc.hli!=null?sc.hli:null;
+}
+function citeHtml(c,idx){
+  var q=String(c.q||'');return '<button class="cite" data-c="'+idx+'"><b>Sc '+esc(c.sc)+' · p.'+esc(c.pg)+'</b>'+(q?'“'+esc(q.length>90?q.slice(0,88)+'…':q)+'”':'')+'</button>';
+}
+var CITES=[];
+function cites(list){return (list||[]).map(function(c){CITES.push(c);return citeHtml(c,CITES.length-1)}).join('')}
+function wireCites(root){[].forEach.call(root.querySelectorAll('.cite'),function(b){b.onclick=function(){var c=CITES[+b.getAttribute('data-c')];if(c.__issue)return goIssue(c.__issue);goto(locate(c),null,c)}})}
+
+/* ---------- render dispatch ---------- */
+function render(){
+  CITES=[];var R=S.R,main=$('main');
+  if(!R){main.innerHTML=emptyHtml();wireEmpty();return}
+  main.style.padding=S.tab==='script'?'10px':'14px';
+  var h='<div class="wrap">';
+  ({summary:sSummary,logline:sLogline,params:sParams,findings:sFindings,script:sScript,tropes:sTropes,versions:sVersions})[S.tab](main);
+  wireCites(main);
+}
+function emptyHtml(){return '<div class="empty"><h2 style="font-size:22px;margin:0 0 6px">Rules-based script coverage</h2><p class="mu">Load a script (.txt, .fountain, .fdx, .pdf, or paste it). Every score, finding and suggestion is calculated from the text with fixed rules, and each one points to the scene, page and line it came from. Nothing leaves your browser.</p><p><button class="btn p" id="eLoad">Choose a file</button> <button class="btn" id="eHub">Use the filmHUB script</button></p><textarea id="ePaste" placeholder="…or paste the script here"></textarea><p><button class="btn" id="ePasteGo">Analyse pasted text</button></p></div>'}
+function wireEmpty(){var a=$('eLoad');if(!a)return;a.onclick=function(){$('fIn').click()};$('eHub').onclick=fromHub;$('ePasteGo').onclick=function(){var t=$('ePaste').value;if(t.trim().length<200)return toast('Paste more of the script first');S.undo=[];analyze(t)}}
+
+/* ---------- SUMMARY ---------- */
+function sSummary(main){
+  var R=S.R,m=R.m,st=R.stats,h='<div class="wrap">';
+  h+='<div class="card"><div class="grid2"><div><div class="mu sm mono">OVERALL (1–10)</div><div class="big" style="color:'+col(R.overall)+'">'+R.overall.toFixed(1)+'</div><div style="font-size:18px;font-weight:800">'+esc(R.band)+' · '+esc(R.verdict)+'</div><div class="mu sm" style="margin-top:6px">Scored on a 1–10 scale in five categories (the layout borrows the idea of Black List scoring, but the bands and rules here are this tool’s own). Craft, emotional engagement and theme adjust the overall by '+(R.overallParts.mod>=0?'+':'')+R.overallParts.mod+'. Measures are indicative: rules read the page, not the performance.</div></div><div>';
+  ['Premise','Plot','Character','Dialogue','Setting'].forEach(function(k){var s=R.cats[k].score;h+='<div class="cat"><span>'+k+'</span><div class="bar"><i style="width:'+(s?s*10:0)+'%;background:'+col(s)+'"></i></div>'+chip(s)+'</div>'});
+  h+='<div class="mu sm mono" style="margin-top:8px">'+['CRAFT','EMOT','THEME'].map(function(k){var a=R.axes[k];return a.label+' '+(a.score==null?'n/a':a.score.toFixed(1))}).join(' · ')+'</div></div></div></div>';
+  h+='<div class="card"><h2>Overall summary</h2>'+R.summary.map(function(p){return '<p style="margin:0 0 9px">'+esc(p)+'</p>'}).join('')+'<div class="mu sm mono">'+st.pages+' pp · '+st.scenes+' scenes · '+st.speaking+' speaking roles · dialogue '+Math.round(st.dialogueShare*100)+'% · '+st.locations+' locations · night '+Math.round(st.nightShare*100)+'% · interior '+Math.round(st.intShare*100)+'%</div></div>';
+  h+='<div class="grid2"><div class="card"><h2>Strengths</h2>'+(R.sw.strengths.map(swHtml).join('')||'<div class="mu">No parameter scored 7.5 or above.</div>')+'</div><div class="card"><h2>Weaknesses</h2>'+(R.sw.weaknesses.map(swHtml).join('')||'<div class="mu">No parameter scored 5.5 or below.</div>')+'</div></div>';
+  h+='<div class="card"><h2>Layered notes by category</h2>';
+  ['Premise','Plot','Character','Dialogue','Setting'].forEach(function(k){var L=R.layers[k];h+='<h3>'+k+' '+chip(L.score)+'</h3>';
+    L.observe.forEach(function(t){h+='<div class="sm" style="margin:3px 0">• '+esc(t)+'</div>'});
+    L.works.forEach(function(w){h+='<div class="sm" style="margin:5px 0"><span class="pill fix">works</span><b>'+esc(w.name)+'</b> '+chip(w.s)+' '+esc(w.text)+'<div>'+cites(w.cites)+'</div></div>'});
+    L.strains.forEach(function(w){h+='<div class="sm" style="margin:5px 0"><span class="pill warn">strains</span><b>'+esc(w.name)+'</b> '+chip(w.s)+' '+esc(w.text)+'<div>'+cites(w.cites)+'</div></div>'});
+    L.tryThis.forEach(function(t){h+='<div class="tip">Try: '+esc(t.text)+'</div>'});});
+  h+='</div>';
+  if(R.quotes.length)h+='<div class="card"><h2>Lines worth protecting</h2>'+R.quotes.map(function(q){CITES.push({si:q.si,sc:q.sc,pg:q.pg,q:q.txt,li:q.li});return '<button class="cite" data-c="'+(CITES.length-1)+'"><b>'+esc(U.title(q.ch))+' · Sc '+q.sc+'</b>“'+esc(q.txt)+'”</button>'}).join('')+'</div>';
+  h+='<div class="card"><h2>Production read</h2><div class="sm">'+esc(R.Q.tier)+' · complexity '+R.Q.score+'/100 · '+R.Q.cast+' speaking roles · night '+Math.round(R.Q.night*100)+'% · exterior '+Math.round(R.Q.ext*100)+'%</div><div class="sm mu" style="margin-top:6px">Content tier (estimate from language, violence and sexual content): <b>'+esc(R.K.tier)+'</b>. '+esc(R.K.note||'')+'</div></div></div>';
+  main.innerHTML=h;
+}
+function swHtml(x){return '<div class="row"><div><b>'+esc(x.name)+'</b> '+chip(x.s)+' <span class="mu sm mono">'+x.id+'</span></div><div class="sm">'+esc(x.ev)+'</div><div>'+cites(x.cites)+'</div>'+(x.advice&&x.s<6?'<div class="tip">'+esc(x.advice)+'</div>':'')+'</div>'}
+
+/* ---------- LOGLINE ---------- */
+function sLogline(main){
+  var R=S.R,L=R.logline,sl=L.slots,h='<div class="wrap"><div class="card"><h2>Logline suggester</h2><div class="mu sm">Built from what the script actually says: the lead’s introduction, the goal verbs in the lead’s first-half dialogue, the stakes language, and the setting in the headings. Edit any slot and the options rebuild.</div>';
+  h+='<div class="grid2" style="margin-top:10px">';
+  [['protag','Lead (describe, don’t name)'],['goal','What they must do'],['stakes','What happens if they fail'],['setting','Setting / time'],['opposition','Opposing force']].forEach(function(f){h+='<label class="sm"><span class="mu">'+f[1]+'</span><input class="tx ls" data-k="'+f[0]+'" value="'+esc(sl[f[0]]||'')+'"></label>'});
+  h+='</div>';
+  if(sl.goalCands&&sl.goalCands.length){h+='<div class="sm mu" style="margin-top:8px">Goals the lead states in act one (click to use, or open the line):</div>';sl.goalCands.forEach(function(g){h+='<button class="btn sm gc" data-g="'+esc(g.ph)+'">'+esc(g.ph)+'</button> <button class="cite" data-c="'+(CITES.push(g.hit)-1)+'"><b>Sc '+g.hit.sc+' · p.'+g.hit.pg+'</b>“'+esc(g.hit.q)+'”</button> '})}
+  if(sl.stakesCands&&sl.stakesCands.length){h+='<div class="sm mu" style="margin-top:8px">Stakes language found:</div>';sl.stakesCands.forEach(function(g){h+='<button class="btn sm sk" data-g="'+esc(g.ph)+'">'+esc(g.ph)+'</button> <button class="cite" data-c="'+(CITES.push(g.hit)-1)+'"><b>Sc '+g.hit.sc+' · p.'+g.hit.pg+'</b>“'+esc(g.hit.q)+'”</button> '})}
+  h+='</div><div id="llOpts">'+llOpts(L)+'</div>';
+  h+='<div class="card"><h2>Check your own logline</h2><textarea class="ed" id="myLL" placeholder="Paste or write a logline to test it against the checklist"></textarea><div id="myChecks"></div></div></div>';
+  main.innerHTML=h;
+  [].forEach.call(main.querySelectorAll('.ls'),function(i){i.oninput=function(){sl[i.getAttribute('data-k')]=i.value;var r=C.loglineFrom(sl,R.m,R.X);R.logline=r;$('llOpts').innerHTML=llOpts(r);wireLL()}});
+  [].forEach.call(main.querySelectorAll('.gc'),function(b){b.onclick=function(){sl.goal=b.getAttribute('data-g');sLogline(main);wireCites(main)}});
+  [].forEach.call(main.querySelectorAll('.sk'),function(b){b.onclick=function(){sl.stakes=b.getAttribute('data-g');sLogline(main);wireCites(main)}});
+  $('myLL').oninput=function(){var c=C.checkLogline($('myLL').value,R.m,R.X,sl);$('myChecks').innerHTML=checks(c)};wireLL();
+}
+function checks(c){return '<div style="margin-top:6px">'+c.map(function(x){return '<div class="sm">'+(x.ok?'<span style="color:var(--gd)">✔</span>':'<span style="color:var(--bd)">✘</span>')+' '+esc(x.label)+(x.note?' <span class="mu">— '+esc(x.note)+'</span>':'')+'</div>'}).join('')+'</div>'}
+function llOpts(L){return L.options.map(function(o,i){var ok=o.checks||C.checkLogline(o.text,S.R.m,S.R.X,L.slots);return '<div class="card"><span class="pill note">'+esc(o.label)+'</span> <span class="mu sm">'+o.words+' words</span><div style="font-size:16px;margin:6px 0">'+esc(o.text)+'</div>'+checks(ok)+'<button class="btn sm cp" data-i="'+i+'">Copy</button></div>'}).join('')}
+function wireLL(){[].forEach.call(document.querySelectorAll('.cp'),function(b){b.onclick=function(){var t=S.R.logline.options[+b.getAttribute('data-i')].text;try{navigator.clipboard.writeText(t);toast('Copied')}catch(e){prompt('Copy:',t)}}})}
+
+/* ---------- PARAMETERS ---------- */
+function sParams(main){
+  var R=S.R,h='<div class="wrap"><div class="mu sm" style="margin-bottom:8px">All 100 coverage parameters. A score of n/a means the rules cannot measure it from the page (market, rights, or format-specific), and it is left out of every average instead of being given a made-up score. Click a citation to open the line.</div>';
+  Object.keys(R.axes).forEach(function(k){var a=R.axes[k];h+='<details class="card" '+(k==='CHAR'||k==='PLOT'?'open':'')+'><summary style="cursor:pointer"><b style="color:'+a.color+'">'+esc(a.label)+'</b> '+chip(a.score)+' <span class="mu sm">'+a.n+' of '+a.of+' measured</span></summary>';
+    a.params.forEach(function(p){h+='<div class="row"><div><span class="mu sm mono">'+p.id+'</span> <b>'+esc(p.name)+'</b> '+chip(p.s)+'</div><div class="sm">'+esc(p.ev)+'</div><div>'+cites(p.cites.slice(0,6))+'</div>'+(p.s!=null&&p.s<6.5&&C.advice(p)?'<div class="tip">'+esc(C.advice(p))+'</div>':'')+'</div>'});
+    h+='</details>'});
+  main.innerHTML=h+'</div>';
+}
+
+/* ---------- FINDINGS ---------- */
+function sFindings(main){
+  var R=S.R,all=R.issues.filter(function(i){return !S.dismissed[key(i)]}),cats=['All'].concat(Object.keys(all.reduce(function(a,i){a[i.cat]=1;return a},{}))),sevs=['All','fix','warn','note','trope'];
+  var f=all.filter(function(i){return (S.filter.cat==='All'||i.cat===S.filter.cat)&&(S.filter.sev==='All'||i.sev===S.filter.sev)});
+  var h='<div class="wrap"><div class="filters">'+cats.map(function(c){return '<button data-f="cat" data-v="'+esc(c)+'" class="'+(S.filter.cat===c?'on':'')+'">'+esc(c)+(c==='All'?' '+all.length:' '+all.filter(function(i){return i.cat===c}).length)+'</button>'}).join('')+'</div><div class="filters">'+sevs.map(function(c){return '<button data-f="sev" data-v="'+c+'" class="'+(S.filter.sev===c?'on':'')+'">'+({All:'All severities',fix:'Certain fixes',warn:'Should look at',note:'Notes',trope:'Familiar devices'})[c]+'</button>'}).join('')+'<span class="sp"></span>'+(all.some(function(i){return i.sev==='fix'&&i.sug[0]&&i.sug[0].op})?'<button class="btn g" id="applyAll">Apply all certain fixes ('+all.filter(function(i){return i.sev==='fix'&&i.sug[0]&&i.sug[0].op}).length+')</button>':'')+'</div>';
+  h+='<div class="mu sm" style="margin-bottom:6px">'+f.length+' shown. Click a finding to open it in the script with suggestions.</div>';
+  f.slice(0,400).forEach(function(i){var idx=CITES.push({__issue:i.id})-1;h+='<div class="card" style="padding:9px 12px;cursor:pointer" data-i="'+i.id+'"><span class="pill '+i.sev+'">'+({fix:'fix',warn:'check',note:'note',trope:'device'})[i.sev]+'</span><b>'+esc(i.name)+'</b> <span class="mu sm mono">'+esc(i.rule)+(i.sc!==''?' · Sc '+esc(i.sc):'')+(i.pg?' · p.'+i.pg:'')+'</span><div class="sm">'+esc(i.msg)+'</div>'+(i.q?'<div class="sm mono mu">“'+esc(String(i.q).slice(0,140))+'”</div>':'')+'</div>'});
+  if(f.length>400)h+='<div class="mu sm">Showing the first 400. Use the filters to narrow the list.</div>';
+  main.innerHTML=h+'</div>';
+  [].forEach.call(main.querySelectorAll('[data-f]'),function(b){b.onclick=function(){S.filter[b.getAttribute('data-f')]=b.getAttribute('data-v');render()}});
+  [].forEach.call(main.querySelectorAll('[data-i]'),function(b){b.onclick=function(){goIssue(b.getAttribute('data-i'))}});
+  var aa=$('applyAll');if(aa)aa.onclick=function(){var ops=all.filter(function(i){return i.sev==='fix'&&i.sug[0]&&i.sug[0].op}).map(function(i){return i.sug[0].op});commit(ops,'Applied '+ops.length+' mechanical fixes')};
+}
+
+/* ---------- SCRIPT VIEW ---------- */
+var TYC={'scene-heading':'scn',character:'chr',parenthetical:'par',dialogue:'dlg',transition:'trn',action:''};
+function sScript(main){
+  var R=S.R,m=R.m,byLi={};
+  R.issues.forEach(function(i){if(i.li!=null&&!S.dismissed[key(i)]){(byLi[i.li]=byLi[i.li]||[]).push(i)}});S.byLi=byLi;
+  var nav='<div class="nav card" style="padding:4px">'+R.sceneIndex.map(function(s){return '<button class="it" data-li="'+(m.scenes[s.idx].hli!=null?m.scenes[s.idx].hli:'')+'"><b>'+esc(s.num)+'</b>'+esc(s.heading)+' <span class="mu">p'+s.pg+'</span></button>'}).join('')+'</div>';
+  var rows=m.lines.map(function(l,i){var is=byLi[i],sev=is?(is.some(function(x){return x.sev==='fix'})?'fix':is.some(function(x){return x.sev==='warn'})?'warn':is.some(function(x){return x.sev==='note'})?'note':'trope'):'';
+    return '<div class="ln '+(TYC[l.type]||'')+(l.pb&&l.type==='action'?' pbk':'')+(sev?' i-'+sev:'')+(S.sel===i?' sel':'')+'" data-i="'+i+'" id="L'+i+'">'+esc(l.text)+'</div>'}).join('');
+  main.innerHTML='<div class="sv">'+nav+'<div id="svc"><div class="page">'+rows+'</div></div><div id="svp"></div></div>';
+  [].forEach.call(main.querySelectorAll('.nav .it'),function(b){b.onclick=function(){var li=b.getAttribute('data-li');if(li!=='')goto(+li)}});
+  $('svc').onclick=function(e){var t=e.target.closest('.ln');if(t)select(+t.getAttribute('data-i'))};
+  if(S.sel!=null)select(S.sel,true);else $('svp').innerHTML='<div class="panel mu sm">Click any line, or any citation or finding anywhere in the report, to see what the rules found and what you could try. Green marks are certain mechanical fixes, amber are things worth a look, blue are notes, purple are familiar devices.</div>';
+}
+function goto(li,issueId,cite){
+  if(li==null){toast('That spot is not a single line; showing the scene');}
+  S.sel=li;S.cite=cite||null;S.tab='script';tabs();render();
+  var e=li!=null&&$('L'+li);if(e)e.scrollIntoView({block:'center'});
+}
+function goIssue(id){var i=S.R.issues.filter(function(x){return x.id===id})[0];if(!i)return;S.focusIssue=id;goto(i.li)}
+function select(li,noScroll){
+  S.sel=li;[].forEach.call(document.querySelectorAll('.ln.sel'),function(e){e.classList.remove('sel')});var el=$('L'+li);if(el){el.classList.add('sel');if(!noScroll)el.scrollIntoView({block:'center',behavior:'smooth'})}
+  var R=S.R,m=R.m,l=m.lines[li],is=(S.byLi&&S.byLi[li]||[]).slice();
+  if(S.focusIssue){is.sort(function(a,b){return a.id===S.focusIssue?-1:b.id===S.focusIssue?1:0});S.focusIssue=null}
+  var sc=null;m.scenes.forEach(function(s){if(s.lines.indexOf(l)>=0)sc=s});
+  var h='<div class="panel"><div class="mu sm mono">Line '+(li+1)+(sc?' · Sc '+esc(sc.num)+' · p.'+(Math.floor(sc.pg0)+1):'')+' · '+esc(l.type)+'</div>';
+  h+='<h3>Edit this line</h3><textarea class="ed" id="lnEd">'+esc(l.text)+'</textarea><div style="display:flex;gap:6px;margin:5px 0;flex-wrap:wrap"><button class="btn sm p" id="lnSave">Save change</button><button class="btn sm" id="lnDel">Delete line</button><button class="btn sm" id="lnPb">Start new paragraph here</button><button class="btn sm" id="lnNote">Add to writer’s notes</button></div>';
+  if(!is.length)h+='<div class="mu sm">No rule fired on this line. Citations that point here appear under “Why this line”.</div>';
+  is.forEach(function(i){h+='<div class="sug" data-id="'+i.id+'"><span class="pill '+i.sev+'">'+i.sev+'</span><b>'+esc(i.name)+'</b> <span class="mu sm mono">'+esc(i.rule)+'</span><div class="sm">'+esc(i.msg)+'</div>';
+    i.sug.forEach(function(s,k){if(s.op){var pv=preview(s.op,l);h+='<div class="sug" style="background:#0E1320"><div class="sm">'+esc(s.label)+'</div>'+(pv?'<div class="pv">'+pv+'</div>':'')+(s.editable?'<input class="tx" data-ed="'+i.id+'-'+k+'" value="A beat." style="margin:4px 0">':'')+'<button class="btn sm p ap" data-id="'+i.id+'" data-k="'+k+'">Apply</button></div>'}else h+='<div class="tip">'+esc(s.label)+'</div>'});
+    h+='<div style="display:flex;gap:6px"><button class="btn sm dm" data-id="'+i.id+'">Dismiss</button><button class="btn sm nt" data-id="'+i.id+'">Add to notes</button></div></div>'});
+  if(S.cite)h+='<div class="sug"><b>Why this line</b><div class="sm mu">'+esc(S.cite.q||'')+'</div></div>';
+  h+='</div>';$('svp').innerHTML=h;
+  $('lnSave').onclick=function(){var t=$('lnEd').value;if(t===l.text)return toast('No change');commit([{t:'rep',li:li,start:0,end:l.text.length,to:t}],'Edited line '+(li+1))};
+  $('lnDel').onclick=function(){commit([{t:'del',li:li}],'Deleted line '+(li+1))};
+  $('lnPb').onclick=function(){commit([{t:'pb',li:li}],'Paragraph break added')};
+  $('lnNote').onclick=function(){addNote({text:'Line '+(li+1)+': “'+l.text.slice(0,140)+'”',sc:sc?sc.num:''})};
+  [].forEach.call(document.querySelectorAll('.ap'),function(b){b.onclick=function(){var i=R.issues.filter(function(x){return x.id===b.getAttribute('data-id')})[0],s=i.sug[+b.getAttribute('data-k')],op=JSON.parse(JSON.stringify(s.op));var ed=document.querySelector('[data-ed="'+i.id+'-'+b.getAttribute('data-k')+'"]');if(ed&&op.t==='split')op.beat=ed.value;commit([op],i.name+': applied')}});
+  [].forEach.call(document.querySelectorAll('.dm'),function(b){b.onclick=function(){var i=R.issues.filter(function(x){return x.id===b.getAttribute('data-id')})[0];S.dismissed[key(i)]=1;tabs();render()}});
+  [].forEach.call(document.querySelectorAll('.nt'),function(b){b.onclick=function(){var i=R.issues.filter(function(x){return x.id===b.getAttribute('data-id')})[0];addNote({text:i.name+' (Sc '+i.sc+', p.'+i.pg+'): '+i.msg+(i.q?' “'+String(i.q).slice(0,120)+'”':'')+(i.sug.length?' → '+i.sug[0].label:''),sc:i.sc})}});
+}
+function preview(op,l){
+  if(op.t==='rep'){var t=l.text,a=t.slice(0,op.start),mid=t.slice(op.start,op.end),b=t.slice(op.end);return esc(a.slice(-40))+(mid?'<del>'+esc(mid)+'</del>':'')+(op.to?'<ins>'+esc(op.to)+'</ins>':'')+esc(b.slice(0,40))}
+  if(op.t==='del'||op.t==='delspeech')return '<del>'+esc(l.text)+'</del>';
+  if(op.t==='pb')return '<ins>¶ new paragraph</ins> '+esc(l.text.slice(0,60));
+  if(op.t==='split')return esc(l.text.slice(0,40))+'… <ins>[beat] '+esc(op.name)+' (CONT’D)</ins>';
+  if(op.t==='multi')return '<ins>'+op.ops.length+' edits across the script</ins>';
+  return '';
+}
+function addNote(n){S.notes.push(n);toast('Added to writer’s notes ('+S.notes.length+')')}
+
+/* ---------- applying edits ---------- */
+function commit(ops,msg){
+  if(!ops.length)return;S.undo.push(S.raw);if(S.undo.length>30)S.undo.shift();
+  var R=S.R,lines=C.applyOps(R.m.lines,ops),raw=C.serialize(lines,R.m.meta);
+  var tab=S.tab,keep=S.sel;analyze(raw).then(function(){S.tab=tab;tabs();toast(msg);if(tab==='script'){render()}else render()});
+}
+function undo(){if(!S.undo.length)return;var r=S.undo.pop();analyze(r).then(function(){toast('Undone')})}
+
+/* ---------- TROPES ---------- */
+function sTropes(main){
+  var R=S.R,h='<div class="wrap"><div class="mu sm" style="margin-bottom:8px">Tropes are shown in three groups. <b>Clichés</b> are worn choices worth challenging; <b>conventions</b> are structures the genre expects; <b>devices</b> are techniques that are neither good nor bad on their own. Each lists the instances found.</div>';
+  var groups={cliche:'Familiar clichés',convention:'Genre conventions',device:'Devices and techniques'};
+  Object.keys(groups).forEach(function(k){var xs=R.T.filter(function(t){return t.kind===k});h+='<div class="card"><h2>'+groups[k]+' ('+xs.length+')</h2>'+(xs.map(function(t){return '<div class="row"><b>'+esc(t.name)+'</b> <span class="chip">'+t.n+'×</span> <span class="mu sm">'+esc(t.family||'')+'</span><div class="tip">'+esc(t.tip)+'</div><div>'+cites(t.hits.slice(0,8))+'</div></div>'}).join('')||'<div class="mu sm">None detected.</div>')+'</div>'});
+  var g=R.G;h+='<div class="card"><h2>Genre fingerprint</h2>'+g.slice(0,6).map(function(x){return '<div class="cat"><span class="sm">'+esc(C.LEX.genreName[x.g])+'</span><div class="bar"><i style="width:'+Math.round(x.share*100*2)+'%;background:#60A5FA"></i></div><span class="mono sm">'+Math.round(x.share*100)+'%</span></div>'}).join('')+'</div>';
+  main.innerHTML=h+'</div>';
+}
+
+/* ---------- VERSIONS ---------- */
+function sVersions(main){
+  var vs=S.versions,h='<div class="wrap"><div class="card"><h2>Saved versions</h2><div class="mu sm">Versions are stored in this browser only. Save a version before a big rewrite, then compare any two to get a scene-by-scene diff, a change log and a score comparison.</div><div style="margin:8px 0"><button class="btn g" id="vSave">Save current as version</button> <button class="btn" id="vImport">Add a file as a version</button></div>';
+  if(!vs.length)h+='<div class="mu sm">No versions saved yet.</div>';
+  vs.forEach(function(v){h+='<div class="row" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><div style="flex:1;min-width:200px"><b>'+esc(v.name)+'</b> <span class="mu sm">'+new Date(v.ts).toLocaleString()+'</span><div class="sm mu">'+esc(v.note||'')+' '+(v.score!=null?'· overall '+v.score:'')+' · '+v.pages+' pp</div></div><button class="btn sm vr" data-id="'+v.id+'">Open</button><button class="btn sm vd" data-id="'+v.id+'">Delete</button></div>'});
+  h+='</div><div class="card"><h2>Compare</h2><div class="grid2"><label class="sm mu">Older (A)<select class="tx" id="vA">'+vOpts(S.vA)+'</select></label><label class="sm mu">Newer (B)<select class="tx" id="vB">'+vOpts(S.vB,true)+'</select></label></div><p><button class="btn p" id="vGo">Compare versions</button></p></div><div id="vOut"></div>';
+  main.innerHTML=h+'</div>';
+  $('vSave').onclick=saveVersion;$('vImport').onclick=function(){S.importVer=true;$('fIn').click()};
+  [].forEach.call(main.querySelectorAll('.vr'),function(b){b.onclick=function(){var v=S.versions.filter(function(x){return x.id===b.getAttribute('data-id')})[0];S.undo.push(S.raw);analyze(v.raw).then(function(){S.tab='summary';tabs();render()})}});
+  [].forEach.call(main.querySelectorAll('.vd'),function(b){b.onclick=function(){if(!confirm('Delete this saved version?'))return;dbDel(b.getAttribute('data-id')).then(loadVersions).then(function(){tabs();render()})}});
+  $('vGo').onclick=function(){S.vA=$('vA').value;S.vB=$('vB').value;runCompare()};
+  if(S.cmp)showCompare();
+}
+function vOpts(sel,cur){var last=S.versions.length?S.versions[S.versions.length-1].id:'__cur';var want=sel||(cur?'__cur':last);return S.versions.map(function(v){return '<option value="'+v.id+'"'+(v.id===want?' selected':'')+'>'+esc(v.name)+' — '+new Date(v.ts).toLocaleDateString()+'</option>'}).join('')+'<option value="__cur"'+(want==='__cur'?' selected':'')+'>Current working copy</option>'}
+function rawOf(id){return id==='__cur'||!id?S.raw:S.versions.filter(function(v){return v.id===id})[0].raw}
+function runCompare(){
+  var a=rawOf(S.vA),b=rawOf(S.vB);if(a===b)return toast('Those two are identical');
+  $('vOut').innerHTML='<div class="card mu">Comparing…</div>';
+  setTimeout(function(){var o={format:$('fmtSel').value};S.diff=C.diff(a,b,o);S.cmp=C.compareReports(C.analyze(a,o),C.analyze(b,o));showCompare()},30);
+}
+function showCompare(){
+  var D=S.diff,P=S.cmp,T=D.totals,h='';if(!$('vOut'))return;
+  h+='<div class="card"><h2>Score comparison</h2><div class="grid2"><div><div class="mu sm mono">OVERALL</div><div style="font-size:34px;font-weight:900">'+P.overall[0].toFixed(1)+' → <span style="color:'+col(P.overall[1])+'">'+P.overall[1].toFixed(1)+'</span></div></div><div>'+Object.keys(P.cats).map(function(k){var d=P.cats[k];return '<div class="cat"><span>'+k+'</span><span class="mono sm">'+(d[0]==null?'n/a':d[0])+' → '+(d[1]==null?'n/a':d[1])+'</span><span></span></div>'}).join('')+'</div></div>'+P.text.map(function(t){return '<div class="sm" style="margin-top:4px">• '+esc(t)+'</div>'}).join('')+'</div>';
+  h+='<div class="card"><h2>Change log</h2>'+D.log.map(function(x){return '<div class="sm" style="padding:3px 0;border-top:1px solid var(--line)"><span class="pill '+(x.kind==='added'?'fix':x.kind==='removed'?'warn':'note')+'">'+x.kind+'</span>'+esc(x.text)+'</div>'}).join('')+'<p><button class="btn sm" id="logDl">Download change log</button></p></div>';
+  h+='<div class="card"><h2>Scene-by-scene diff</h2><div class="filters"><button data-d="chg" class="on">Changed only</button><button data-d="all">All scenes</button></div><div id="dScenes"></div></div>';
+  $('vOut').innerHTML=h;
+  var mode='chg';function draw(){$('dScenes').innerHTML=D.scenes.filter(function(s){return mode==='all'||(s.status!=='same'&&s.status!=='renumbered')}).map(function(s){
+    var title=(s.bnum!=null?'Sc '+s.bnum:'Sc '+s.anum)+' '+esc((s.b||s.a).heading)+' <span class="pill '+(s.status==='added'?'fix':s.status==='removed'?'warn':'note')+'">'+s.status+'</span><span class="mu sm">+'+s.stats.wAdd+' / -'+s.stats.wDel+' words</span>';
+    var lines=s.hunks.filter(function(x){return mode==='all'||x.op!=='='||false}).map(function(x){if(x.op==='=')return '<div class="dl2 mu">'+esc(x.b)+'</div>';if(x.op==='+')return '<div class="dl2 a">+ '+esc(x.b)+'</div>';if(x.op==='-')return '<div class="dl2 r">- '+esc(x.a)+'</div>';return '<div class="dl2">~ '+x.words.map(function(w){return w[0]==='+'?'<ins>'+esc(w[1])+'</ins>':w[0]==='-'?'<del>'+esc(w[1])+'</del>':esc(w[1])}).join('')+'</div>'}).join('');
+    return '<details class="dh"><summary>'+title+'</summary>'+lines+'</details>'}).join('')||'<div class="mu sm">No changes.</div>'}
+  draw();[].forEach.call($('vOut').querySelectorAll('[data-d]'),function(b){b.onclick=function(){mode=b.getAttribute('data-d');[].forEach.call($('vOut').querySelectorAll('[data-d]'),function(x){x.classList.toggle('on',x===b)});draw()}});
+  $('logDl').onclick=function(){dl('change-log.txt',D.log.map(function(x){return x.text}).join('\n')+'\n\n'+P.text.join('\n'))};
+}
+function saveVersion(){
+  var name=ask('Name this version (e.g. Draft 3, after notes):');if(!name)return;var note=ask('Optional note:')||'';
+  var v={id:'v'+Date.now(),name:name,note:note,ts:Date.now(),raw:S.raw,score:S.R.overall,pages:Math.round(S.R.m.pages*10)/10};
+  dbPut(v).then(loadVersions).then(function(){toast('Version saved');tabs();if(S.tab==='versions')render()});
+}
+
+/* ---------- loading / exporting ---------- */
+function dl(name,text,type){var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:type||'text/plain'}));a.download=name;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},500)}
+function fromHub(){
+  try{var ms=JSON.parse(localStorage.getItem('prehub_master_v1')||'null');if(ms&&ms.lines&&ms.lines.length){var lines=ms.lines.map(function(l){return {type:PHScript.normType(l.type),text:String(l.text||'')}});var pr={};try{pr=JSON.parse(localStorage.getItem('prehub_v3')||'{}')}catch(e){}S.undo=[];return analyze(C.serialize(lines,{title:pr.projectName||''}))}}catch(e){}
+  toast('No script found in filmHUB on this device yet');
+}
+$('bLoad').onclick=function(){S.importVer=false;$('fIn').click()};$('bHub').onclick=fromHub;$('bSave').onclick=saveVersion;$('bUndo').onclick=undo;
+$('fmtSel').onchange=function(){if(S.raw)analyze(S.raw)};
+$('fIn').onchange=function(){var f=this.files[0];this.value='';if(!f)return;
+  var r=/\.html?$/i.test(f.name)?f.text():PHScript.readFile(f);
+  Promise.resolve(r).then(function(t){if(typeof t!=='string')t=String(t||'');
+    if(S.importVer){var v={id:'v'+Date.now(),name:f.name.replace(/\.[^.]+$/,''),note:'imported file',ts:Date.now(),raw:t,score:null,pages:0};
+      var m=C.model(t);v.pages=Math.round(m.pages*10)/10;S.importVer=false;return dbPut(v).then(loadVersions).then(function(){toast('Added as a version');tabs();render()})}
+    S.undo=[];return analyze(t)}).catch(function(e){toast(e&&e.message?e.message:'Could not read that file')})};
+$('bExp').onclick=function(){
+  var R=S.R,t=(R.m.meta.title||'script').replace(/[^\w]+/g,'_');
+  var opts=[['Revised script (.fountain)',function(){dl(t+'_revised.fountain',C.serialize(R.m.lines.map(function(l){return l}),R.m.meta,{fountain:true}))}],['Revised script (.txt)',function(){dl(t+'_revised.txt',S.raw)}],['Coverage report (print / PDF)',function(){S.tab='summary';tabs();render();setTimeout(function(){window.print()},200)}],['Writer’s notes (.txt)',function(){if(!S.notes.length)return toast('No notes yet. Use “Add to notes” on findings');dl(t+'_notes.txt',S.notes.map(function(n,i){return (i+1)+'. '+n.text}).join('\n\n'))}],['Findings list (.csv)',function(){var rows=[['rule','category','severity','scene','page','message','quote']].concat(R.issues.map(function(i){return [i.rule,i.cat,i.sev,i.sc,i.pg,i.msg,i.q]}));dl(t+'_findings.csv',rows.map(function(r){return r.map(function(c){return '"'+String(c==null?'':c).replace(/"/g,'""')+'"'}).join(',')}).join('\n'),'text/csv')}]];
+  var c=prompt(opts.map(function(o,i){return (i+1)+' = '+o[0]}).join('\n')+'\n\nType a number:');var n=parseInt(c,10);if(opts[n-1])opts[n-1][1]();
+};
+document.addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&e.key==='z'&&document.activeElement.tagName!=='TEXTAREA'&&document.activeElement.tagName!=='INPUT'){e.preventDefault();undo()}});
+dbOpen().then(loadVersions).then(function(){tabs();render();
+  var q=location.search.match(/[?&]hub=1/);if(q)fromHub();
+});
+})();
+</script>
+</body>
+</html>

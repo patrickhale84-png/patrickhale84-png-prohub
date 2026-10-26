@@ -410,7 +410,7 @@ H.analysis=function(){
   h+=chars.length?chars.map(function(c){var p=dlTot?Math.round(dl[c]/dlTot*100):0;return '<div style="margin-bottom:8px"><div class="mono" style="font-size:11px;display:flex;justify-content:space-between"><span>'+esc(c)+'</span><span>'+dl[c]+' words · '+p+'%</span></div><div class="bar" style="--c:#D80073"><i style="width:'+p+'%"></i></div></div>';}).join(''):'<div class="empty">No dialogue detected.</div>';
   h+='<div class="sec" style="color:#D80073">Scene length (eighths of a page)</div>';
   h+=live.map(function(s){return '<div style="display:flex;gap:8px;align-items:center;margin-bottom:5px" class="mono"><span style="min-width:26px;color:#E5A93C;font-size:11px">'+s.num+'</span><div class="bar" style="flex:1;--c:'+(s.tod==='NIGHT'?'#6366F1':'#F59E0B')+'"><i style="width:'+(s.eighths/maxS*100)+'%"></i></div><span style="font-size:10px;color:#8794A6;min-width:30px;text-align:right">'+s.eighths+'/8</span></div>';}).join('');
-  h+='<div class="sec" style="color:#D80073">Note</div><div class="mono" style="font-size:11px;color:#8794A6;line-height:1.7">These are counted from the script itself. The full 100-parameter script coverage report stays in preHUB\'s Script Coverage; it does not save its results, so filmHUB cannot show them.</div>';
+  h+='<div class="sec" style="color:#D80073">Note</div><div class="mono" style="font-size:11px;color:#8794A6;line-height:1.7">These are counted from the script itself. The full rules-based Script Coverage report (1–10 scores, 100 parameters, cited findings, versions) is in the Script Coverage tile; it does not save its results, so filmHUB cannot show them.</div>';
   return {h:'Script Analysis',b:h};
 };
 
