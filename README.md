@@ -91,3 +91,7 @@ It builds PDFs on the device with `lib/pdf-lib.min.js` (keep this file next to `
 
 ### Shooting script standards
 Screenwriter shooting mode and the Shooting Script PDF follow production convention: scene numbers on headings only, in both margins; locked scripts insert 12A / A1; cut scenes stay as `N OMITTED`; revised lines get an asterisk in the right margin; `(CONTINUED)` at the foot and `CONTINUED:` with the scene number at the top of a continued scene; revision color and date on every page header; "Shooting Draft" and revision on the title page. Press Transmit in Screenwriter to carry numbers, omits, revision flags and color to filmHUB.
+
+## Cloud save (Wix Velo)
+
+`velo/http-functions.js` goes in the Wix site's backend and stores each project in a `ProHubSaves` collection (fields: `pid` text, `k` text, `i` number, `n` number, `ts` number, `v` text; permissions: Admin only). In filmHUB, Export data, Cloud save and sharing: enter the site address, create a project code, then save, load, share the link or turn on auto-save. Anyone with the code can open and save the project.
