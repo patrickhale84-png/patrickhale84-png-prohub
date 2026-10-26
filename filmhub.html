@@ -1400,9 +1400,10 @@ BLD.callsheet=async function(D,c){
 function cap(s){s=String(s||'').toLowerCase();return s.charAt(0).toUpperCase()+s.slice(1);}
 function scriptPages(D,scenes,o){
   var X=(D.pg.w-612)/2+108,W=432,sz=+o.size||12,lh=sz,om={t:D.m.t,b:D.m.b,nf:D.noFooter},TOP=72,curNum=null,tY=TOP;
-  D.m.t=TOP;D.m.b=60;D.noFooter=true;var pgNo=0,revLbl=o.revLabel||'';
+  D.m.t=TOP;D.m.b=60;D.noFooter=true;var pgNo=0,revLbl=o.revLabel||'',PH=(o.rev&&window.PHRev)?window.PHRev:null,PGS=[],LK=PH?PH.lockInfo():null,lpi=0,seenN={};
   function chrome(){pgNo++;
-    if(o.hdr!==false&&pgNo>1)D.drawLine(pgNo+'.',D.pg.w-72-40,42,{font:'m',size:12,align:'right',w:40});   /* page 1 is unnumbered */
+    if(PH)PGS.push({pg:D.pg,log:[],rv:0});
+    if(!PH&&o.hdr!==false&&pgNo>1)D.drawLine(pgNo+'.',D.pg.w-72-40,42,{font:'m',size:12,align:'right',w:40});   /* page 1 is unnumbered */
     if(revLbl)D.drawLine(revLbl,72,42,{font:'m',size:9});}
   /* a scene that runs onto another page gets (CONTINUED) at the foot and CONTINUED: with the scene number at the top */
   function brk(){
@@ -1418,7 +1419,8 @@ function scriptPages(D,scenes,o){
   function atTop(){return D.y<=tY+0.5;}
   function ensure(n){if(avail()<n)brk();}
   function blank(n){if(!atTop())D.y+=lh*n;}
-  function put(l){D.drawLine(l.t,X+(l.x||0),D.y+sz,{font:l.f||'m',size:sz,align:l.al,w:l.w||W});if(o.stars&&l.rv)D.drawLine('*',X+W+36,D.y+sz,{font:'m',size:sz});D.y+=lh;}
+  function put(l){if(PH&&l.t&&String(l.t).trim()){var hh=PH.h(l.t),oc=seenN[hh]||0;seenN[hh]=oc+1;if(LK){var ix=LK.map[hh+'#'+oc];if(ix!==undefined&&ix>=lpi){if(!atTop())brk();lpi=ix+1;}}}
+    if(PH&&PGS.length){var q=PGS[PGS.length-1];if(l.t&&String(l.t).trim())q.log.push(PH.h(l.t));if(l.rv)q.rv=1;}D.drawLine(l.t,X+(l.x||0),D.y+sz,{font:l.f||'m',size:sz,align:l.al,w:l.w||W});if(o.stars&&l.rv)D.drawLine('*',X+W+36,D.y+sz,{font:'m',size:sz});D.y+=lh;}
   function wr(txt,x,w,f,rv){return D.wrap(txt,f||'m',sz,w).map(function(t){return {t:t,x:x,w:w,f:f||'m',rv:rv};});}
   scenes.forEach(function(s,si){
     var hl=wr(s.omit?'OMITTED':s.heading.toUpperCase(),0,W,'mb',s.hrv);curNum=null;
@@ -1467,6 +1469,7 @@ function scriptPages(D,scenes,o){
       it.forEach(put);
     });
   });
+  if(PH)PH.finishPages(D,PGS,{hdr:o.hdr,tint:o.tint,revisedOnly:o.revisedOnly,hasLabel:!!revLbl});
   D._onPage=null;D.m.t=om.t;D.m.b=om.b;D.noFooter=om.nf;
 }
 BLD.script=async function(D,c){
@@ -1485,7 +1488,7 @@ BLD.script=async function(D,c){
   }
   var scenes=M.scenes.filter(function(s){return dOpt('script','omit',1)||!s.omit;});
   var RV=M.rev,rl=RV&&RV.color&&RV.color!=='WHITE'?RV.color+' REVISION  '+pcDateLong(RV.date,1):(rev?String(rev).toUpperCase():'');
-  scriptPages(D,scenes,{reuse:true,nums:dOpt('script','sceneNums',1),cont:dOpt('script','continued',1),stars:dOpt('script','stars',1),revLabel:dOpt('script','revLabel',1)?rl:''});
+  scriptPages(D,scenes,{reuse:true,nums:dOpt('script','sceneNums',1),cont:dOpt('script','continued',1),stars:dOpt('script','stars',1),revLabel:dOpt('script','revLabel',1)?rl:'',rev:true,tint:dOpt('script','tint',1),revisedOnly:dOpt('script','revOnly',0)});
   D.noFooter=nf;
 };
 BLD.sides=async function(D,c){
@@ -1692,7 +1695,7 @@ var DOCS=[
  {id:'callsheet',n:'Call Sheet',g:'Daily paperwork',days:1,d:'One per selected day: times, weather, set, hospital, scenes, cast, crew, vendors, advance.',o:[['weather','Weather','c',1],['hospital','Nearest hospital','c',1],['crew','Crew list','c',1],['vendors','Vendors & services','c',1],['advance','Advance schedule','c',1],['bg','Background & special requirements','c',1],['needs','Department needs','c',1],['colors','Color-coded scene rows','c',1]]},
  {id:'sides',n:'Sides',g:'Daily paperwork',days:1,d:'The day\'s scenes in screenplay format.',o:[['sceneNums','Scene numbers','c',1],['pageNums','Page numbers','c',1],['size','Type size','s',11,[[10,'10 pt'],[11,'11 pt'],[12,'12 pt']]]]},
  {id:'intimes',n:'Cast & Crew In Times',g:'Daily paperwork',days:1,d:'Who is called when, one page per day.',o:[['heads','Department heads only','c',0]]},
- {id:'script',n:'Shooting Script',g:'Script',d:'Full script, Courier 12, scene numbers in both margins.',o:[['titlePage','Title page','c',1],['sceneNums','Scene numbers (both margins)','c',1],['revLabel','Revision color and date on each page','c',1],['continued','CONTINUED at page breaks','c',1],['stars','Revision asterisks in the margin','c',1],['omit','Keep OMITTED placeholders (scene number stays)','c',1]]},
+ {id:'script',n:'Shooting Script',g:'Script',d:'Full script, Courier 12, scene numbers in both margins.',o:[['titlePage','Title page','c',1],['sceneNums','Scene numbers (both margins)','c',1],['revLabel','Revision color and date on each page','c',1],['continued','CONTINUED at page breaks','c',1],['stars','Revision asterisks in the margin','c',1],['tint','Tint revised pages in the revision colour','c',1],['revOnly','Revised pages only (for distributing changes)','c',0],['omit','Keep OMITTED placeholders (scene number stays)','c',1]]},
  {id:'stripboard',n:'Stripboard',g:'Scheduling',days:1,d:'Color-coded strips with day banners, totals and cast numbers.',o:[['colors','Color-coded strips','c',1],['cast','Cast numbers','c',1],['notes','Scene notes','c',1]]},
  {id:'schedule',n:'Shooting Schedule',g:'Scheduling',days:1,d:'Day by day with estimated times and a meal break.',o:[['names','Cast names instead of numbers','c',0],['colors','Color-coded rows','c',1]]},
  {id:'dood',n:'Day Out of Days',g:'Scheduling',d:'SW / W / WF / SWF / H for every cast member.'},
@@ -1931,5 +1934,5 @@ body{display:flex;flex-direction:column;min-height:0}
 .tsub{white-space:normal;overflow:hidden;text-overflow:clip;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .hero .wx{white-space:normal;overflow-wrap:anywhere}
 </style>
-<!--ph-pwa--><script id="ph-pwa-js">(function(){try{if("serviceWorker" in navigator&&/^https?:/.test(location.protocol)){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})})}}catch(e){}})();</script><script src="lib/safety.js" defer></script><script src="lib/exchange.js" defer></script><script src="lib/onset.js" defer></script><!--/ph-pwa--></body>
+<!--ph-pwa--><script id="ph-pwa-js">(function(){try{if("serviceWorker" in navigator&&/^https?:/.test(location.protocol)){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})})}}catch(e){}})();</script><script src="lib/safety.js" defer></script><script src="lib/revisions.js" defer></script><script src="lib/exchange.js" defer></script><script src="lib/onset.js" defer></script><!--/ph-pwa--></body>
 </html>

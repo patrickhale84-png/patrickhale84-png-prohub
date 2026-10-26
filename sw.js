@@ -5,7 +5,7 @@ var VER = 'prohub-v18';
 var CORE = [
   './', 'index.html', 'filmhub.html', 'roles.json', 'manifest.webmanifest',
   'tiles/pre-production.html', 'tiles/production.html', 'tiles/post-production.html',
-  'lib/pdf-lib.min.js', 'lib/safety.js', 'lib/exchange.js', 'lib/autotag.js', 'lib/screenplay.js','lib/cov-core.js','lib/cov-measures.js','lib/cov-tropes.js','lib/cov-params.js','lib/cov-repair.js','lib/cov-report.js','lib/cov-diff.js','coverage.html', 'lib/onset.js',
+  'lib/pdf-lib.min.js', 'lib/safety.js', 'lib/exchange.js','lib/revisions.js', 'lib/autotag.js', 'lib/screenplay.js','lib/cov-core.js','lib/cov-measures.js','lib/cov-tropes.js','lib/cov-params.js','lib/cov-repair.js','lib/cov-report.js','lib/cov-diff.js','coverage.html', 'lib/onset.js',
   'favicon.svg', 'favicon-32.png', 'favicon-192.png', 'favicon-512.png', 'apple-touch-icon.png'
 ];
 self.addEventListener('install', function (e) {
