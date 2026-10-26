@@ -347,7 +347,7 @@ $('ov').addEventListener('click',function(e){if(e.target===$('ov'))closeHub();})
 document.addEventListener('keydown',function(e){if(e.key==='Escape')closeHub();});
 function renderHub(){
   var t=T(UI.cur);if(!t)return;var r=H[UI.cur]();
-  $('bh').innerHTML='<div><div class="k" style="color:'+t.c+'">'+esc(M.title)+' · '+t.t+'</div><h2>'+esc(r.h)+'</h2></div><div class="acts">'+(r.acts||'')+(EDIT[UI.cur]?'<button class="btn on" style="--c:'+t.c+'" title="Open the tile where this is edited" onclick="editTile(\''+UI.cur+'\')">✎ Edit in '+EDIT[UI.cur][2]+'</button>':'')+'<button class="btn" onclick="closeHub()">✕</button></div>';
+  $('bh').innerHTML='<div><div class="k" style="color:'+t.c+'">'+esc(M.title)+' · '+t.t+'</div><h2>'+esc(r.h)+'</h2></div><div class="acts">'+(r.acts||'')+(EDIT[UI.cur]?'<button class="btn on" style="--c:'+t.c+'" title="Open the tile where this is edited" onclick="editTile(\''+UI.cur+'\')">✎ Edit in '+EDIT[UI.cur][2]+'</button>':'')+'<button class="btn xfix" aria-label="Close" onclick="closeHub()">✕</button></div>';
   $('bb').innerHTML=(M.lines.length||UI.cur==='sync'||UI.cur==='notes'||UI.cur==='outreach'?'':noData())+r.b;
 }
 function noData(){return '<div class="banner">No script yet. Import one here (file or paste) and every tile fills in, or import it in proHUB / preHUB. <button class="btn on" style="margin-left:6px;--c:#A3E635" onclick="openHub(\'scriptin\')">Import script</button> <button class="btn" style="margin-left:6px" onclick="demo()">Load demo</button></div>';}
@@ -532,7 +532,7 @@ H.locs=function(){var L=locList();
 function unlock(){var v=($('bpw').value||'').trim().toLowerCase();if(v==='fidelio'){UI.bud=true;renderGrid();renderHub();toast('Budget unlocked.');}else{$('bpe').style.display='block';$('bpw').value='';}}
 function relock(){}
 H.budget=function(){
-  if(!UI.bud)return {h:'Budget',b:'<div class="lock" style="position:fixed;inset:0;z-index:150"><button class="btn" style="position:absolute;top:14px;right:14px" onclick="closeHub()">✕</button><i class="fa-solid fa-shield-halved" style="font-size:30px;color:#F59E0B"></i><div class="mono" style="font-weight:700;text-transform:uppercase">Confidential budget</div><div class="mono" style="font-size:11px;color:#8794A6">Enter passphrase</div><input id="bpw" type="password" placeholder="Passphrase" onkeydown="if(event.key===\'Enter\')unlock()"><button class="btn on" style="--c:#F59E0B" onclick="unlock()">Unlock</button><div id="bpe" class="mono" style="display:none;color:#F87171;font-size:11px">Invalid passphrase.</div></div>'};
+  if(!UI.bud)return {h:'Budget',b:'<div class="lock" style="position:fixed;inset:0;z-index:150"><button class="btn xfix" aria-label="Close" onclick="closeHub()">✕</button><i class="fa-solid fa-shield-halved" style="font-size:30px;color:#F59E0B"></i><div class="mono" style="font-weight:700;text-transform:uppercase">Confidential budget</div><div class="mono" style="font-size:11px;color:#8794A6">Enter passphrase</div><input id="bpw" type="password" placeholder="Passphrase" onkeydown="if(event.key===\'Enter\')unlock()"><button class="btn on" style="--c:#F59E0B" onclick="unlock()">Unlock</button><div id="bpe" class="mono" style="display:none;color:#F87171;font-size:11px">Invalid passphrase.</div></div>'};
   var bud=(M.pre&&M.pre.budget)||[],tot=bud.reduce(function(a,b){return a+(+b.amt||0);},0);
   var tiers=[['Ultra-low',2,3500,'#34D399'],['Mid-range',4,12000,'#F59E0B'],['Studio',6,40000,'#FB923C']];
   var planned=M.days.length,ppd=planned?M.pages/planned:0;
@@ -1905,6 +1905,11 @@ body{display:flex;flex-direction:column;min-height:0}
 @media(min-width:700px){.grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}}
 @media(min-width:951px){.grid{grid-template-columns:repeat(6,minmax(0,1fr))!important}.grid>.tw{grid-column:span 4!important}}
 @media(min-width:1250px){.grid{grid-template-columns:repeat(8,minmax(0,1fr))!important}}
+/* menu button always top-left, close button always top-right, on every screen */
+#fh-burger{position:fixed!important;top:6px;left:10px;z-index:400;order:0!important}
+.top{padding-left:58px!important;padding-right:56px!important}
+.tr .tb[aria-label="Close"],.xfix{position:fixed!important;top:6px;right:10px;width:36px!important;height:36px!important;padding:0!important;display:inline-flex!important;align-items:center;justify-content:center;font-size:16px!important;border-radius:10px!important;color:#FCA5A5!important;border:1px solid #7F1D1D!important;background:#111827!important;z-index:400;margin:0!important}
+.ov .bh{padding-right:60px!important}
 /* sandwich menu at every width */
 .tr > button.tb,.tr .desk{display:none!important}
 .tr{flex-wrap:nowrap;margin-left:auto;align-items:center;gap:8px}

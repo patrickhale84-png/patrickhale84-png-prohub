@@ -74,22 +74,36 @@ del{background:#4c1519;color:#fecaca;text-decoration:line-through}ins{background
 .empty textarea{width:100%;height:150px;background:#05070B;border:1px solid var(--line);border-radius:8px;padding:8px;font-family:'Courier Prime',monospace}
 @media(max-width:1000px){.sv{grid-template-columns:minmax(0,1fr);height:auto}.sv>div{overflow:visible}.nav{display:none}.panel{position:sticky;bottom:0;max-height:55vh;overflow:auto;z-index:5}}
 @media print{header,nav.tabs,.noprint{display:none!important}body{background:#fff;color:#000;display:block}main{overflow:visible}.card,.panel{background:#fff;border-color:#bbb}.mu{color:#555}}
+
+header{padding-left:58px;padding-right:56px;min-height:48px}
+.mbtn{position:fixed;top:6px;width:36px;height:36px;border-radius:10px;border:1px solid var(--line);background:#111827;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;padding:0;color:var(--tx);z-index:70;text-decoration:none;font-size:16px}
+#cvBurger{left:10px}#cvBurger span{display:block;width:18px;height:2px;background:currentColor;border-radius:1px;box-shadow:0 6px currentColor,0 -6px currentColor}
+.xbtn{right:10px;color:#FCA5A5;border-color:#7F1D1D}
+#cvScrim{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:80}
+#cvSheet{display:none;position:fixed;left:8px;top:52px;width:340px;max-width:calc(100vw - 16px);max-height:calc(100vh - 64px);overflow:auto;background:#111827;border:1px solid #1F2A42;border-radius:12px;padding:12px;z-index:90;box-shadow:0 20px 45px rgba(0,0,0,.8)}
+#cvSheet .btn,#cvSheet select{display:block;width:100%;text-align:left;margin:0 0 6px;padding:10px 12px;font-size:13px}
+body.cvm #cvScrim,body.cvm #cvSheet{display:block}
 </style>
 </head>
 <body>
 <header>
-  <a class="back" href="filmhub.html" title="Back to filmHUB">&#8592;</a>
+  <button class="mbtn" id="cvBurger" aria-label="Menu" title="Menu"><span></span></button>
   <h1>Script Coverage <small id="hTitle"></small></h1>
-  <span class="sp"></span>
-  <select id="fmtSel" class="tx" style="width:auto" title="Format for page-count and structure checks"><option value="FEATURE">Feature</option><option value="PILOT">TV pilot</option><option value="TV60">TV 60 min</option><option value="TV30">TV 30 min</option><option value="SHORT">Short</option></select>
+  <a class="mbtn xbtn" id="cvClose" href="filmhub.html" aria-label="Close" title="Close and go back to filmHUB. Your saved versions stay in this browser.">&#10005;</a>
+</header>
+<div id="cvScrim"></div>
+<div id="cvSheet" role="dialog" aria-label="Script coverage menu">
+  <div class="mu sm" style="margin:0 2px 8px">Format</div>
+  <select id="fmtSel" class="tx" title="Format for page-count and structure checks"><option value="FEATURE">Feature</option><option value="PILOT">TV pilot</option><option value="TV60">TV 60 min</option><option value="TV30">TV 30 min</option><option value="SHORT">Short</option></select>
   <button class="btn g" id="bLoad">Load script</button>
   <button class="btn" id="bHub">From filmHUB</button>
   <button class="btn" id="bFmt" disabled>Auto-format</button>
   <button class="btn" id="bSave" disabled>Save version</button>
   <button class="btn" id="bUndo" disabled>Undo</button>
   <button class="btn" id="bExp" disabled>Export</button>
+  <a class="btn" href="filmhub.html" style="text-decoration:none;text-align:center">Back to filmHUB</a>
   <input type="file" id="fIn" accept=".txt,.fountain,.fdx,.pdf,.json,.html,.htm" style="display:none">
-</header>
+</div>
 <nav class="tabs" id="tabs"></nav>
 <main id="main"></main>
 <div class="toast" id="toast"></div>
@@ -372,6 +386,10 @@ $('bFmt').onclick=function(){
     D.scenes.forEach(function(sc){sc.hunks.forEach(function(x){if((x.op==='~'||x.op==='=')&&shown<14&&x.a.trim()!==x.b.trim()){shown++;h+='<div class="dl2 r">- '+esc(x.a)+'</div><div class="dl2 a">+ '+esc(x.b)+'</div>'}})});
     $('fmtPv').innerHTML=h?'<b>Sample of the changes</b>'+h:'Only spacing changes.'}catch(e){$('fmtPv').textContent=''}},40);
 };
+
+$('cvBurger').onclick=function(){document.body.classList.toggle('cvm')};$('cvScrim').onclick=function(){document.body.classList.remove('cvm')};
+$('cvSheet').addEventListener('click',function(e){var b=e.target.closest('button.btn');if(b&&b.id!=='fmtSel')setTimeout(function(){document.body.classList.remove('cvm')},60)});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')document.body.classList.remove('cvm')});
 document.addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&e.key==='z'&&document.activeElement.tagName!=='TEXTAREA'&&document.activeElement.tagName!=='INPUT'){e.preventDefault();undo()}});
 dbOpen().then(loadVersions).then(function(){tabs();render();
   var q=location.search.match(/[?&]hub=1/);if(q)fromHub();
