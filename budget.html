@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Budget</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#05070B">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#060911;--bar:#070C15;--line:#1B2436;--line2:#26344E;--tx:#E9EDF5;--mu:#8794A6;--dim:#4A5A70;--lime:#88C13F;--gold:#E5A93C;--bad:#F87171;--ok:#4ADE80}
+*{box-sizing:border-box}html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--tx);font:13px/1.45 "Segoe UI",-apple-system,sans-serif;display:flex;flex-direction:column}
+.mono,td.n,th.n,input.n{font-family:'IBM Plex Mono',monospace}
+button,select,input,textarea{font:inherit;color:inherit}
+header{height:44px;flex:0 0 44px;background:var(--bar);border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 56px;gap:10px}
+header h1{font-size:13px;margin:0;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+header small{color:var(--mu);font-family:'IBM Plex Mono',monospace;font-size:11px}
+.mbtn{position:fixed;top:4px;width:36px;height:36px;border:1px solid var(--line2);background:#0E1524;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;padding:0;color:var(--tx);text-decoration:none;font-size:15px;z-index:90;border-radius:3px}
+#bBurger{left:10px}#bBurger span{display:block;width:16px;height:2px;background:currentColor;box-shadow:0 5px currentColor,0 -5px currentColor}
+.xbtn{right:10px;color:#FCA5A5;border-color:#7F1D1D}
+#bScrim{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:80}
+#bSheet{display:none;position:fixed;left:8px;top:52px;width:320px;max-width:calc(100vw - 16px);max-height:calc(100vh - 64px);overflow:auto;background:#0B1220;border:1px solid var(--line2);padding:10px;z-index:85;border-radius:3px}
+body.bm #bScrim,body.bm #bSheet{display:block}
+#bSheet .btn{display:block;width:100%;text-align:left;margin:0 0 6px;padding:10px 12px}
+.btn{background:rgba(255,255,255,.05);border:1px solid var(--line2);border-radius:3px;padding:5px 10px;cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+.btn:hover{border-color:#3a4d72}.btn.g{border-color:#556f2a;color:var(--lime)}.btn.p{background:var(--lime);color:#000;border-color:var(--lime)}.btn.sm{padding:2px 7px;font-size:10px}.btn.d{color:var(--bad);border-color:#5b2626}
+nav.tabs{display:flex;gap:2px;padding:0 8px;border-bottom:1px solid var(--line);overflow-x:auto;flex:0 0 auto;background:var(--bar)}
+nav.tabs button{background:none;border:0;border-bottom:2px solid transparent;padding:10px 12px;color:var(--mu);font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:11px;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;white-space:nowrap}
+nav.tabs button.on{color:var(--tx);border-color:var(--lime)}
+main{flex:1;min-height:0;overflow:auto;padding:14px}
+.wrap{max-width:1180px;margin:0 auto}
+.card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:12px;margin-bottom:12px}
+.sec{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--mu);margin:0 0 8px}
+table{border-collapse:collapse;width:100%;font-size:11.5px}
+th{font-family:'IBM Plex Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--mu);text-align:left;padding:4px 6px;border-bottom:1px solid var(--line2);white-space:nowrap}
+td{padding:3px 6px;border-bottom:1px solid var(--line);vertical-align:middle}
+td.n,th.n{text-align:right}
+tr.sub td{font-weight:700;border-top:1px solid var(--line2);background:rgba(255,255,255,.03)}
+tr.grp td{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--lime);padding-top:12px;border-bottom:1px solid var(--line2)}
+tr.click{cursor:pointer}tr.click:hover td{background:rgba(255,255,255,.04)}
+input,select{background:#05070B;border:1px solid var(--line);border-radius:3px;padding:3px 5px;max-width:100%}
+input.n{text-align:right;width:84px}input.s{width:52px}input.w{width:100%;min-width:170px}td select[data-f=rateRef]{width:170px}td select[data-f=fringe]{width:110px}
+.b{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:700;padding:1px 5px;border-radius:2px;text-transform:uppercase;letter-spacing:.04em}
+.b.current{background:#1c3a13;color:#9be07a}.b.older{background:#4a3410;color:#f3c26b}.b.statutory{background:#15304d;color:#8cc4f5}.b.assumed{background:#3b2150;color:#d0a8f0}
+.big{font-family:'IBM Plex Mono',monospace;font-size:26px;font-weight:700}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.kpi{flex:1;min-width:150px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:10px}
+.kpi .l{font-family:'IBM Plex Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--mu)}
+.warn{color:var(--gold);font-size:12px;margin:2px 0}
+.mu{color:var(--mu)}.pos{color:var(--bad)}.neg{color:var(--ok)}
+.toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#111827;border:1px solid var(--lime);padding:8px 14px;z-index:95;display:none;border-radius:3px}
+.tw{overflow-x:auto}
+@media(max-width:700px){main{padding:8px}.big{font-size:20px}input.n{width:70px}}
+@media print{header,nav.tabs,.mbtn,.noprint{display:none!important}body{background:#fff;color:#000;display:block}main{overflow:visible}.card,.kpi{background:#fff;border-color:#bbb}th,.mu{color:#555}td{border-color:#ccc}input,select{border:0;background:none}}
+</style>
+<style id="ph-touch">button,a,[onclick],select,summary,label{touch-action:manipulation;-webkit-tap-highlight-color:transparent}@media (pointer:coarse){.btn,button.btn{min-height:40px}input,select{font-size:16px;min-height:34px}}</style>
+</head><body>
+<button class="mbtn" id="bBurger" aria-label="Menu"><span></span></button>
+<header><h1>Budget</h1><small id="hSub"></small></header>
+<a class="mbtn xbtn" href="filmhub.html" aria-label="Close" title="Close and go back to filmHUB. Your budget stays in this browser.">&#10005;</a>
+<div id="bScrim"></div>
+<div id="bSheet" role="dialog" aria-label="Budget menu">
+  <button class="btn" data-a="starter">Fill with starter budget</button>
+  <button class="btn" data-a="pull">Pull days and cast from filmHUB</button>
+  <button class="btn" data-a="snap">Save scenario</button>
+  <button class="btn" data-a="csv">Export CSV</button>
+  <button class="btn" data-a="print">Print / save PDF</button>
+  <button class="btn d" data-a="reset">Start a new budget</button>
+  <a class="btn" href="filmhub.html" style="text-decoration:none;text-align:center">Back to filmHUB</a>
+</div>
+<nav class="tabs" id="tabs"></nav>
+<main id="main"></main>
+<div class="toast" id="toast"></div>
+<script src="lib/screenplay.js"></script>
+<script src="lib/budget-data.js"></script>
+<script src="lib/budget-core.js"></script>
+<script>
+(function(){
+'use strict';
+var B=window.PHBud,D=window.PHBudgetData,$=function(i){return document.getElementById(i)};
+var S=B.load(),tab='top',cur='1100';
+var TABS=[['top','Top sheet'],['acc','Accounts'],['rates','Rates'],['fr','Fringes'],['set','Setup'],['scn','Scenarios']];
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function toast(t){var e=$('toast');e.textContent=t;e.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(function(){e.style.display='none'},2600)}
+function m(v){var c=S.meta.ccy;v=Math.round(v||0);return (v<0?'-':'')+c+Math.abs(v).toLocaleString('en-US')}
+function m2(v){return S.meta.ccy+(v||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function persist(){B.save(S)}
+function num(v){v=parseFloat(v);return isFinite(v)?v:0}
+
+function startScreen(){
+  $('main').innerHTML='<div class="wrap" style="max-width:640px;margin-top:6vh"><div class="card"><div class="sec">New budget</div><p>Pick where you are shooting. Each choice loads its own union rate cards and fringe structures. Rates are starter values with a status badge showing how far to trust each one. Check them against your signed agreements.</p><div class="row"><button class="btn p" data-new="US">United States</button><button class="btn p" data-new="CA">Canada</button><button class="btn p" data-new="UK">United Kingdom</button></div></div></div>';
+}
+function create(region,fill){S=B.fresh(region);var p=B.fromProject();if(p.shootDays)S.globals.shootDays=p.shootDays;if(fill&&region==='US')B.starter(S);B.relink(S);persist();cur=S.accounts[0].no;tab='top';render()}
+
+function render(){
+  if(!S){$('tabs').innerHTML='';$('hSub').textContent='';startScreen();return}
+  $('hSub').textContent=(S.meta.title||'Untitled')+' / '+S.meta.region;
+  $('tabs').innerHTML=TABS.map(function(t){return '<button data-t="'+t[0]+'" class="'+(t[0]===tab?'on':'')+'">'+t[1]+'</button>'}).join('');
+  var C=B.calc(S),h='';
+  if(tab==='top')h=vTop(C);else if(tab==='acc')h=vAcc(C);else if(tab==='rates')h=vRates();else if(tab==='fr')h=vFr();else if(tab==='set')h=vSet();else h=vScn(C);
+  var st=$('main').scrollTop;$('main').innerHTML='<div class="wrap">'+h+'</div>';$('main').scrollTop=st;
+}
+function vTop(C){
+  var h='<div class="row" style="margin-bottom:12px"><div class="kpi"><div class="l">Grand total</div><div class="big">'+m(C.grand)+'</div></div><div class="kpi"><div class="l">Above the line</div><div class="mono">'+m(C.groups.ATL)+'</div></div><div class="kpi"><div class="l">Below the line</div><div class="mono">'+m(C.groups.BTL)+'</div></div><div class="kpi"><div class="l">Post</div><div class="mono">'+m(C.groups.POST)+'</div></div><div class="kpi"><div class="l">Other</div><div class="mono">'+m(C.groups.OTHER)+'</div></div><div class="kpi"><div class="l">Fringes in total</div><div class="mono">'+m(C.fringes)+'</div></div></div>';
+  if(C.warnings.length)h+='<div class="card"><div class="sec">Check these</div>'+C.warnings.slice(0,12).map(function(w){return '<div class="warn">'+esc(w)+'</div>'}).join('')+(C.warnings.length>12?'<div class="mu">and '+(C.warnings.length-12)+' more</div>':'')+'</div>';
+  h+='<div class="card tw"><table><tr><th>Acct</th><th>Name</th><th class="n">Lines</th><th class="n">Fringes</th><th class="n">Total</th></tr>';
+  var g='';C.accounts.forEach(function(A){if(A.group!==g){g=A.group;h+='<tr class="grp"><td colspan="5">'+({ATL:'Above the line',BTL:'Below the line',POST:'Post-production',OTHER:'Other'}[g]||g)+'</td></tr>'}
+    h+='<tr class="click" data-acc="'+A.no+'"><td class="n">'+A.no+'</td><td>'+esc(A.name)+'</td><td class="n">'+A.lines.length+'</td><td class="n">'+m(A.fringe)+'</td><td class="n">'+m(A.total)+'</td></tr>'});
+  return h+'<tr class="sub"><td></td><td>GRAND TOTAL</td><td></td><td class="n">'+m(C.fringes)+'</td><td class="n">'+m(C.grand)+'</td></tr></table></div>';
+}
+function rateOpts(sel){var by={};S.rates.forEach(function(r){(by[r.agreement]=by[r.agreement]||[]).push(r)});var o='<option value="">Rate card...</option>';Object.keys(by).forEach(function(k){o+='<optgroup label="'+esc(k)+'">'+by[k].map(function(r){return '<option value="'+r.id+'"'+(r.id===sel?' selected':'')+'>'+esc(r.name)+' ('+S.meta.ccy+r.rate+'/'+r.unit+')'+(r.status!=='current'?' ['+r.status+']':'')+'</option>'}).join('')+'</optgroup>'});return o}
+function frOpts(sel){return '<option value="">No fringe</option>'+Object.keys(S.fringes).map(function(k){return '<option value="'+k+'"'+(k===sel?' selected':'')+'>'+esc(S.fringes[k].name)+'</option>'}).join('')}
+function vAcc(C){
+  var A=C.accounts.filter(function(x){return x.no===cur})[0]||C.accounts[0];cur=A.no;
+  var h='<div class="row" style="margin-bottom:10px"><select id="accSel">'+C.accounts.map(function(x){return '<option value="'+x.no+'"'+(x.no===cur?' selected':'')+'>'+x.no+'  '+esc(x.name)+'  ('+m(x.total)+')</option>'}).join('')+'</select><button class="btn g" data-add="line">Add line</button><button class="btn" data-add="pct">Add % line</button><span class="mu mono">Account total '+m(A.total)+'</span></div>';
+  h+='<div class="card tw"><table><tr><th>Description</th><th>Rate card</th><th class="n">Qty</th><th>Qty from</th><th>Unit</th><th class="n">x</th><th class="n">Rate</th><th class="n">Hrs/day</th><th>OT</th><th>Fringe</th><th class="n">Wages</th><th class="n">Overtime</th><th class="n">Fringes</th><th class="n">Total</th><th></th></tr>';
+  A.lines.forEach(function(x){var l=x.line,p=l.unit==='pct',id=l.id;
+    h+='<tr data-id="'+id+'"><td><input class="w" data-f="desc" value="'+esc(l.desc)+'">'+(l.note?'<div class="mu" style="font-size:10px">'+esc(l.note)+'</div>':'')+'</td>'
+     +'<td>'+(p?'':'<select data-f="rateRef">'+rateOpts(l.rateRef)+'</select>')+'</td>'
+     +'<td class="n">'+(p?'':'<input class="n" data-f="qty" value="'+esc(l.qtyVar?x.c.qty:l.qty)+'">')+'</td>'
+     +'<td>'+(p?'':'<input class="w" style="min-width:90px" data-f="qtyVar" placeholder="e.g. shootWeeks" value="'+esc(l.qtyVar)+'">')+'</td>'
+     +'<td><select data-f="unit">'+B.UNITS.map(function(u){return '<option'+(u===l.unit?' selected':'')+'>'+u+'</option>'}).join('')+'</select></td>'
+     +'<td class="n">'+(p?'':'<input class="n s" data-f="mult" value="'+esc(l.mult)+'">')+'</td>'
+     +'<td class="n"><input class="n" data-f="rate" value="'+esc(l.rate)+'">'+(p?' %':'')+'</td>'
+     +'<td class="n">'+(p?'<input class="w" style="min-width:100px" data-f="basis" value="'+esc(l.basis||'ATL+BTL+POST')+'">':'<input class="n s" data-f="hours" placeholder="'+C.V.hoursPerDay+'" value="'+esc(l.hours)+'">')+'</td>'
+     +'<td>'+(p?'':'<input type="checkbox" data-f="ot"'+(l.ot?' checked':'')+'>')+'</td>'
+     +'<td>'+(p?'':'<select data-f="fringe">'+frOpts(l.fringe)+'</select>')+'</td>'
+     +'<td class="n">'+m(x.c.base)+'</td><td class="n">'+m(x.c.ot)+'</td><td class="n" title="'+esc(x.c.fr.map(function(f){return f.name+': '+m(f.amount)}).join('\n'))+'">'+m(x.c.fringe)+'</td><td class="n"><b>'+m(x.c.total)+'</b></td><td><button class="btn sm d" data-del="'+id+'">x</button></td></tr>'});
+  if(!A.lines.length)h+='<tr><td colspan="15" class="mu">No lines in this account yet.</td></tr>';
+  return h+'<tr class="sub"><td colspan="10">'+esc(A.name)+'</td><td class="n">'+m(A.sub)+'</td><td class="n">'+m(A.ot)+'</td><td class="n">'+m(A.fringe)+'</td><td class="n">'+m(A.total)+'</td><td></td></tr></table></div><div class="mu" style="font-size:11px">Quantity can come from a variable such as shootWeeks, or a sum like prepWeeks+shootWeeks. A rate card sets the rate, unit and fringe, and later edits to that card flow into every linked line.</div>';
+}
+function vRates(){
+  var h='<div class="card tw"><div class="sec">Rate cards ('+S.rates.length+') - edit any rate; linked lines follow</div><table><tr><th>Agreement</th><th>Role</th><th>Unit</th><th class="n">Rate</th><th>Fringe</th><th>Status</th><th>Source</th><th></th></tr>';
+  S.rates.forEach(function(r){h+='<tr data-rid="'+r.id+'"><td>'+esc(r.agreement)+'</td><td><input class="w" data-rf="name" value="'+esc(r.name)+'"></td><td>'+esc(r.unit)+'</td><td class="n"><input class="n" data-rf="rate" value="'+esc(r.rate)+'"></td><td>'+esc(r.fringe||'')+'</td><td><span class="b '+r.status+'">'+r.status+'</span></td><td class="mu" style="font-size:10px;max-width:240px">'+esc(r.source||'')+(r.note?' - '+esc(r.note):'')+'</td><td>'+(/^c-/.test(r.id)?'<button class="btn sm d" data-delrate="'+r.id+'">x</button>':'')+'</td></tr>'});
+  return h+'</table></div><div class="card"><div class="sec">Add your own rate</div><div class="row"><input id="nrName" placeholder="Role" class="w" style="max-width:240px"><select id="nrUnit"><option>day</option><option>week</option><option>hour</option><option>flat</option></select><input id="nrRate" class="n" placeholder="Rate"><select id="nrFr">'+frOpts('')+'</select><button class="btn g" data-a2="addrate">Add</button></div></div><div class="card mu" style="font-size:12px">Status: <span class="b current">current</span> from a published rate sheet. <span class="b older">older</span> published but an earlier contract year. <span class="b statutory">statutory</span> set by law, confirm for your state. <span class="b assumed">assumed</span> a working estimate. Rates version '+esc(D.version)+'. These are starting points and do not replace the signed agreement.</div>';
+}
+function vFr(){
+  var h='';Object.keys(S.fringes).forEach(function(k){var g=S.fringes[k];if(!g.items||!g.items.length)return;
+    h+='<div class="card tw"><div class="sec">'+esc(g.name)+' ('+k+')</div><table><tr><th>Item</th><th>Type</th><th class="n">Value</th><th class="n">Cap per person</th><th>Status</th></tr>';
+    g.items.forEach(function(it,i){h+='<tr data-fg="'+k+'" data-i="'+i+'"><td>'+esc(it.name)+'</td><td>'+({pct:'% of wages',hourly:'per hour worked',flat:'flat'}[it.kind]||it.kind)+'</td><td class="n"><input class="n" data-ff="v" value="'+esc(it.v)+'"></td><td class="n">'+(it.kind==='pct'?'<input class="n" data-ff="cap" value="'+esc(it.cap||0)+'">':'')+'</td><td><span class="b '+it.status+'">'+it.status+'</span></td></tr>'});
+    h+='</table></div>'});
+  return h;
+}
+function vSet(){
+  var g=S.globals,h='<div class="card"><div class="sec">Project</div><div class="row"><label>Title <input id="sTitle" class="w" style="max-width:260px" value="'+esc(S.meta.title)+'"></label></div></div>';
+  h+='<div class="card"><div class="sec">Schedule drives the quantities</div><div class="row">';
+  [['shootDays','Shoot days'],['prepWeeks','Prep weeks'],['wrapWeeks','Wrap weeks'],['postWeeks','Post weeks'],['hoursPerDay','Hours per day'],['daysPerWeek','Days per week']].forEach(function(f){h+='<label>'+f[1]+'<br><input class="n" data-g="'+f[0]+'" value="'+esc(g[f[0]])+'"></label>'});
+  h+='</div><p class="mu">Shoot weeks work out to '+B.varsOf(S).shootWeeks+'. <button class="btn sm g" data-a2="pull">Pull from filmHUB</button></p></div>';
+  h+='<div class="card"><div class="sec">Your own variables</div>'+Object.keys(g.vars||{}).map(function(k){return '<div class="row" style="margin-bottom:4px"><span class="mono" style="min-width:120px">'+esc(k)+'</span><input class="n" data-v="'+esc(k)+'" value="'+esc(g.vars[k])+'"><button class="btn sm d" data-delv="'+esc(k)+'">x</button></div>'}).join('')+'<div class="row"><input id="nvName" placeholder="name e.g. nightShoots"><input id="nvVal" class="n" placeholder="value"><button class="btn g" data-a2="addvar">Add</button></div></div>';
+  var o=S.ot;h+='<div class="card"><div class="sec">Overtime rules</div><div class="row">';
+  [['straightHours','Straight hours'],['ot1Mult','OT multiplier'],['ot1Until','Until hour'],['ot2Mult','Double-time x'],['weeklyHours','Weekly hours'],['weeklyOT','Weekly OT x']].forEach(function(f){h+='<label>'+f[1]+'<br><input class="n" data-o="'+f[0]+'" value="'+esc(o[f[0]])+'"></label>'});
+  return h+'</div></div>';
+}
+function vScn(C){
+  var v=B.versions(),h='<div class="card"><div class="sec">Scenarios</div><div class="row"><input id="snName" placeholder="Name e.g. Lean 18 days" class="w" style="max-width:260px"><button class="btn g" data-a2="snap">Save current as scenario</button></div></div>';
+  if(!v.length)return h+'<div class="mu">No scenarios saved yet.</div>';
+  h+='<div class="card tw"><table><tr><th>Name</th><th>Saved</th><th class="n">Total</th><th class="n">vs now</th><th></th></tr>';
+  v.forEach(function(x,i){var t=B.calc(x.state).grand;h+='<tr><td>'+esc(x.name)+'</td><td class="mu">'+new Date(x.ts).toLocaleString()+'</td><td class="n">'+m(t)+'</td><td class="n '+(C.grand-t>0?'pos':'neg')+'">'+m(C.grand-t)+'</td><td><button class="btn sm" data-cmp="'+i+'">Compare</button> <button class="btn sm" data-rest="'+i+'">Restore</button></td></tr>'});
+  h+='</table></div>';
+  if(window.__cmp!=null&&v[window.__cmp]){var R=B.compare(v[window.__cmp].state,S);h+='<div class="card tw"><div class="sec">Changes from "'+esc(v[window.__cmp].name)+'" to now: '+m(R.d)+'</div><table><tr><th>Acct</th><th>Name</th><th class="n">Then</th><th class="n">Now</th><th class="n">Change</th></tr>'+R.rows.map(function(r){return '<tr><td>'+r.no+'</td><td>'+esc(r.name)+'</td><td class="n">'+m(r.a)+'</td><td class="n">'+m(r.b)+'</td><td class="n">'+m(r.d)+'</td></tr>'}).join('')+'</table></div>'}
+  return h;
+}
+function lineOf(id){var f=null;S.accounts.forEach(function(a){a.lines.forEach(function(l){if(l.id===id)f=l})});return f}
+function csvOut(){var rows=B.toCSV(S);var t=rows.map(function(r){return r.map(function(c){c=String(c==null?'':c);return /[",\n]/.test(c)?'"'+c.replace(/"/g,'""')+'"':c}).join(',')}).join('\r\n');var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'text/csv'}));a.download=((S.meta.title||'budget').replace(/[^\w\- ]+/g,'')||'budget')+'-budget.csv';document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},500)}
+function pull(){var p=B.fromProject();if(!p.shootDays&&!p.scenes){toast('Nothing to pull yet: build a schedule in filmHUB first.');return}if(p.shootDays)S.globals.shootDays=p.shootDays;S.globals.vars=S.globals.vars||{};if(p.cast)S.globals.vars.castCount=p.cast;if(p.locations)S.globals.vars.locations=p.locations;if(p.scenes)S.globals.vars.scenes=p.scenes;persist();render();toast('Pulled '+p.shootDays+' shoot days, '+p.cast+' cast, '+p.locations+' locations')}
+function menu(on){document.body.classList.toggle('bm',on)}
+
+document.addEventListener('click',function(e){
+  var t=e.target.closest('button,tr.click,[data-new]');if(!t)return;
+  if(t.id==='bBurger'){menu(!document.body.classList.contains('bm'));return}
+  if(t.dataset.new){create(t.dataset.new,true);return}
+  if(t.dataset.a){menu(false);var a=t.dataset.a;
+    if(!S&&a!=='x'){toast('Start a budget first');return}
+    if(a==='starter'){if(S.meta.region!=='US'){toast('The starter budget is for the US set. Add lines from the rate cards instead.');return}B.starter(S);B.relink(S);persist();tab='top';render();toast('Starter budget added. Zero-rate lines need your numbers.')}
+    else if(a==='pull')pull();else if(a==='snap'){var n=window.prompt('Name this scenario');if(n){B.saveVersion(S,n);toast('Saved')}}
+    else if(a==='csv')csvOut();else if(a==='print')window.print();
+    else if(a==='reset'){if(window.confirm('Start a new budget? The current one is kept as a scenario.')){B.saveVersion(S,'Before new budget');S=null;try{localStorage.removeItem(B.KEY)}catch(x){}render()}}
+    return}
+  if(!S)return;
+  if(t.dataset.t){tab=t.dataset.t;render();return}
+  if(t.dataset.acc){cur=t.dataset.acc;tab='acc';render();return}
+  if(t.dataset.add){var A=B.acct(S,cur);A.lines.push(t.dataset.add==='pct'?B.newLine({desc:'Percentage line',unit:'pct',rate:0,basis:'ATL+BTL+POST',fringe:''}):B.newLine({desc:'',unit:'day',fringe:''}));persist();render();return}
+  if(t.dataset.del){S.accounts.forEach(function(a){a.lines=a.lines.filter(function(l){return l.id!==t.dataset.del})});persist();render();return}
+  if(t.dataset.delrate){S.rates=S.rates.filter(function(r){return r.id!==t.dataset.delrate});persist();render();return}
+  if(t.dataset.delv){delete S.globals.vars[t.dataset.delv];persist();render();return}
+  if(t.dataset.cmp){window.__cmp=+t.dataset.cmp;render();return}
+  if(t.dataset.rest){var v=B.versions()[+t.dataset.rest];if(v&&window.confirm('Replace the current budget with "'+v.name+'"?')){S=B.clone(v.state);persist();render()}return}
+  var a2=t.dataset.a2;
+  if(a2==='pull')pull();
+  else if(a2==='snap'){var nm=($('snName')||{}).value||'Scenario';B.saveVersion(S,nm);render();toast('Saved')}
+  else if(a2==='addvar'){var k=($('nvName').value||'').replace(/[^\w]/g,'');if(k){S.globals.vars=S.globals.vars||{};S.globals.vars[k]=num($('nvVal').value);persist();render()}}
+  else if(a2==='addrate'){var nm2=$('nrName').value.trim();if(nm2){S.rates.push({id:'c-'+B.uid(),region:S.meta.region,agreement:'Custom',name:nm2,unit:$('nrUnit').value,rate:num($('nrRate').value),fringe:$('nrFr').value,source:'Entered by you',status:'assumed'});persist();render()}}
+});
+$('bScrim').addEventListener('click',function(){menu(false)});
+document.addEventListener('change',function(e){
+  var el=e.target;if(!S)return;
+  if(el.id==='accSel'){cur=el.value;render();return}
+  if(el.id==='sTitle'){S.meta.title=el.value;persist();render();return}
+  var tr=el.closest('tr');
+  if(el.dataset.f&&tr){var l=lineOf(tr.dataset.id);if(!l)return;var f=el.dataset.f,v=el.type==='checkbox'?el.checked:el.value;
+    if(f==='rateRef'){if(v)B.applyRate(S,l,v);else l.rateRef=''}
+    else{if(f==='qty'){l.qtyVar='';v=num(v)}else if(f==='rate'||f==='mult'){v=num(v);if(f==='rate')l.rateRef=''}l[f]=v;if(f==='unit'&&v==='pct'&&!l.basis)l.basis='ATL+BTL+POST'}
+    persist();render();return}
+  if(el.dataset.rf&&tr){var r=B.rateById(S,tr.dataset.rid);if(r){r[el.dataset.rf]=el.dataset.rf==='rate'?num(el.value):el.value;r.status='assumed';B.relink(S);persist();render()}return}
+  if(el.dataset.ff&&tr){var it=S.fringes[tr.dataset.fg].items[+tr.dataset.i];it[el.dataset.ff]=num(el.value);if(el.dataset.ff==='v')it.status='assumed';persist();render();return}
+  if(el.dataset.g){S.globals[el.dataset.g]=num(el.value);persist();render();return}
+  if(el.dataset.v){S.globals.vars[el.dataset.v]=num(el.value);persist();render();return}
+  if(el.dataset.o){S.ot[el.dataset.o]=num(el.value);persist();render()}
+});
+render();
+if('serviceWorker' in navigator)try{navigator.serviceWorker.register('sw.js')}catch(e){}
+})();
+</script></body></html>

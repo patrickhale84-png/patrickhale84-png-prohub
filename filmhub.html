@@ -302,6 +302,7 @@ var TILES=[
  {id:'strip',c:'#FA6800',i:'fa-bars-staggered',t:'Stripboard',s:'One-liner shoot days',b:function(){return M.days.length+' days';}},
  {id:'callsheet',c:'#00ABA9',i:'fa-clipboard-list',t:'Call Sheets',s:'Cast calls, needs, sides',b:function(){return 'Day 1/'+M.days.length;}},
  {id:'onset',c:'#E51400',i:'fa-clapperboard',t:'On Set',s:'Phone view of today',b:function(){return M.days.length?'TODAY':'OPEN';},act:function(){if(window.PHOnset)PHOnset.open();}},
+ {id:'budpage',c:'#2E8B57',i:'fa-file-invoice-dollar',t:'Budget',s:'Union rates, fringes, scenarios',b:function(){return 'UNION';},act:function(){location.href='budget.html';}},
  {id:'covpage',c:'#D80073',i:'fa-magnifying-glass-chart',t:'Script Coverage',s:'1-10 scores, notes, versions',b:function(){return 'RULES';},act:function(){location.href='coverage.html';}},
  {id:'cast',c:'#1BA1E2',i:'fa-users',t:'Cast & DOOD',s:'Day out of days matrix',b:function(){return M.cast.length+' cast';},d:0},
  {id:'shots',c:'#F0A30A',i:'fa-list-ol',t:'Shot List',s:'Setups, lenses, status',b:function(){return M.shots.length+' shots';},dk:1},
