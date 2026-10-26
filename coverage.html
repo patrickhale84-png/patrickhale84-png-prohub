@@ -68,6 +68,7 @@ input.tx,select.tx{background:#05070B;border:1px solid var(--line);border-radius
 del{background:#4c1519;color:#fecaca;text-decoration:line-through}ins{background:#14391f;color:#bbf7d0;text-decoration:none}
 .dh{border:1px solid var(--line);border-radius:8px;margin:6px 0;background:#0a0f1c}.dh summary{cursor:pointer;padding:6px 10px;font-size:12px}
 .dl2{font:12px 'Courier Prime',monospace;padding:1px 10px;white-space:pre-wrap}.dl2.a{background:#10301b}.dl2.r{background:#35161a}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:60;display:flex;align-items:center;justify-content:center;padding:14px}.modal>div{background:var(--p1);border:1px solid var(--line);border-radius:12px;max-width:760px;width:100%;max-height:88vh;overflow:auto;padding:16px}
 .toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#111827;border:1px solid var(--ac);padding:8px 14px;border-radius:8px;z-index:50;display:none}
 .empty{max-width:620px;margin:6vh auto;text-align:center}
 .empty textarea{width:100%;height:150px;background:#05070B;border:1px solid var(--line);border-radius:8px;padding:8px;font-family:'Courier Prime',monospace}
@@ -83,6 +84,7 @@ del{background:#4c1519;color:#fecaca;text-decoration:line-through}ins{background
   <select id="fmtSel" class="tx" style="width:auto" title="Format for page-count and structure checks"><option value="FEATURE">Feature</option><option value="PILOT">TV pilot</option><option value="TV60">TV 60 min</option><option value="TV30">TV 30 min</option><option value="SHORT">Short</option></select>
   <button class="btn g" id="bLoad">Load script</button>
   <button class="btn" id="bHub">From filmHUB</button>
+  <button class="btn" id="bFmt" disabled>Auto-format</button>
   <button class="btn" id="bSave" disabled>Save version</button>
   <button class="btn" id="bUndo" disabled>Undo</button>
   <button class="btn" id="bExp" disabled>Export</button>
@@ -126,7 +128,7 @@ function analyze(raw,keepTab){
     try{S.R=C.analyze(raw,{format:$('fmtSel').value});}catch(e){console.error(e);$('main').innerHTML='<div class="empty"><b>Could not read this script.</b><div class="mu sm">'+esc(e.message)+'</div></div>';return res();}
     S.sel=null;S.sIdx=null;
     $('hTitle').textContent=S.R.m.meta.title||'';
-    ['bSave','bExp'].forEach(function(i){$(i).disabled=false});$('bUndo').disabled=!S.undo.length;
+    ['bSave','bExp','bFmt'].forEach(function(i){$(i).disabled=false});$('bUndo').disabled=!S.undo.length;
     tabs();render();res();
   },30)});
 }
@@ -354,6 +356,20 @@ $('bExp').onclick=function(){
   var R=S.R,t=(R.m.meta.title||'script').replace(/[^\w]+/g,'_');
   var opts=[['Revised script (.fountain)',function(){dl(t+'_revised.fountain',C.serialize(R.m.lines.map(function(l){return l}),R.m.meta,{fountain:true}))}],['Revised script (.txt)',function(){dl(t+'_revised.txt',S.raw)}],['Coverage report (print / PDF)',function(){S.tab='summary';tabs();render();setTimeout(function(){window.print()},200)}],['Writer’s notes (.txt)',function(){if(!S.notes.length)return toast('No notes yet. Use “Add to notes” on findings');dl(t+'_notes.txt',S.notes.map(function(n,i){return (i+1)+'. '+n.text}).join('\n\n'))}],['Findings list (.csv)',function(){var rows=[['rule','category','severity','scene','page','message','quote']].concat(R.issues.map(function(i){return [i.rule,i.cat,i.sev,i.sc,i.pg,i.msg,i.q]}));dl(t+'_findings.csv',rows.map(function(r){return r.map(function(c){return '"'+String(c==null?'':c).replace(/"/g,'""')+'"'}).join(',')}).join('\n'),'text/csv')}]];
   var c=prompt(opts.map(function(o,i){return (i+1)+' = '+o[0]}).join('\n')+'\n\nType a number:');var n=parseInt(c,10);if(opts[n-1])opts[n-1][1]();
+};
+
+/* ---------- auto-format ---------- */
+$('bFmt').onclick=function(){
+  if(!S.raw)return;var r;try{r=C.autoFormat(S.raw,{format:$('fmtSel').value})}catch(e){return toast('Could not format: '+e.message)}
+  var st=r.stats,same=r.text.trim()===S.raw.trim();
+  var warn=(r.before.scenes!==r.after.scenes||r.before.speakers!==r.after.speakers)?'<div class="tip" style="border-color:#f87171">Heads up: the scene or speaker count changes ('+r.before.scenes+' → '+r.after.scenes+' scenes, '+r.before.speakers+' → '+r.after.speakers+' speakers). Look at the preview before applying; you can Undo afterwards.</div>':'<div class="sm" style="color:var(--gd)">Check passed: '+r.after.scenes+' scenes and '+r.after.speakers+' speakers before and after.</div>';
+  var d=document.createElement('div');d.className='modal';
+  d.innerHTML='<div><h2 style="margin:0 0 6px">Auto-format the whole script</h2><div class="mu sm">Reads the markers already in the text (scene headings, CAPITAL-LETTER names, parentheticals, transitions, scene numbers, indentation) and rewrites the script in standard screenplay form. Wording is never changed.</div><div style="margin:10px 0"><span class="chip">'+st.headings+' headings</span> <span class="chip">'+st.cues+' character cues</span> <span class="chip">'+st.parens+' parentheticals</span> <span class="chip">'+st.transitions+' transitions</span> <span class="chip">'+st.spacing+' lines trimmed</span> <span class="chip">'+st.numbers+' scene numbers kept</span></div>'+warn+'<div id="fmtPv" class="mu sm" style="margin-top:8px">Building preview…</div><div style="display:flex;gap:8px;margin-top:12px"><button class="btn p" id="fmtGo"'+(same?' disabled':'')+'>'+(same?'Already formatted':'Apply formatting')+'</button><button class="btn" id="fmtNo">Cancel</button></div></div>';
+  document.body.appendChild(d);$('fmtNo').onclick=function(){d.remove()};
+  $('fmtGo').onclick=function(){d.remove();S.undo.push(S.raw);if(S.undo.length>30)S.undo.shift();analyze(r.text).then(function(){toast('Script formatted')})};
+  setTimeout(function(){try{var D=C.diff(S.raw,r.text,{format:$('fmtSel').value}),shown=0,h='';
+    D.scenes.forEach(function(sc){sc.hunks.forEach(function(x){if((x.op==='~'||x.op==='=')&&shown<14&&x.a.trim()!==x.b.trim()){shown++;h+='<div class="dl2 r">- '+esc(x.a)+'</div><div class="dl2 a">+ '+esc(x.b)+'</div>'}})});
+    $('fmtPv').innerHTML=h?'<b>Sample of the changes</b>'+h:'Only spacing changes.'}catch(e){$('fmtPv').textContent=''}},40);
 };
 document.addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&e.key==='z'&&document.activeElement.tagName!=='TEXTAREA'&&document.activeElement.tagName!=='INPUT'){e.preventDefault();undo()}});
 dbOpen().then(loadVersions).then(function(){tabs();render();
