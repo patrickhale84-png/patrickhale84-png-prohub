@@ -377,8 +377,11 @@ var EDIT={
 };
 function editTile(id){
   var e=EDIT[id];if(!e)return;
-  try{if(window.parent&&window.parent!==window){window.parent.postMessage({k:'hub-open',file:e[0],a:e[1]},'*');return;}}catch(x){}
-  location.href=(e[0]==='index.html'?'index.html':'tiles/'+e[0]+(e[1]?'#'+e[1]:''));
+  var ours=false;try{ours=!!(window.parent&&window.parent!==window&&window.parent.document&&window.parent.document.getElementById('layer'));}catch(x){ours=false;}
+  if(ours){try{window.parent.postMessage({k:'hub-open',file:e[0],a:e[1]},'*');return;}catch(x){}}
+  /* opened on its own, or inside another website's frame (where nobody listens): go there directly */
+  var url=(e[0]==='index.html'?'index.html':(e[1]==='coverage'?'coverage.html':'tiles/'+e[0]+(e[1]?'#'+e[1]:'')));
+  location.href=url;
 }
 var H={};
 

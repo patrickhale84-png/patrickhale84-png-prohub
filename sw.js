@@ -1,7 +1,7 @@
 /* proHUB service worker: makes the site installable and usable with no signal.
    Pages and scripts: try the network first so updates arrive, fall back to the saved copy.
    Fonts, icons and library files from other sites: serve the saved copy, refresh it in the background. */
-var VER = 'prohub-v11';
+var VER = 'prohub-v12';
 var CORE = [
   './', 'index.html', 'filmhub.html', 'roles.json', 'manifest.webmanifest',
   'tiles/pre-production.html', 'tiles/production.html', 'tiles/post-production.html',
