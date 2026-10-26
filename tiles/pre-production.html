@@ -1168,7 +1168,7 @@ body{background:var(--bg);color:var(--tx);font-family:var(--fui);margin:0;displa
     <div class="nl" onclick="sw('coverage')" id="n-coverage"><i class="fa-solid fa-stethoscope text-pink-400 w-5"></i>2. Script Coverage</div>
     <div class="nl" onclick="hubGo('post-production.html#pitchmaker',event)" id="n-pitch"><i class="fa-solid fa-images text-purple-400 w-5"></i>3. Pitch Deck Creator</div>
     <div class="nl" onclick="sw('storyboard')" id="n-storyboard"><i class="fa-solid fa-clapperboard text-orange-400 w-5"></i>4. Storyboards (6-Rule)</div>
-    <div class="nl" onclick="sw('budget')" id="n-budget"><i class="fa-solid fa-file-invoice-dollar text-green-400 w-5"></i>5. Pre-Lim Budget</div>
+    <div class="nl" onclick="sw('budget')" id="n-budget"><i class="fa-solid fa-file-invoice-dollar text-green-400 w-5"></i>Budget</div>
     <div class="nl" onclick="sw('scripts')" id="n-scripts"><i class="fa-solid fa-scroll text-amber-400 w-5"></i>6. Script Reader</div>
     <div class="nl" onclick="sw('scriptlib')" id="n-scriptlib"><i class="fa-solid fa-book-open text-sky-400 w-5"></i>7. Script Library</div>
     <div class="nl" onclick="sw('filmdb')" id="n-filmdb"><i class="fa-solid fa-film text-rose-400 w-5"></i>8. Film Research</div>
@@ -1234,9 +1234,9 @@ body{background:var(--bg);color:var(--tx);font-family:var(--fui);margin:0;displa
       <div><div class="mtit">Storyboards</div><div class="msub">6-Rule Cinema · Draw · Multi-Aspect</div></div>
     </div>
     <div class="mtile tile-budget" onclick="sw('budget')">
-      <div class="mbadge">TOP-SHEET</div>
+      <div class="mbadge">UNION</div>
       <div class="micon"><i class="fa-solid fa-file-invoice-dollar"></i></div>
-      <div><div class="mtit">Pre-Lim Budget</div><div class="msub">ATL · BTL · Post · Contingency</div></div>
+      <div><div class="mtit">Budget</div><div class="msub">Union rates · Fringes · Scenarios</div></div>
     </div>
     <!-- COMPACT support tiles -->
     <div class="mtile tile-scripts" onclick="sw('scripts')">
@@ -2714,7 +2714,7 @@ function setZV(v){document.getElementById('zvl').innerText=v+'%';if(ytP&&ytP.set
 function toast(m){const c=document.getElementById('tc'),t=document.createElement('div');t.className='tm';t.innerText=m;c.appendChild(t);setTimeout(()=>t.remove(),3000);}
 // ========== NAVIGATION ==========
 function covMount(){var v=document.getElementById('v-coverage');if(!v||document.getElementById('covFrame'))return;[].forEach.call(v.children,function(c){c.style.display='none'});var f=document.createElement('iframe');f.id='covFrame';f.src='../coverage.html'+(localStorage.getItem('prehub_master_v1')?'?hub=1':'');f.style.cssText='width:100%;height:100%;min-height:calc(100vh - 60px);border:0;display:block';f.title='Script Coverage';v.appendChild(f)}
-function sw(id){if(id==='coverage')covMount();if(id==='festivals'){sw('outreach');if(typeof obTab==='function')obTab('fest');return;}if(id==='pitch'){hubGo('post-production.html#pitchmaker');return;}document.querySelectorAll('.vs').forEach(e=>e.classList.remove('ac'));document.querySelectorAll('.nl').forEach(e=>e.classList.remove('ac'));const v=document.getElementById('v-'+id),n=document.getElementById('n-'+id);if(v)v.classList.add('ac');if(n)n.classList.add('ac');if(window.innerWidth<=768){const s=document.getElementById('psb');if(s)s.classList.remove('mo');}}
+function sw(id){if(id==='budget'){location.href='../budget.html';return;}if(id==='coverage')covMount();if(id==='festivals'){sw('outreach');if(typeof obTab==='function')obTab('fest');return;}if(id==='pitch'){hubGo('post-production.html#pitchmaker');return;}document.querySelectorAll('.vs').forEach(e=>e.classList.remove('ac'));document.querySelectorAll('.nl').forEach(e=>e.classList.remove('ac'));const v=document.getElementById('v-'+id),n=document.getElementById('n-'+id);if(v)v.classList.add('ac');if(n)n.classList.add('ac');if(window.innerWidth<=768){const s=document.getElementById('psb');if(s)s.classList.remove('mo');}}
 function togSB(force){const s=document.getElementById('psb');const sc=document.getElementById('hdr-scrim');const on=typeof force==='boolean'?force:!s.classList.contains('dopen');s.classList.toggle('dopen',on);if(sc)sc.classList.toggle('on',on);}
 function syncT(){const p=document.getElementById('pni')?.value||'UNTITLED PROJECT';S.projectName=p;document.title=p+' | proHUB';}
 // ========== VAULT ==========
