@@ -243,12 +243,14 @@ function sScript(main){
 }
 function goto(li,issueId,cite){
   if(li==null){toast('That spot is not a single line; showing the scene');}
-  S.sel=li;S.cite=cite||null;S.tab='script';tabs();render();
+  S.cite=cite||null;
+  if(S.tab==='script'&&$('svc')&&li!=null){S.sel=li;select(li);return}
+  S.sel=li;S.tab='script';tabs();render();
   var e=li!=null&&$('L'+li);if(e)e.scrollIntoView({block:'center'});
 }
 function goIssue(id){var i=S.R.issues.filter(function(x){return x.id===id})[0];if(!i)return;S.focusIssue=id;goto(i.li)}
 function select(li,noScroll){
-  S.sel=li;[].forEach.call(document.querySelectorAll('.ln.sel'),function(e){e.classList.remove('sel')});var el=$('L'+li);if(el){el.classList.add('sel');if(!noScroll)el.scrollIntoView({block:'center',behavior:'smooth'})}
+  S.sel=li;[].forEach.call(document.querySelectorAll('.ln.sel'),function(e){e.classList.remove('sel')});var el=$('L'+li);if(el){el.classList.add('sel');if(!noScroll){var sv=$('svc');if(sv&&sv.scrollHeight>sv.clientHeight+4){var er=el.getBoundingClientRect(),cr=sv.getBoundingClientRect();sv.scrollTop+=er.top-cr.top-sv.clientHeight/3}else el.scrollIntoView({block:'center'})}}
   var R=S.R,m=R.m,l=m.lines[li],is=(S.byLi&&S.byLi[li]||[]).slice();
   if(S.focusIssue){is.sort(function(a,b){return a.id===S.focusIssue?-1:b.id===S.focusIssue?1:0});S.focusIssue=null}
   var sc=null;m.scenes.forEach(function(s){if(s.lines.indexOf(l)>=0)sc=s});
