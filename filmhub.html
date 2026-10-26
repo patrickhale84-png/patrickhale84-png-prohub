@@ -291,12 +291,34 @@ function parseText(text){
     var C=mode(ci),D=mode(di);if(C.share<.6||D.share<.5||C.v-D.v<4)return;
     cand.forEach(function(i){var a=ind(rows[i]),b=ind(rows[i+1]),pv=rows[i-1]||'';
       var nn=rows[i+1].trim();if((Math.abs(a-C.v)>3&&(/^\(/.test(nn)||Math.abs(b-D.v)>3))||(/^\(/.test(nn)?false:Math.abs(b-D.v)>6)&&Math.abs(a-C.v)>3||(pv.trim()&&!/[a-z]/.test(pv)&&ind(pv)>=a-4&&!/^\s*\(/.test(pv)&&!/[.!?,"'-]\s*$/.test(pv)&&ind(pv)>=C.v-3&&false)||(pv.trim()&&!/[a-z]/.test(pv)&&!/^\s*\(/.test(pv)&&!/^\s*(\d+[A-Z]?\s+)?(INT|EXT|EST|I\/E)\b/.test(pv)&&!/[:.]\s*$/.test(pv.trim().slice(-1))&&pv.trim().length>2&&!/\)\s*$/.test(pv)))veto[i]=1;});})();
+  /* shot headings printed in the cue column ("THE CLIFFS" over a description) are action; inline cues ("Miller Hell no, two-thirds.") */
+  var inl={};
+  (function(){if(!window.SNCue)return;
+    var cands=[],freq={},demote={};
+    rows.forEach(function(r,i){var t=r.trim();if(!t||r.charAt(0)==='\u0001'||veto[i]||SNCue.name(t)===null)return;var nx=rows[i+1];if(!nx||!nx.trim())return;var k=t.replace(/\s*\(.*?\)\s*$/,'');freq[k]=(freq[k]||0)+1;cands.push(i);});
+    if(cands.length<25)return;
+    var VS=/^[A-Z][a-z]+s\b/,NOTV=/^(Yes|Lots|Jesus|This|His|Hers|Us|Always|Sometimes|Thanks|Guess|Less|Unless|Bless|Dress|Perhaps|Does|Has|Was|Is|Its|Gus|Besides|Ladies|Gentlemen|Friends|Guys|Boys|Folks|Gents|Pass|Mess|Miss|Press|Kids|Cops|Men|Okays|Hers|Across|Towards|Afterwards|Ours|Yours|Theirs|Sirs|Cheers|Congratulations|Whereas|Sunglasses|Hands|Gods|Dogs|Ass|Bastards|Boss|Always|Nevermind)\b/,PRON=/\b(I|I'm|I'll|I've|I'd|you|you're|your|we|we're|my|me|us|our|let's|it's|that's|don't|can't|yes|no|sir|please|what|why|how|hey)\b/i;
+    cands.forEach(function(i){var t=rows[i].trim(),k=t.replace(/\s*\(.*?\)\s*$/,''),first=rows[i+1].trim(),blk='',j=i+1;
+      while(rows[j]&&rows[j].trim()&&j<i+8){blk+=' '+rows[j].trim();j++;}
+      if(/^\(/.test(first))return;
+      if(!PRON.test(blk)&&((VS.test(first)&&!NOTV.test(first)&&/^\S+\s+(a|an|the|up|out|over|through|into|on|at|in|off|to|down|his|her|him|them|around|back|across|along|from|slowly|quickly|away|toward|towards|with|for|by|it|their|its|empty|again|closer|nearer)\b/.test(first))||(freq[k]<=1&&/( AND | IS | ARE |EVERYWHERE|^(THREE|TWO|FOUR|OTHER) )/.test(k)||freq[k]<=2&&/^(THE|ANOTHER|A|AN|IN|AT|ON|NEAR|HALF|STILL|MORE|DIRECT|ONE|BEHIND|UNDER)\b/.test(k)))){demote[i]=1;veto[i]=1;freq[k]--;}});
+    var known={},toks={};Object.keys(freq).forEach(function(k){if(freq[k]>=4){known[k.toUpperCase()]=1;k.toUpperCase().split(/\s+/).forEach(function(w){toks[w]=1;});}});
+    var n=0,tmp={};
+    rows.forEach(function(r,i){var t=r.trim();if(!t||r.charAt(0)==='\u0001'||(rows[i-1]||'').trim()||!/[a-z]/.test(t)||!/^[A-Z][a-z]/.test(t))return;
+      var w=t.split(/\s+/);
+      for(var m=Math.min(3,w.length-1);m>=1;m--){var nm=w.slice(0,m).join(' ').toUpperCase();
+        if(!known[nm])continue;
+        var x=w[m];
+        if(/^[A-Z]/.test(x)&&!(VS.test(x)&&!NOTV.test(x))&&!/(ed|ing)\b/.test(x)&&!/['’]s$/.test(x)&&!toks[x.replace(/[^A-Za-z]/g,'').toUpperCase()]){tmp[i]=m;n++;}
+        break;}});
+    if(n>=15)inl=tmp;})();
   rows.forEach(function(raw,ix,arr){
     var t=raw.replace(/(^\s*\d+[A-Z]?\s+|\s+\d+[A-Z]?$|^\*\d+\*)/g,'').trim();
     if(mode==='num'&&/^\s*\d+[A-Z]?\s+OMITTED\s*$/.test(raw)){speaker=false;return;}
     if(mode==='num'&&NUMH.test(raw)&&!/[a-z]/.test(raw)&&(!arr[ix-1]||!arr[ix-1].trim())){out.push({type:'scene-heading',text:NUMH.exec(raw)[2].trim()});speaker=false;return;}
     if(raw.charAt(0)==='\u0001'){out.push({type:'scene-heading',text:raw.slice(1)});speaker=false;return;}
     if(!t){speaker=false;return;}
+    if(inl[ix]){var w=t.split(/\s+/);out.push({type:'character',text:w.slice(0,inl[ix]).join(' ').toUpperCase()});out.push({type:'dialogue',text:w.slice(inl[ix]).join(' ')});speaker=true;return;}
     var ht=t.replace(/^\d+\s+/,''),cl=t.replace(/\s*\((CONT['’]D|V\.O\.|O\.S\.|O\.C\.)\)\s*$/i,'').trim(),type='action';
     if(/^(INT\.|EXT\.|EST\.|INT\/EXT\.|I\/E\.)/i.test(ht)||(/^(INT|EXT)\s*(?:[\/&]\s*(?:INT|EXT)\s*)?[.\s]\s*[A-Z\d]/.test(ht)&&!/[a-z]/.test(ht))){type='scene-heading';speaker=false;}
     else if(/^\(.*\)$/.test(t)){type='parenthetical';}
