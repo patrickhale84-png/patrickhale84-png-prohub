@@ -92,6 +92,11 @@ It builds PDFs on the device with `lib/pdf-lib.min.js` (keep this file next to `
 ### Shooting script standards
 Screenwriter shooting mode and the Shooting Script PDF follow production convention: scene numbers on headings only, in both margins; locked scripts insert 12A / A1; cut scenes stay as `N OMITTED`; revised lines get an asterisk in the right margin; `(CONTINUED)` at the foot and `CONTINUED:` with the scene number at the top of a continued scene; revision color and date on every page header; "Shooting Draft" and revision on the title page. Press Transmit in Screenwriter to carry numbers, omits, revision flags and color to filmHUB.
 
-## Cloud save (Wix Velo)
+## Cloud save (Wix members only)
 
-`velo/http-functions.js` goes in the Wix site's backend and stores each project in a `ProHubSaves` collection (fields: `pid` text, `k` text, `i` number, `n` number, `ts` number, `v` text; permissions: Admin only). In filmHUB, Export data, Cloud save and sharing: enter the site address, create a project code, then save, load, share the link or turn on auto-save. Anyone with the code can open and save the project.
+Cloud save needs a logged-in Wix member. filmHUB runs inside a page on the Wix site; that page's code (`velo/page-code.js`) passes requests to a backend web module (`velo/backend/proHubCloud.web.js`) that identifies the member on the server and reads and writes two collections:
+
+- `ProHubProjects`: `pid`, `name`, `owner`, `editors` (text), `created` (number)
+- `ProHubSaves`: `pid`, `k`, `i`, `n`, `ts`, `v`, `by` (text, number as listed)
+
+Both collections should be Admin-only; the CSV files in `velo/` create them. Projects belong to the member who created them and can be shared with other members by email. Outside the Wix page, or when logged out, cloud save stays off.
