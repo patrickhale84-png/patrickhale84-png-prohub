@@ -123,6 +123,7 @@ function loadVersions(){return dbAll().then(function(a){S.versions=a.sort(functi
 
 /* ---------- running the analysis ---------- */
 function analyze(raw,keepTab){
+  var pr=C.prepare(raw);if(pr.changed){raw=pr.text;setTimeout(function(){toast('Run-on text detected: split into '+pr.counts.speeches+' speeches, '+pr.counts.actions+' action paragraphs'+(pr.counts.scenes?' and '+pr.counts.scenes+' numbered scenes':''))},400)}
   S.raw=raw;$('main').innerHTML='<div class="empty mu">Reading the script…</div>';
   return new Promise(function(res){setTimeout(function(){
     try{S.R=C.analyze(raw,{format:$('fmtSel').value});}catch(e){console.error(e);$('main').innerHTML='<div class="empty"><b>Could not read this script.</b><div class="mu sm">'+esc(e.message)+'</div></div>';return res();}
