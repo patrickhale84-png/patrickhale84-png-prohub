@@ -318,6 +318,9 @@ function parseText(text){
     if(mode==='num'&&NUMH.test(raw)&&!/[a-z]/.test(raw)&&(!arr[ix-1]||!arr[ix-1].trim())){out.push({type:'scene-heading',text:NUMH.exec(raw)[2].trim()});speaker=false;return;}
     if(raw.charAt(0)==='\u0001'){out.push({type:'scene-heading',text:raw.slice(1)});speaker=false;return;}
     if(!t){speaker=false;return;}
+    /* page furniture inside the text: (MORE), CONTINUED, bare page numbers, omitted-scene markers */
+    if(/^\(?\s*(MORE|CONT['’]?D|CONTINUED)\s*\)?:?$/i.test(t)||/^(\d+[A-Z]?\s+)?(THRU\s+)?OMITTED\s*$/i.test(t.replace(/\t/g,' '))&&!/[a-z]/.test(t.replace(/omitted/i,''))){if(/OMITTED/i.test(t))speaker=false;return;}
+    if(/^\s*\d{1,3}[A-Z]?\.?\s*$/.test(raw)&&!String(arr[ix-1]||'').trim()&&!String(arr[ix+1]||'').trim()){return;}
     if(inl[ix]){var w=t.split(/\s+/);out.push({type:'character',text:w.slice(0,inl[ix]).join(' ').toUpperCase()});out.push({type:'dialogue',text:w.slice(inl[ix]).join(' ')});speaker=true;return;}
     var ht=t.replace(/^\d+\s+/,''),cl=t.replace(/\s*\((CONT['’]D|V\.O\.|O\.S\.|O\.C\.)\)\s*$/i,'').trim(),type='action';
     if(/^(INT\.|EXT\.|EST\.|INT\/EXT\.|I\/E\.)/i.test(ht)||(/^(INT|EXT)\s*(?:[\/&]\s*(?:INT|EXT)\s*)?[.\s]\s*[A-Z\d]/.test(ht)&&!/[a-z]/.test(ht))){type='scene-heading';speaker=false;}
